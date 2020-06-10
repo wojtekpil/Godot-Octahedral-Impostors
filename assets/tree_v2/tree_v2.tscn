@@ -1,0 +1,1100 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://assets/tree_v2/tree_v2.glb" type="PackedScene" id=1]
+
+[node name="tree_v2" instance=ExtResource( 1 )]
+
+[node name="NurbsPath" parent="." index="0"]
+cast_shadow = 0
+
+[node name="NurbsPath001" parent="." index="1"]
+cast_shadow = 0
+
+[node name="NurbsPath002" parent="." index="2"]
+cast_shadow = 0
+
+[node name="NurbsPath003" parent="." index="3"]
+cast_shadow = 0
+
+[node name="NurbsPath004" parent="." index="4"]
+cast_shadow = 0
+
+[node name="NurbsPath006" parent="." index="5"]
+cast_shadow = 0
+
+[node name="NurbsPath007" parent="." index="6"]
+cast_shadow = 0
+
+[node name="NurbsPath008" parent="." index="7"]
+cast_shadow = 0
+
+[node name="NurbsPath009" parent="." index="8"]
+cast_shadow = 0
+
+[node name="NurbsPath010" parent="." index="9"]
+cast_shadow = 0
+
+[node name="NurbsPath012" parent="." index="10"]
+cast_shadow = 0
+
+[node name="green_spheare" parent="." index="11"]
+cast_shadow = 0
+
+[node name="green_spheare001" parent="." index="12"]
+cast_shadow = 0
+
+[node name="green_spheare002" parent="." index="13"]
+cast_shadow = 0
+
+[node name="green_spheare003" parent="." index="14"]
+cast_shadow = 0
+
+[node name="diffuse_branch001" parent="." index="15"]
+cast_shadow = 0
+
+[node name="diffuse_branch002" parent="." index="16"]
+cast_shadow = 0
+
+[node name="diffuse_branch003" parent="." index="17"]
+cast_shadow = 0
+
+[node name="diffuse_branch004" parent="." index="18"]
+cast_shadow = 0
+
+[node name="diffuse_branch005" parent="." index="19"]
+cast_shadow = 0
+
+[node name="diffuse_branch006" parent="." index="20"]
+cast_shadow = 0
+
+[node name="diffuse_branch007" parent="." index="21"]
+cast_shadow = 0
+
+[node name="diffuse_branch008" parent="." index="22"]
+cast_shadow = 0
+
+[node name="diffuse_branch009" parent="." index="23"]
+cast_shadow = 0
+
+[node name="diffuse_branch010" parent="." index="24"]
+cast_shadow = 0
+
+[node name="diffuse_branch011" parent="." index="25"]
+cast_shadow = 0
+
+[node name="diffuse_branch012" parent="." index="26"]
+cast_shadow = 0
+
+[node name="diffuse_branch013" parent="." index="27"]
+cast_shadow = 0
+
+[node name="diffuse_branch014" parent="." index="28"]
+cast_shadow = 0
+
+[node name="diffuse_branch015" parent="." index="29"]
+cast_shadow = 0
+
+[node name="diffuse_branch016" parent="." index="30"]
+cast_shadow = 0
+
+[node name="diffuse_branch017" parent="." index="31"]
+cast_shadow = 0
+
+[node name="diffuse_branch018" parent="." index="32"]
+cast_shadow = 0
+
+[node name="diffuse_branch019" parent="." index="33"]
+cast_shadow = 0
+
+[node name="diffuse_branch020" parent="." index="34"]
+cast_shadow = 0
+
+[node name="diffuse_branch021" parent="." index="35"]
+cast_shadow = 0
+
+[node name="diffuse_branch022" parent="." index="36"]
+cast_shadow = 0
+
+[node name="diffuse_branch023" parent="." index="37"]
+cast_shadow = 0
+
+[node name="diffuse_branch024" parent="." index="38"]
+cast_shadow = 0
+
+[node name="diffuse_branch025" parent="." index="39"]
+cast_shadow = 0
+
+[node name="diffuse_branch026" parent="." index="40"]
+cast_shadow = 0
+
+[node name="diffuse_branch027" parent="." index="41"]
+cast_shadow = 0
+
+[node name="diffuse_branch028" parent="." index="42"]
+cast_shadow = 0
+
+[node name="diffuse_branch029" parent="." index="43"]
+cast_shadow = 0
+
+[node name="diffuse_branch030" parent="." index="44"]
+cast_shadow = 0
+
+[node name="diffuse_branch031" parent="." index="45"]
+cast_shadow = 0
+
+[node name="diffuse_branch032" parent="." index="46"]
+cast_shadow = 0
+
+[node name="diffuse_branch033" parent="." index="47"]
+cast_shadow = 0
+
+[node name="diffuse_branch034" parent="." index="48"]
+cast_shadow = 0
+
+[node name="diffuse_branch035" parent="." index="49"]
+cast_shadow = 0
+
+[node name="diffuse_branch036" parent="." index="50"]
+cast_shadow = 0
+
+[node name="diffuse_branch037" parent="." index="51"]
+cast_shadow = 0
+
+[node name="diffuse_branch038" parent="." index="52"]
+cast_shadow = 0
+
+[node name="diffuse_branch039" parent="." index="53"]
+cast_shadow = 0
+
+[node name="diffuse_branch040" parent="." index="54"]
+cast_shadow = 0
+
+[node name="diffuse_branch041" parent="." index="55"]
+cast_shadow = 0
+
+[node name="diffuse_branch042" parent="." index="56"]
+cast_shadow = 0
+
+[node name="diffuse_branch043" parent="." index="57"]
+cast_shadow = 0
+
+[node name="diffuse_branch044" parent="." index="58"]
+cast_shadow = 0
+
+[node name="diffuse_branch045" parent="." index="59"]
+cast_shadow = 0
+
+[node name="diffuse_branch046" parent="." index="60"]
+cast_shadow = 0
+
+[node name="diffuse_branch047" parent="." index="61"]
+cast_shadow = 0
+
+[node name="diffuse_branch048" parent="." index="62"]
+cast_shadow = 0
+
+[node name="diffuse_branch049" parent="." index="63"]
+cast_shadow = 0
+
+[node name="diffuse_branch050" parent="." index="64"]
+cast_shadow = 0
+
+[node name="diffuse_branch051" parent="." index="65"]
+cast_shadow = 0
+
+[node name="diffuse_branch052" parent="." index="66"]
+cast_shadow = 0
+
+[node name="diffuse_branch053" parent="." index="67"]
+cast_shadow = 0
+
+[node name="diffuse_branch054" parent="." index="68"]
+cast_shadow = 0
+
+[node name="diffuse_branch055" parent="." index="69"]
+cast_shadow = 0
+
+[node name="diffuse_branch056" parent="." index="70"]
+cast_shadow = 0
+
+[node name="diffuse_branch057" parent="." index="71"]
+cast_shadow = 0
+
+[node name="diffuse_branch058" parent="." index="72"]
+cast_shadow = 0
+
+[node name="diffuse_branch059" parent="." index="73"]
+cast_shadow = 0
+
+[node name="diffuse_branch060" parent="." index="74"]
+cast_shadow = 0
+
+[node name="diffuse_branch061" parent="." index="75"]
+cast_shadow = 0
+
+[node name="diffuse_branch062" parent="." index="76"]
+cast_shadow = 0
+
+[node name="diffuse_branch063" parent="." index="77"]
+cast_shadow = 0
+
+[node name="diffuse_branch064" parent="." index="78"]
+cast_shadow = 0
+
+[node name="diffuse_branch065" parent="." index="79"]
+cast_shadow = 0
+
+[node name="diffuse_branch066" parent="." index="80"]
+cast_shadow = 0
+
+[node name="diffuse_branch067" parent="." index="81"]
+cast_shadow = 0
+
+[node name="diffuse_branch068" parent="." index="82"]
+cast_shadow = 0
+
+[node name="diffuse_branch069" parent="." index="83"]
+cast_shadow = 0
+
+[node name="diffuse_branch070" parent="." index="84"]
+cast_shadow = 0
+
+[node name="diffuse_branch071" parent="." index="85"]
+cast_shadow = 0
+
+[node name="diffuse_branch072" parent="." index="86"]
+cast_shadow = 0
+
+[node name="diffuse_branch073" parent="." index="87"]
+cast_shadow = 0
+
+[node name="diffuse_branch074" parent="." index="88"]
+cast_shadow = 0
+
+[node name="diffuse_branch075" parent="." index="89"]
+cast_shadow = 0
+
+[node name="diffuse_branch076" parent="." index="90"]
+cast_shadow = 0
+
+[node name="diffuse_branch077" parent="." index="91"]
+cast_shadow = 0
+
+[node name="diffuse_branch078" parent="." index="92"]
+cast_shadow = 0
+
+[node name="diffuse_branch079" parent="." index="93"]
+cast_shadow = 0
+
+[node name="diffuse_branch080" parent="." index="94"]
+cast_shadow = 0
+
+[node name="diffuse_branch081" parent="." index="95"]
+cast_shadow = 0
+
+[node name="diffuse_branch082" parent="." index="96"]
+cast_shadow = 0
+
+[node name="diffuse_branch083" parent="." index="97"]
+cast_shadow = 0
+
+[node name="diffuse_branch084" parent="." index="98"]
+cast_shadow = 0
+
+[node name="diffuse_branch085" parent="." index="99"]
+cast_shadow = 0
+
+[node name="diffuse_branch086" parent="." index="100"]
+cast_shadow = 0
+
+[node name="diffuse_branch087" parent="." index="101"]
+cast_shadow = 0
+
+[node name="diffuse_branch088" parent="." index="102"]
+cast_shadow = 0
+
+[node name="diffuse_branch089" parent="." index="103"]
+cast_shadow = 0
+
+[node name="diffuse_branch090" parent="." index="104"]
+cast_shadow = 0
+
+[node name="diffuse_branch091" parent="." index="105"]
+cast_shadow = 0
+
+[node name="diffuse_branch092" parent="." index="106"]
+cast_shadow = 0
+
+[node name="diffuse_branch093" parent="." index="107"]
+cast_shadow = 0
+
+[node name="diffuse_branch094" parent="." index="108"]
+cast_shadow = 0
+
+[node name="diffuse_branch095" parent="." index="109"]
+cast_shadow = 0
+
+[node name="diffuse_branch096" parent="." index="110"]
+cast_shadow = 0
+
+[node name="diffuse_branch097" parent="." index="111"]
+cast_shadow = 0
+
+[node name="diffuse_branch098" parent="." index="112"]
+cast_shadow = 0
+
+[node name="diffuse_branch099" parent="." index="113"]
+cast_shadow = 0
+
+[node name="diffuse_branch100" parent="." index="114"]
+cast_shadow = 0
+
+[node name="diffuse_branch101" parent="." index="115"]
+cast_shadow = 0
+
+[node name="diffuse_branch102" parent="." index="116"]
+cast_shadow = 0
+
+[node name="diffuse_branch103" parent="." index="117"]
+cast_shadow = 0
+
+[node name="diffuse_branch104" parent="." index="118"]
+cast_shadow = 0
+
+[node name="diffuse_branch105" parent="." index="119"]
+cast_shadow = 0
+
+[node name="diffuse_branch106" parent="." index="120"]
+cast_shadow = 0
+
+[node name="diffuse_branch107" parent="." index="121"]
+cast_shadow = 0
+
+[node name="diffuse_branch108" parent="." index="122"]
+cast_shadow = 0
+
+[node name="diffuse_branch109" parent="." index="123"]
+cast_shadow = 0
+
+[node name="diffuse_branch110" parent="." index="124"]
+cast_shadow = 0
+
+[node name="diffuse_branch111" parent="." index="125"]
+cast_shadow = 0
+
+[node name="diffuse_branch112" parent="." index="126"]
+cast_shadow = 0
+
+[node name="diffuse_branch113" parent="." index="127"]
+cast_shadow = 0
+
+[node name="diffuse_branch114" parent="." index="128"]
+cast_shadow = 0
+
+[node name="diffuse_branch115" parent="." index="129"]
+cast_shadow = 0
+
+[node name="diffuse_branch116" parent="." index="130"]
+cast_shadow = 0
+
+[node name="diffuse_branch117" parent="." index="131"]
+cast_shadow = 0
+
+[node name="diffuse_branch118" parent="." index="132"]
+cast_shadow = 0
+
+[node name="diffuse_branch119" parent="." index="133"]
+cast_shadow = 0
+
+[node name="diffuse_branch120" parent="." index="134"]
+cast_shadow = 0
+
+[node name="diffuse_branch121" parent="." index="135"]
+cast_shadow = 0
+
+[node name="diffuse_branch122" parent="." index="136"]
+cast_shadow = 0
+
+[node name="diffuse_branch123" parent="." index="137"]
+cast_shadow = 0
+
+[node name="diffuse_branch124" parent="." index="138"]
+cast_shadow = 0
+
+[node name="diffuse_branch125" parent="." index="139"]
+cast_shadow = 0
+
+[node name="diffuse_branch126" parent="." index="140"]
+cast_shadow = 0
+
+[node name="diffuse_branch127" parent="." index="141"]
+cast_shadow = 0
+
+[node name="diffuse_branch128" parent="." index="142"]
+cast_shadow = 0
+
+[node name="diffuse_branch129" parent="." index="143"]
+cast_shadow = 0
+
+[node name="diffuse_branch130" parent="." index="144"]
+cast_shadow = 0
+
+[node name="diffuse_branch131" parent="." index="145"]
+cast_shadow = 0
+
+[node name="diffuse_branch132" parent="." index="146"]
+cast_shadow = 0
+
+[node name="diffuse_branch133" parent="." index="147"]
+cast_shadow = 0
+
+[node name="diffuse_branch134" parent="." index="148"]
+cast_shadow = 0
+
+[node name="diffuse_branch135" parent="." index="149"]
+cast_shadow = 0
+
+[node name="diffuse_branch136" parent="." index="150"]
+cast_shadow = 0
+
+[node name="diffuse_branch137" parent="." index="151"]
+cast_shadow = 0
+
+[node name="diffuse_branch138" parent="." index="152"]
+cast_shadow = 0
+
+[node name="diffuse_branch139" parent="." index="153"]
+cast_shadow = 0
+
+[node name="diffuse_branch140" parent="." index="154"]
+cast_shadow = 0
+
+[node name="diffuse_branch141" parent="." index="155"]
+cast_shadow = 0
+
+[node name="diffuse_branch142" parent="." index="156"]
+cast_shadow = 0
+
+[node name="diffuse_branch143" parent="." index="157"]
+cast_shadow = 0
+
+[node name="diffuse_branch144" parent="." index="158"]
+cast_shadow = 0
+
+[node name="diffuse_branch145" parent="." index="159"]
+cast_shadow = 0
+
+[node name="diffuse_branch146" parent="." index="160"]
+cast_shadow = 0
+
+[node name="diffuse_branch147" parent="." index="161"]
+cast_shadow = 0
+
+[node name="diffuse_branch148" parent="." index="162"]
+cast_shadow = 0
+
+[node name="diffuse_branch149" parent="." index="163"]
+cast_shadow = 0
+
+[node name="diffuse_branch150" parent="." index="164"]
+cast_shadow = 0
+
+[node name="diffuse_branch151" parent="." index="165"]
+cast_shadow = 0
+
+[node name="diffuse_branch152" parent="." index="166"]
+cast_shadow = 0
+
+[node name="diffuse_branch153" parent="." index="167"]
+cast_shadow = 0
+
+[node name="diffuse_branch154" parent="." index="168"]
+cast_shadow = 0
+
+[node name="diffuse_branch155" parent="." index="169"]
+cast_shadow = 0
+
+[node name="diffuse_branch156" parent="." index="170"]
+cast_shadow = 0
+
+[node name="diffuse_branch157" parent="." index="171"]
+cast_shadow = 0
+
+[node name="diffuse_branch158" parent="." index="172"]
+cast_shadow = 0
+
+[node name="diffuse_branch159" parent="." index="173"]
+cast_shadow = 0
+
+[node name="diffuse_branch160" parent="." index="174"]
+cast_shadow = 0
+
+[node name="diffuse_branch161" parent="." index="175"]
+cast_shadow = 0
+
+[node name="diffuse_branch162" parent="." index="176"]
+cast_shadow = 0
+
+[node name="diffuse_branch163" parent="." index="177"]
+cast_shadow = 0
+
+[node name="diffuse_branch164" parent="." index="178"]
+cast_shadow = 0
+
+[node name="diffuse_branch165" parent="." index="179"]
+cast_shadow = 0
+
+[node name="diffuse_branch166" parent="." index="180"]
+cast_shadow = 0
+
+[node name="diffuse_branch167" parent="." index="181"]
+cast_shadow = 0
+
+[node name="diffuse_branch168" parent="." index="182"]
+cast_shadow = 0
+
+[node name="diffuse_branch169" parent="." index="183"]
+cast_shadow = 0
+
+[node name="diffuse_branch170" parent="." index="184"]
+cast_shadow = 0
+
+[node name="diffuse_branch171" parent="." index="185"]
+cast_shadow = 0
+
+[node name="diffuse_branch172" parent="." index="186"]
+cast_shadow = 0
+
+[node name="diffuse_branch173" parent="." index="187"]
+cast_shadow = 0
+
+[node name="diffuse_branch174" parent="." index="188"]
+cast_shadow = 0
+
+[node name="diffuse_branch175" parent="." index="189"]
+cast_shadow = 0
+
+[node name="diffuse_branch176" parent="." index="190"]
+cast_shadow = 0
+
+[node name="diffuse_branch177" parent="." index="191"]
+cast_shadow = 0
+
+[node name="diffuse_branch178" parent="." index="192"]
+cast_shadow = 0
+
+[node name="diffuse_branch179" parent="." index="193"]
+cast_shadow = 0
+
+[node name="diffuse_branch180" parent="." index="194"]
+cast_shadow = 0
+
+[node name="diffuse_branch181" parent="." index="195"]
+cast_shadow = 0
+
+[node name="diffuse_branch182" parent="." index="196"]
+cast_shadow = 0
+
+[node name="diffuse_branch183" parent="." index="197"]
+cast_shadow = 0
+
+[node name="diffuse_branch184" parent="." index="198"]
+cast_shadow = 0
+
+[node name="diffuse_branch185" parent="." index="199"]
+cast_shadow = 0
+
+[node name="diffuse_branch186" parent="." index="200"]
+cast_shadow = 0
+
+[node name="diffuse_branch187" parent="." index="201"]
+cast_shadow = 0
+
+[node name="diffuse_branch188" parent="." index="202"]
+cast_shadow = 0
+
+[node name="diffuse_branch189" parent="." index="203"]
+cast_shadow = 0
+
+[node name="diffuse_branch190" parent="." index="204"]
+cast_shadow = 0
+
+[node name="diffuse_branch191" parent="." index="205"]
+cast_shadow = 0
+
+[node name="diffuse_branch192" parent="." index="206"]
+cast_shadow = 0
+
+[node name="diffuse_branch193" parent="." index="207"]
+cast_shadow = 0
+
+[node name="diffuse_branch194" parent="." index="208"]
+cast_shadow = 0
+
+[node name="diffuse_branch195" parent="." index="209"]
+cast_shadow = 0
+
+[node name="diffuse_branch196" parent="." index="210"]
+cast_shadow = 0
+
+[node name="diffuse_branch197" parent="." index="211"]
+cast_shadow = 0
+
+[node name="diffuse_branch198" parent="." index="212"]
+cast_shadow = 0
+
+[node name="diffuse_branch199" parent="." index="213"]
+cast_shadow = 0
+
+[node name="diffuse_branch200" parent="." index="214"]
+cast_shadow = 0
+
+[node name="diffuse_branch201" parent="." index="215"]
+cast_shadow = 0
+
+[node name="diffuse_branch202" parent="." index="216"]
+cast_shadow = 0
+
+[node name="diffuse_branch203" parent="." index="217"]
+cast_shadow = 0
+
+[node name="diffuse_branch204" parent="." index="218"]
+cast_shadow = 0
+
+[node name="diffuse_branch205" parent="." index="219"]
+cast_shadow = 0
+
+[node name="diffuse_branch206" parent="." index="220"]
+cast_shadow = 0
+
+[node name="diffuse_branch207" parent="." index="221"]
+cast_shadow = 0
+
+[node name="diffuse_branch208" parent="." index="222"]
+cast_shadow = 0
+
+[node name="diffuse_branch209" parent="." index="223"]
+cast_shadow = 0
+
+[node name="diffuse_branch210" parent="." index="224"]
+cast_shadow = 0
+
+[node name="diffuse_branch211" parent="." index="225"]
+cast_shadow = 0
+
+[node name="diffuse_branch212" parent="." index="226"]
+cast_shadow = 0
+
+[node name="diffuse_branch213" parent="." index="227"]
+cast_shadow = 0
+
+[node name="diffuse_branch214" parent="." index="228"]
+cast_shadow = 0
+
+[node name="diffuse_branch215" parent="." index="229"]
+cast_shadow = 0
+
+[node name="diffuse_branch216" parent="." index="230"]
+cast_shadow = 0
+
+[node name="diffuse_branch217" parent="." index="231"]
+cast_shadow = 0
+
+[node name="diffuse_branch218" parent="." index="232"]
+cast_shadow = 0
+
+[node name="diffuse_branch219" parent="." index="233"]
+cast_shadow = 0
+
+[node name="diffuse_branch220" parent="." index="234"]
+cast_shadow = 0
+
+[node name="diffuse_branch221" parent="." index="235"]
+cast_shadow = 0
+
+[node name="diffuse_branch222" parent="." index="236"]
+cast_shadow = 0
+
+[node name="diffuse_branch223" parent="." index="237"]
+cast_shadow = 0
+
+[node name="diffuse_branch224" parent="." index="238"]
+cast_shadow = 0
+
+[node name="diffuse_branch225" parent="." index="239"]
+cast_shadow = 0
+
+[node name="diffuse_branch226" parent="." index="240"]
+cast_shadow = 0
+
+[node name="diffuse_branch227" parent="." index="241"]
+cast_shadow = 0
+
+[node name="diffuse_branch228" parent="." index="242"]
+cast_shadow = 0
+
+[node name="diffuse_branch229" parent="." index="243"]
+cast_shadow = 0
+
+[node name="diffuse_branch230" parent="." index="244"]
+cast_shadow = 0
+
+[node name="diffuse_branch231" parent="." index="245"]
+cast_shadow = 0
+
+[node name="diffuse_branch232" parent="." index="246"]
+cast_shadow = 0
+
+[node name="diffuse_branch233" parent="." index="247"]
+cast_shadow = 0
+
+[node name="diffuse_branch234" parent="." index="248"]
+cast_shadow = 0
+
+[node name="diffuse_branch235" parent="." index="249"]
+cast_shadow = 0
+
+[node name="diffuse_branch236" parent="." index="250"]
+cast_shadow = 0
+
+[node name="diffuse_branch237" parent="." index="251"]
+cast_shadow = 0
+
+[node name="diffuse_branch238" parent="." index="252"]
+cast_shadow = 0
+
+[node name="diffuse_branch239" parent="." index="253"]
+cast_shadow = 0
+
+[node name="diffuse_branch240" parent="." index="254"]
+cast_shadow = 0
+
+[node name="diffuse_branch241" parent="." index="255"]
+cast_shadow = 0
+
+[node name="diffuse_branch242" parent="." index="256"]
+cast_shadow = 0
+
+[node name="diffuse_branch243" parent="." index="257"]
+cast_shadow = 0
+
+[node name="diffuse_branch244" parent="." index="258"]
+cast_shadow = 0
+
+[node name="diffuse_branch245" parent="." index="259"]
+cast_shadow = 0
+
+[node name="diffuse_branch246" parent="." index="260"]
+cast_shadow = 0
+
+[node name="diffuse_branch247" parent="." index="261"]
+cast_shadow = 0
+
+[node name="diffuse_branch248" parent="." index="262"]
+cast_shadow = 0
+
+[node name="diffuse_branch249" parent="." index="263"]
+cast_shadow = 0
+
+[node name="diffuse_branch250" parent="." index="264"]
+cast_shadow = 0
+
+[node name="diffuse_branch251" parent="." index="265"]
+cast_shadow = 0
+
+[node name="diffuse_branch252" parent="." index="266"]
+cast_shadow = 0
+
+[node name="diffuse_branch253" parent="." index="267"]
+cast_shadow = 0
+
+[node name="diffuse_branch254" parent="." index="268"]
+cast_shadow = 0
+
+[node name="diffuse_branch255" parent="." index="269"]
+cast_shadow = 0
+
+[node name="diffuse_branch256" parent="." index="270"]
+cast_shadow = 0
+
+[node name="diffuse_branch257" parent="." index="271"]
+cast_shadow = 0
+
+[node name="diffuse_branch258" parent="." index="272"]
+cast_shadow = 0
+
+[node name="diffuse_branch259" parent="." index="273"]
+cast_shadow = 0
+
+[node name="diffuse_branch260" parent="." index="274"]
+cast_shadow = 0
+
+[node name="diffuse_branch261" parent="." index="275"]
+cast_shadow = 0
+
+[node name="diffuse_branch262" parent="." index="276"]
+cast_shadow = 0
+
+[node name="diffuse_branch263" parent="." index="277"]
+cast_shadow = 0
+
+[node name="diffuse_branch264" parent="." index="278"]
+cast_shadow = 0
+
+[node name="diffuse_branch265" parent="." index="279"]
+cast_shadow = 0
+
+[node name="diffuse_branch266" parent="." index="280"]
+cast_shadow = 0
+
+[node name="diffuse_branch267" parent="." index="281"]
+cast_shadow = 0
+
+[node name="diffuse_branch268" parent="." index="282"]
+cast_shadow = 0
+
+[node name="diffuse_branch269" parent="." index="283"]
+cast_shadow = 0
+
+[node name="diffuse_branch270" parent="." index="284"]
+cast_shadow = 0
+
+[node name="diffuse_branch271" parent="." index="285"]
+cast_shadow = 0
+
+[node name="diffuse_branch272" parent="." index="286"]
+cast_shadow = 0
+
+[node name="diffuse_branch273" parent="." index="287"]
+cast_shadow = 0
+
+[node name="diffuse_branch274" parent="." index="288"]
+cast_shadow = 0
+
+[node name="diffuse_branch275" parent="." index="289"]
+cast_shadow = 0
+
+[node name="diffuse_branch276" parent="." index="290"]
+cast_shadow = 0
+
+[node name="diffuse_branch277" parent="." index="291"]
+cast_shadow = 0
+
+[node name="diffuse_branch278" parent="." index="292"]
+cast_shadow = 0
+
+[node name="diffuse_branch279" parent="." index="293"]
+cast_shadow = 0
+
+[node name="diffuse_branch280" parent="." index="294"]
+cast_shadow = 0
+
+[node name="diffuse_branch281" parent="." index="295"]
+cast_shadow = 0
+
+[node name="diffuse_branch282" parent="." index="296"]
+cast_shadow = 0
+
+[node name="diffuse_branch283" parent="." index="297"]
+cast_shadow = 0
+
+[node name="diffuse_branch284" parent="." index="298"]
+cast_shadow = 0
+
+[node name="diffuse_branch285" parent="." index="299"]
+cast_shadow = 0
+
+[node name="diffuse_branch286" parent="." index="300"]
+cast_shadow = 0
+
+[node name="diffuse_branch287" parent="." index="301"]
+cast_shadow = 0
+
+[node name="diffuse_branch288" parent="." index="302"]
+cast_shadow = 0
+
+[node name="diffuse_branch289" parent="." index="303"]
+cast_shadow = 0
+
+[node name="diffuse_branch290" parent="." index="304"]
+cast_shadow = 0
+
+[node name="diffuse_branch291" parent="." index="305"]
+cast_shadow = 0
+
+[node name="diffuse_branch292" parent="." index="306"]
+cast_shadow = 0
+
+[node name="diffuse_branch293" parent="." index="307"]
+cast_shadow = 0
+
+[node name="diffuse_branch294" parent="." index="308"]
+cast_shadow = 0
+
+[node name="diffuse_branch295" parent="." index="309"]
+cast_shadow = 0
+
+[node name="diffuse_branch296" parent="." index="310"]
+cast_shadow = 0
+
+[node name="diffuse_branch297" parent="." index="311"]
+cast_shadow = 0
+
+[node name="diffuse_branch298" parent="." index="312"]
+cast_shadow = 0
+
+[node name="diffuse_branch299" parent="." index="313"]
+cast_shadow = 0
+
+[node name="diffuse_branch300" parent="." index="314"]
+cast_shadow = 0
+
+[node name="diffuse_branch301" parent="." index="315"]
+cast_shadow = 0
+
+[node name="diffuse_branch302" parent="." index="316"]
+cast_shadow = 0
+
+[node name="diffuse_branch303" parent="." index="317"]
+cast_shadow = 0
+
+[node name="diffuse_branch304" parent="." index="318"]
+cast_shadow = 0
+
+[node name="diffuse_branch305" parent="." index="319"]
+cast_shadow = 0
+
+[node name="diffuse_branch306" parent="." index="320"]
+cast_shadow = 0
+
+[node name="diffuse_branch307" parent="." index="321"]
+cast_shadow = 0
+
+[node name="diffuse_branch308" parent="." index="322"]
+cast_shadow = 0
+
+[node name="diffuse_branch309" parent="." index="323"]
+cast_shadow = 0
+
+[node name="diffuse_branch310" parent="." index="324"]
+cast_shadow = 0
+
+[node name="diffuse_branch311" parent="." index="325"]
+cast_shadow = 0
+
+[node name="diffuse_branch312" parent="." index="326"]
+cast_shadow = 0
+
+[node name="diffuse_branch313" parent="." index="327"]
+cast_shadow = 0
+
+[node name="diffuse_branch314" parent="." index="328"]
+cast_shadow = 0
+
+[node name="diffuse_branch315" parent="." index="329"]
+cast_shadow = 0
+
+[node name="diffuse_branch316" parent="." index="330"]
+cast_shadow = 0
+
+[node name="diffuse_branch317" parent="." index="331"]
+cast_shadow = 0
+
+[node name="diffuse_branch318" parent="." index="332"]
+cast_shadow = 0
+
+[node name="diffuse_branch319" parent="." index="333"]
+cast_shadow = 0
+
+[node name="diffuse_branch320" parent="." index="334"]
+cast_shadow = 0
+
+[node name="diffuse_branch321" parent="." index="335"]
+cast_shadow = 0
+
+[node name="diffuse_branch322" parent="." index="336"]
+cast_shadow = 0
+
+[node name="diffuse_branch323" parent="." index="337"]
+cast_shadow = 0
+
+[node name="diffuse_branch324" parent="." index="338"]
+cast_shadow = 0
+
+[node name="diffuse_branch325" parent="." index="339"]
+cast_shadow = 0
+
+[node name="diffuse_branch326" parent="." index="340"]
+cast_shadow = 0
+
+[node name="diffuse_branch327" parent="." index="341"]
+cast_shadow = 0
+
+[node name="diffuse_branch328" parent="." index="342"]
+cast_shadow = 0
+
+[node name="diffuse_branch329" parent="." index="343"]
+cast_shadow = 0
+
+[node name="diffuse_branch330" parent="." index="344"]
+cast_shadow = 0
+
+[node name="diffuse_branch331" parent="." index="345"]
+cast_shadow = 0
+
+[node name="diffuse_branch332" parent="." index="346"]
+cast_shadow = 0
+
+[node name="diffuse_branch333" parent="." index="347"]
+cast_shadow = 0
+
+[node name="diffuse_branch334" parent="." index="348"]
+cast_shadow = 0
+
+[node name="diffuse_branch335" parent="." index="349"]
+cast_shadow = 0
+
+[node name="diffuse_branch336" parent="." index="350"]
+cast_shadow = 0
+
+[node name="diffuse_branch337" parent="." index="351"]
+cast_shadow = 0
+
+[node name="diffuse_branch338" parent="." index="352"]
+cast_shadow = 0
+
+[node name="diffuse_branch339" parent="." index="353"]
+cast_shadow = 0
+
+[node name="diffuse_branch340" parent="." index="354"]
+cast_shadow = 0
+
+[node name="diffuse_branch341" parent="." index="355"]
+cast_shadow = 0
+
+[node name="diffuse_branch342" parent="." index="356"]
+cast_shadow = 0
+
+[node name="diffuse_branch343" parent="." index="357"]
+cast_shadow = 0
+
+[node name="diffuse_branch344" parent="." index="358"]
+cast_shadow = 0
+
+[node name="diffuse_branch345" parent="." index="359"]
+cast_shadow = 0
+
+[node name="diffuse_branch346" parent="." index="360"]
+cast_shadow = 0
+
+[node name="diffuse_branch347" parent="." index="361"]
+cast_shadow = 0
+
+[node name="diffuse_branch348" parent="." index="362"]
+cast_shadow = 0
+
+[node name="diffuse_branch349" parent="." index="363"]
+cast_shadow = 0
+
+[node name="diffuse_branch350" parent="." index="364"]
+cast_shadow = 0
