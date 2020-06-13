@@ -19,6 +19,10 @@ config/name="Octahedral Impostors"
 run/main_scene="res://TestScene.tscn"
 config/icon="res://icon.png"
 
+[display]
+
+window/size/always_on_top=true
+
 [rendering]
 
 quality/filters/msaa=4

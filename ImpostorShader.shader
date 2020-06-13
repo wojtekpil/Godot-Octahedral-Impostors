@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode blend_mix, depth_draw_opaque, cull_disabled, diffuse_burley, specular_schlick_ggx;
+render_mode blend_mix, depth_draw_alpha_prepass, cull_back, diffuse_burley, specular_schlick_ggx;
 uniform vec4 albedo : hint_color;
 uniform float specular;
 uniform float metallic;
@@ -7,11 +7,14 @@ uniform float roughness : hint_range(0, 1);
 
 uniform sampler2D imposterBaseTexture : hint_albedo;
 uniform sampler2D imposterNormalTexture : hint_albedo;
+uniform sampler2D imposterDepthTexture : hint_albedo;
 uniform vec2 imposterFrames = vec2(16f, 16f);
 uniform vec3 positionOffset = vec3(0f);
 uniform bool isFullSphere = true;
 uniform float alpha_clamp = 0.3f;
 uniform float scale = 1.0f;
+uniform float depth_scale = 0.05f;
+uniform float normalmap_depth = 1.0f;
 
 varying flat vec2 grid_classic;
 varying vec4 quad_blend_weights;
@@ -151,6 +154,7 @@ vec4 quadBlendWieghts(vec2 coords)
 	0 0 1
 	0 1 1 */
 	res.w = ceil(coords.x - coords.y);
+	res.xyz = normalize(res.xyz);
 	return res;
 }
 
@@ -185,6 +189,9 @@ void vertex()
 
 	VERTEX.xyz = projected + positionOffset;
 	grid_classic = gridFloor;
+	NORMAL = pivotToCameraRay;
+	TANGENT = cross(projectedQuadRay, vec3(0,1,0));
+	BINORMAL = cross(NORMAL, TANGENT);
 }
 
 vec4 blendedColor(vec2 uv, vec2 grid_pos, vec4 grid_weights, sampler2D atlasTexture)
@@ -193,15 +200,7 @@ vec4 blendedColor(vec2 uv, vec2 grid_pos, vec4 grid_weights, sampler2D atlasText
 	vec2 quad_size = vec2(1f) / imposterFrames;
 	vec2 uv_quad_a = quad_size * grid_classic;
 	uv_quad_a += uv / imposterFrames;
-	vec2 uv_quad_b = uv_quad_a;
-	if (grid_weights.w > 0.5f)
-	{
-		uv_quad_b += vec2(quad_size.x, 0);
-	}
-	else
-	{
-		uv_quad_b += vec2(0, quad_size.y);
-	}
+	vec2 uv_quad_b = uv_quad_a + quad_size*mix(vec2(0, 1), vec2(1, 0), quad_blend_weights.w);
 	vec2 uv_quad_c = uv_quad_a + quad_size;
 
 	vec4 quad_a, quad_b, quad_c;
@@ -214,17 +213,20 @@ vec4 blendedColor(vec2 uv, vec2 grid_pos, vec4 grid_weights, sampler2D atlasText
 
 void fragment()
 {
-
-	vec2 base_uv = vec2(1f) / imposterFrames * grid_classic;
-	base_uv += UV / imposterFrames;
+	vec2 base_uv = UV;
+	
+	vec3 view_dir = normalize(normalize(-VERTEX)*mat3(TANGENT,-BINORMAL,NORMAL));
+	float depth = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterDepthTexture).r;
+	base_uv -= view_dir.xy / view_dir.z * (depth * depth_scale);
 
 	vec4 baseTex;
 	vec4 normalTex;
-	baseTex = blendedColor(UV, grid_classic, quad_blend_weights, imposterBaseTexture);
-	normalTex = blendedColor(UV, grid_classic, quad_blend_weights, imposterNormalTexture);
+	baseTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterBaseTexture);
+	normalTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterNormalTexture);
 
 	baseTex.a = clamp(pow(baseTex.a, alpha_clamp), 0f, 1f);
 
+	
 	if (baseTex.a - alpha_clamp < 0f)
 	{
 		discard;
@@ -232,5 +234,7 @@ void fragment()
 
 	ALBEDO = baseTex.rgb * albedo.rgb;
 	ALPHA = baseTex.a;
-	NORMAL = normalTex.xyz;
+	//ALPHA_SCISSOR = alpha_clamp;
+	NORMALMAP = normalize(normalTex.xyz);
+	NORMALMAP_DEPTH = normalmap_depth;
 }
