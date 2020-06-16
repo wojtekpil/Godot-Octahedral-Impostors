@@ -12,6 +12,7 @@ uniform vec3 positionOffset = vec3(0f);
 uniform bool isFullSphere = true;
 uniform float alpha_clamp = 0.3f;
 uniform float scale = 1.0f;
+uniform float depth_scale = 0.05f;
 uniform float normalmap_depth = 1.0f;
 
 varying flat vec2 grid_classic;
@@ -42,8 +43,8 @@ vec2 VecToHemiSphereOct(vec3 pivotToCamera)
 	vec3 octahedron = pivotToCamera / sum;
 
 	return vec2(
-		octahedron.x + octahedron.z,
-		octahedron.z - octahedron.x);
+	octahedron.x + octahedron.z,
+	octahedron.z - octahedron.x);
 }
 
 vec2 VectorToGrid(vec3 vec)
@@ -152,7 +153,7 @@ vec4 quadBlendWieghts(vec2 coords)
 	0 0 1
 	0 1 1 */
 	res.w = ceil(coords.x - coords.y);
-	res.xyz = normalize(res.xyz);
+	res.xyz /= (res.x + res.y + res.z);
 	return res;
 }
 
@@ -181,22 +182,22 @@ void vertex()
 	vec3 projectedQuadBRray = FrameXYToRay(projectedFrame + mix(vec2(0, 1), vec2(1, 0), quad_blend_weights.w), framesMinusOne);
 	vec3 projectedQuadCRray = FrameXYToRay(projectedFrame + vec2(1), framesMinusOne);
 	vec3 projectedQuadRay = projectedQuadARray * quad_blend_weights.x +
-							projectedQuadBRray * quad_blend_weights.y +
-							projectedQuadCRray * quad_blend_weights.z;
+	projectedQuadBRray * quad_blend_weights.y +
+	projectedQuadCRray * quad_blend_weights.z;
 	vec3 projected = SpriteProjection(normalize(projectedQuadRay), imposterFrames.x, size, texcoord.xy);
 
 	VERTEX.xyz = projected + positionOffset;
 	grid_classic = gridFloor;
-	NORMAL = pivotToCameraRay;
-	TANGENT = cross(projectedQuadRay, vec3(0,1,0));
-	BINORMAL = cross(NORMAL, TANGENT);
+	NORMAL = normalize(projectedQuadRay);
+	TANGENT = cross(NORMAL,vec3(0,0,-1));
+	BINORMAL = cross(TANGENT, NORMAL);
 }
 
 vec4 blendedColor(vec2 uv, vec2 grid_pos, vec4 grid_weights, sampler2D atlasTexture)
 {
 	vec4 res;
 	vec2 quad_size = vec2(1f) / imposterFrames;
-	vec2 uv_quad_a = quad_size * grid_classic;
+	vec2 uv_quad_a = quad_size * grid_pos;
 	uv_quad_a += uv / imposterFrames;
 	vec2 uv_quad_b = uv_quad_a + quad_size*mix(vec2(0, 1), vec2(1, 0), quad_blend_weights.w);
 	vec2 uv_quad_c = uv_quad_a + quad_size;
@@ -208,6 +209,7 @@ vec4 blendedColor(vec2 uv, vec2 grid_pos, vec4 grid_weights, sampler2D atlasText
 	res = quad_a * grid_weights.x + quad_b * grid_weights.y + quad_c * grid_weights.z;
 	return res;
 }
+
 
 void fragment()
 {
@@ -223,6 +225,9 @@ void fragment()
 	ALBEDO = baseTex.rgb * albedo.rgb;
 	ALPHA = baseTex.a;
 	ALPHA_SCISSOR = alpha_clamp;
-	NORMALMAP = normalize(normalTex.xyz);
+	NORMALMAP = normalTex.xyz;
 	NORMALMAP_DEPTH = normalmap_depth;
+	METALLIC = metallic;
+	SPECULAR = specular;
+	ROUGHNESS = roughness;
 }
