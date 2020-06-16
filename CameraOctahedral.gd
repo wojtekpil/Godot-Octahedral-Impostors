@@ -4,7 +4,7 @@ export(int) var frameSquareSize = 16
 export(int) var imageSquareSize = 2048
 export(float) var cameraDistance = 1.0
 export(bool) var isFullSphere = true
-export(bool) var generateDepthTexture = false
+export(bool) var generateStandardShader = false
 
 
 
@@ -13,6 +13,8 @@ var objectPos: Vector3 = Vector3(0,0,0)
 var resultImage: Image = Image.new()
 var resultImageNormal: Image = Image.new()
 var resultImageDepth: Image = Image.new()
+var resultImageMetallic: Image = Image.new()
+
 var rendered_counter: int = 0
 
 var progressBar: ProgressBar
@@ -22,7 +24,8 @@ var normal_material = preload("res://materials/normal_baker.material")
 var scene_to_bake: Spatial
 
 
-enum BAKER_STATE {INIT, CAMERA_PLACEMENT, NOP, DEPTH_VIEW, SCREENSHOT_DEPTH, MATERIAL_NORMAL ,SCREENSHOT_NORMAL, SCREENSHOT, FINISH}
+
+enum BAKER_STATE {INIT, CAMERA_PLACEMENT, NOP,METALLIC_VIEW, SCREENSHOT_METALLIC, DEPTH_VIEW, SCREENSHOT_DEPTH, MATERIAL_NORMAL ,SCREENSHOT_NORMAL, SCREENSHOT, FINISH}
 enum SLIDESHOW_STATE {INIT, BEGIN, SESSION, FINISH}
 
 var baker_state = BAKER_STATE.INIT
@@ -107,11 +110,62 @@ func stateScreenshotDepth(coords: Vector2):
 
 
 func updateSceneToBakeMaterial(node, material) -> void:
+	if node is MeshInstance:
+		node.material_override = material
 	for N in node.get_children():
 		if N is MeshInstance:
 			N.material_override = material
 		if N.get_child_count() > 0:
 			updateSceneToBakeMaterial(N, material)
+
+
+func prepareMeshInstanceMetallicTexture(node):
+	var mats = node.mesh.get_surface_count()
+	var mats_node = node.get_surface_material_count()
+	if mats != mats_node:
+		print("Metallic baking not supported")
+		return
+	for m in mats:
+		var mat = node.mesh.surface_get_material(m)
+		if ! (mat is SpatialMaterial):
+			continue
+		var mat_dup = mat.duplicate()
+		mat_dup.albedo_texture = mat_dup.metallic_texture
+		node.set_surface_material(m,mat_dup)
+
+func prepareMetallicTexture(node):
+	if node is MeshInstance:
+		prepareMeshInstanceMetallicTexture(node)
+	for N in node.get_children():
+		if N is MeshInstance:
+			prepareMeshInstanceMetallicTexture(N)
+		if N.get_child_count() > 0:
+			prepareMetallicTexture(N)
+
+
+func cleanupMeshInstanceMetallicTexture(node):
+	var mats = node.mesh.get_surface_count()
+	var mats_node = node.get_surface_material_count()
+	if mats != mats_node:
+		print("Metallic baking not supported")
+		return
+	for m in mats:
+		node.set_surface_material(m,null)
+
+
+func cleanupMetallicTexture(node):
+	if node is MeshInstance:
+		cleanupMeshInstanceMetallicTexture(node)
+	for N in node.get_children():
+		if N is MeshInstance:
+			cleanupMeshInstanceMetallicTexture(N)
+		if N.get_child_count() > 0:
+			cleanupMetallicTexture(N)
+
+
+func stateScreenshotMetallic(coords: Vector2):
+	var image: Image = takeScreenshot()
+	placeInImageAtlas(coords, image, resultImageMetallic)
 
 
 func baker_process(coords: Vector2) -> void:
@@ -122,10 +176,17 @@ func baker_process(coords: Vector2) -> void:
 			stateCameraPlacement(coords)
 			baker_state = BAKER_STATE.NOP
 		BAKER_STATE.NOP:
-			if generateDepthTexture:
-				baker_state = BAKER_STATE.DEPTH_VIEW
+			if generateStandardShader:
+				baker_state = BAKER_STATE.METALLIC_VIEW
 			else:
 				baker_state = BAKER_STATE.MATERIAL_NORMAL
+		BAKER_STATE.METALLIC_VIEW:
+			prepareMetallicTexture(scene_to_bake)
+			baker_state = BAKER_STATE.SCREENSHOT_METALLIC
+		BAKER_STATE.SCREENSHOT_METALLIC:
+			stateScreenshotMetallic(coords)
+			cleanupMetallicTexture(scene_to_bake)
+			baker_state = BAKER_STATE.DEPTH_VIEW
 		BAKER_STATE.DEPTH_VIEW:
 			baker_state = BAKER_STATE.SCREENSHOT_DEPTH
 			$DepthPostProcess.visible = true
@@ -178,8 +239,9 @@ func slideshow_process():
 			resultImage.convert(Image.FORMAT_RGBA8)
 			resultImage.save_png("result.png")
 			resultImageNormal.save_png("result_normal.png")
-			if generateDepthTexture:
+			if generateStandardShader:
 				resultImageDepth.save_png("result_depth.png")
+				resultImageMetallic.save_png("result_metallic.png")
 			print("Image Saved!")
 			slideshow_state = SLIDESHOW_STATE.INIT
 
@@ -189,6 +251,7 @@ func _ready():
 	resultImage.fill(Color(0,0,0,0))
 	resultImageNormal.create(imageSquareSize, imageSquareSize, false, Image.FORMAT_RGBAH)
 	resultImageDepth.create(imageSquareSize, imageSquareSize, false, Image.FORMAT_RGBAH)
+	resultImageMetallic.create(imageSquareSize, imageSquareSize, false, Image.FORMAT_RGBAH)
 	progressBar = get_parent().get_parent().get_node("container").get_node("progress");
 	scene_to_bake = get_parent().get_node("BakedContainer").get_child(0)
 	
@@ -219,4 +282,4 @@ func _on_SpinBoxGridSize_value_changed(value: float):
 
 
 func _on_CheckboxDepth_toggled(state: bool):
-	generateDepthTexture = state
+	generateStandardShader = state
