@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://ImpostorShader.shader" type="Shader" id=1]
 [ext_resource path="res://result.png" type="Texture" id=2]
@@ -15,17 +15,17 @@
 [sub_resource type="ShaderMaterial" id=2]
 shader = ExtResource( 1 )
 shader_param/albedo = Color( 1, 1, 1, 1 )
-shader_param/specular = 0.0
+shader_param/specular = 0.5
 shader_param/metallic = 0.0
-shader_param/roughness = 1.0
+shader_param/roughness = 0.85
 shader_param/imposterFrames = Vector2( 16, 16 )
 shader_param/positionOffset = Vector3( 0, -0.023, 0 )
 shader_param/isFullSphere = false
 shader_param/isTransparent = true
-shader_param/alpha_clamp = 0.159
+shader_param/alpha_clamp = 0.546
 shader_param/scale = 0.546
 shader_param/depth_scale = 0.05
-shader_param/normalmap_depth = 0.0
+shader_param/normalmap_depth = 0.5
 shader_param/imposterBaseTexture = ExtResource( 2 )
 shader_param/imposterNormalTexture = ExtResource( 7 )
 shader_param/imposterDepthTexture = ExtResource( 10 )
@@ -65,12 +65,6 @@ shader_param/depth_scaler = 1.0
 [sub_resource type="QuadMesh" id=5]
 material = SubResource( 4 )
 size = Vector2( 2, 2 )
-
-[sub_resource type="QuadMesh" id=6]
-
-[sub_resource type="SpatialMaterial" id=7]
-params_billboard_mode = 1
-albedo_texture = ExtResource( 2 )
 
 [node name="TestScene" type="Spatial"]
 
@@ -119,19 +113,19 @@ __meta__ = {
 }
 
 [node name="Button" type="Button" parent="container"]
-margin_right = 1024.0
+margin_right = 700.0
 margin_bottom = 20.0
 text = "Generate"
 
 [node name="progress" type="ProgressBar" parent="container"]
 margin_top = 24.0
-margin_right = 1024.0
+margin_right = 700.0
 margin_bottom = 38.0
 max_value = 1.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="container"]
 margin_top = 42.0
-margin_right = 1024.0
+margin_right = 700.0
 margin_bottom = 66.0
 
 [node name="Label" type="Label" parent="container/HBoxContainer"]
@@ -177,13 +171,13 @@ margin_bottom = 24.0
 [node name="Label3" type="Label" parent="container/HBoxContainer"]
 margin_left = 428.0
 margin_top = 5.0
-margin_right = 585.0
+margin_right = 593.0
 margin_bottom = 19.0
-text = "Generate Stanard Shader"
+text = "Generate Standard Shader"
 
 [node name="CheckboxDepth" type="CheckBox" parent="container/HBoxContainer"]
-margin_left = 589.0
-margin_right = 613.0
+margin_left = 597.0
+margin_right = 621.0
 margin_bottom = 24.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -199,12 +193,6 @@ script = ExtResource( 6 )
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
 transform = Transform( 0.225622, 0.427503, -0.875406, 0.50602, 0.716429, 0.480285, 0.832489, -0.551336, -0.0546831, -0.911007, 1.27492, 1.34433 )
 editor_only = true
-
-[node name="MeshInstance" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.65884 )
-visible = false
-mesh = SubResource( 6 )
-material/0 = SubResource( 7 )
 [connection signal="pressed" from="container/Button" to="ViewportBaking/Camera" method="_on_Button_pressed"]
 [connection signal="value_changed" from="container/HBoxContainer/SpinBox" to="Camera" method="_on_SpinBox_value_changed"]
 [connection signal="value_changed" from="container/HBoxContainer/SpinBox" to="ViewportBaking/Camera" method="_on_SpinBox_value_changed"]
