@@ -16,7 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Octahedral Impostors"
-run/main_scene="res://TestScene.tscn"
+run/main_scene="res://BakingScene.tscn"
 config/icon="res://icon.png"
 
 [display]
