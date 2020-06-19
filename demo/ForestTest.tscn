@@ -1,25 +1,25 @@
 [gd_scene load_steps=26 format=2]
 
-[ext_resource path="res://demo/tree01/result_depth.png" type="Texture" id=1]
+[ext_resource path="res://demo/tree01/result_depth.png" type="TextureArray" id=1]
 [ext_resource path="res://ImpostorShader.shader" type="Shader" id=2]
-[ext_resource path="res://demo/tree01/result_normal.png" type="Texture" id=3]
-[ext_resource path="res://demo/tree02/result_normal.png" type="Texture" id=4]
-[ext_resource path="res://demo/tree02/result.png" type="Texture" id=5]
-[ext_resource path="res://demo/bush/result.png" type="Texture" id=6]
-[ext_resource path="res://demo/tree02/result_depth.png" type="Texture" id=7]
-[ext_resource path="res://demo/bush/result_normal.png" type="Texture" id=8]
-[ext_resource path="res://demo/tree01/result.png" type="Texture" id=9]
-[ext_resource path="res://demo/bush/result_depth.png" type="Texture" id=10]
-[ext_resource path="res://demo/tree01/result_metallic.png" type="Texture" id=16]
-[ext_resource path="res://demo/tree02/result_metallic.png" type="Texture" id=17]
+[ext_resource path="res://demo/tree01/result_normal.png" type="TextureArray" id=3]
+[ext_resource path="res://demo/tree02/result_normal.png" type="TextureArray" id=4]
+[ext_resource path="res://demo/tree02/result.png" type="TextureArray" id=5]
+[ext_resource path="res://demo/bush/result.png" type="TextureArray" id=6]
+[ext_resource path="res://demo/tree02/result_depth.png" type="TextureArray" id=7]
+[ext_resource path="res://demo/bush/result_normal.png" type="TextureArray" id=8]
+[ext_resource path="res://demo/tree01/result.png" type="TextureArray" id=9]
+[ext_resource path="res://demo/bush/result_depth.png" type="TextureArray" id=10]
+[ext_resource path="res://demo/tree01/result_metallic.png" type="TextureArray" id=16]
+[ext_resource path="res://demo/tree02/result_metallic.png" type="TextureArray" id=17]
 [ext_resource path="res://assets/enviroments/directionallight_corrected.tscn" type="PackedScene" id=18]
 [ext_resource path="res://assets/enviroments/enviroment_corrected.tres" type="Environment" id=19]
 
-[sub_resource type="SpatialMaterial" id=12]
+[sub_resource type="SpatialMaterial" id=1]
 albedo_color = Color( 0.529412, 0.529412, 0.384314, 1 )
 
 [sub_resource type="PlaneMesh" id=2]
-material = SubResource( 12 )
+material = SubResource( 1 )
 size = Vector2( 50, 50 )
 
 [sub_resource type="ShaderMaterial" id=3]

@@ -1,0 +1,26 @@
+[remap]
+
+importer="texture_array"
+type="TextureArray"
+path.s3tc="res://.import/result_normal.png-c7c8e969e9bfbb2b78dba3c56a701d1c.s3tc.texarr"
+path.etc2="res://.import/result_normal.png-c7c8e969e9bfbb2b78dba3c56a701d1c.etc2.texarr"
+metadata={
+"imported_formats": [ "s3tc", "etc2" ],
+"vram_texture": true
+}
+
+[deps]
+
+source_file="res://demo/bush/result_normal.png"
+dest_files=[ "res://.import/result_normal.png-c7c8e969e9bfbb2b78dba3c56a701d1c.s3tc.texarr", "res://.import/result_normal.png-c7c8e969e9bfbb2b78dba3c56a701d1c.etc2.texarr" ]
+
+[params]
+
+compress/mode=1
+compress/no_bptc_if_rgb=false
+flags/repeat=0
+flags/filter=true
+flags/mipmaps=true
+flags/srgb=1
+slices/horizontal=12
+slices/vertical=12

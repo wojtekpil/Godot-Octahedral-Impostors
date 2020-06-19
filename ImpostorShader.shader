@@ -5,10 +5,10 @@ uniform float specular;
 uniform float metallic;
 uniform float roughness : hint_range(0, 1);
 
-uniform sampler2D imposterBaseTexture : hint_albedo;
-uniform sampler2D imposterNormalTexture : hint_albedo;
-uniform sampler2D imposterDepthTexture : hint_albedo;
-uniform sampler2D imposterMetallicTexture : hint_albedo;
+uniform sampler2DArray imposterBaseTexture : hint_albedo;
+uniform sampler2DArray imposterNormalTexture : hint_albedo;
+uniform sampler2DArray imposterDepthTexture : hint_albedo;
+uniform sampler2DArray imposterMetallicTexture : hint_albedo;
 uniform vec2 imposterFrames = vec2(16f, 16f);
 uniform vec3 positionOffset = vec3(0f);
 uniform bool isFullSphere = true;
@@ -196,19 +196,19 @@ void vertex()
 	BINORMAL = cross(TANGENT, NORMAL);
 }
 
-vec4 blendedColor(vec2 uv, vec2 grid_pos, vec4 grid_weights, sampler2D atlasTexture)
+vec4 blendedColor(vec2 uv, vec2 grid_pos, vec4 grid_weights, sampler2DArray atlasTexture)
 {
 	vec4 res;
-	vec2 quad_size = vec2(1f) / imposterFrames;
-	vec2 uv_quad_a = quad_size * grid_pos;
-	uv_quad_a += uv / imposterFrames;
-	vec2 uv_quad_b = uv_quad_a + quad_size*mix(vec2(0, 1), vec2(1, 0), quad_blend_weights.w);
-	vec2 uv_quad_c = uv_quad_a + quad_size;
+	//vec2 quad_size = vec2(1f) / imposterFrames;
+	vec2 layer_quad_a =  grid_pos;
+	//uv_quad_a += uv / imposterFrames;
+	vec2 layer_quad_b = layer_quad_a + mix(vec2(0, 1), vec2(1, 0), quad_blend_weights.w);
+	vec2 layer_quad_c = layer_quad_a + vec2(1,1);
 
 	vec4 quad_a, quad_b, quad_c;
-	quad_a = textureLod(atlasTexture, uv_quad_a, 0.0f);
-	quad_b = textureLod(atlasTexture, uv_quad_b, 0.0f);
-	quad_c = textureLod(atlasTexture, uv_quad_c, 0.0f);
+	quad_a = texture(atlasTexture, vec3(uv, layer_quad_a.y*imposterFrames.x+layer_quad_a.x));
+	quad_b = texture(atlasTexture, vec3(uv, layer_quad_b.y*imposterFrames.x+layer_quad_b.x));
+	quad_c = texture(atlasTexture, vec3(uv, layer_quad_c.y*imposterFrames.x+layer_quad_c.x));
 	res = quad_a * grid_weights.x + quad_b * grid_weights.y + quad_c * grid_weights.z;
 	return res;
 }

@@ -1,9 +1,9 @@
 [remap]
 
-importer="texture"
-type="StreamTexture"
-path.s3tc="res://.import/result.png-e5b937f3dc9b9f4bf0867aa800fc9254.s3tc.stex"
-path.etc2="res://.import/result.png-e5b937f3dc9b9f4bf0867aa800fc9254.etc2.stex"
+importer="texture_array"
+type="TextureArray"
+path.s3tc="res://.import/result.png-e5b937f3dc9b9f4bf0867aa800fc9254.s3tc.texarr"
+path.etc2="res://.import/result.png-e5b937f3dc9b9f4bf0867aa800fc9254.etc2.texarr"
 metadata={
 "imported_formats": [ "s3tc", "etc2" ],
 "vram_texture": true
@@ -12,25 +12,15 @@ metadata={
 [deps]
 
 source_file="res://demo/tree01/result.png"
-dest_files=[ "res://.import/result.png-e5b937f3dc9b9f4bf0867aa800fc9254.s3tc.stex", "res://.import/result.png-e5b937f3dc9b9f4bf0867aa800fc9254.etc2.stex" ]
+dest_files=[ "res://.import/result.png-e5b937f3dc9b9f4bf0867aa800fc9254.s3tc.texarr", "res://.import/result.png-e5b937f3dc9b9f4bf0867aa800fc9254.etc2.texarr" ]
 
 [params]
 
-compress/mode=2
-compress/lossy_quality=0.7
-compress/hdr_mode=0
-compress/bptc_ldr=0
-compress/normal_map=2
-flags/repeat=true
+compress/mode=1
+compress/no_bptc_if_rgb=false
+flags/repeat=0
 flags/filter=true
-flags/mipmaps=false
-flags/anisotropic=true
+flags/mipmaps=true
 flags/srgb=1
-process/fix_alpha_border=true
-process/premult_alpha=true
-process/HDR_as_SRGB=true
-process/invert_color=false
-stream=false
-size_limit=0
-detect_3d=false
-svg/scale=1.0
+slices/horizontal=16
+slices/vertical=16

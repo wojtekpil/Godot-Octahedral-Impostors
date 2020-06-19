@@ -25,6 +25,19 @@ window/size/width=700
 window/size/height=700
 window/size/always_on_top=true
 
+[importer_defaults]
+
+texture_array={
+"compress/mode": 1,
+"compress/no_bptc_if_rgb": false,
+"flags/filter": true,
+"flags/mipmaps": true,
+"flags/repeat": 0,
+"flags/srgb": 1,
+"slices/horizontal": 16,
+"slices/vertical": 16
+}
+
 [rendering]
 
 quality/filters/msaa=4
