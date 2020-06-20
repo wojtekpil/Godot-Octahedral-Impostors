@@ -21,8 +21,8 @@ var progress_bar: ProgressBar
 var scene_to_bake: Spatial
 
 var normal_material = preload("res://materials/normal_baker.material")
-var standard_shader = preload("res://ImpostorShader.shader")
-var light_shader = preload("res://ImpostorShaderLight.shader")
+var standard_shader = preload("res://materials/shaders/ImpostorShader.shader")
+var light_shader = preload("res://materials/shaders/ImpostorShaderLight.shader")
 
 enum BAKER_STATE {
 	INIT,
@@ -237,15 +237,21 @@ func state_session() -> bool:
 
 
 func export_images(img_path: String) -> void:
+	var tex_packer = TexturePacker.new()
+	var img_norm_depth: Image
+	var img_orm: Image
+
 	result_image.convert(Image.FORMAT_RGBA8)
-	result_image.save_png(img_path + "result.png")
-	result_image_normal.save_png(img_path + "result_normal.png")
+	result_image.save_png(img_path + "base.png")
+	img_norm_depth = tex_packer.pack_normal_depth(result_image_normal, result_image_depth)
+	img_norm_depth.save_png(img_path + "norm_depth.png")
 	if is_standard_shader:
-		result_image_depth.save_png(img_path + "result_depth.png")
-		result_image_metallic.save_png(img_path + "result_metallic.png")
+		img_orm = tex_packer.pack_orm(null, null, result_image_metallic)
+		img_orm.save_png(img_path + "orm.png")
 
 
 func export_packed_scene(pack_path: String) -> void:
+	var tex_packer = TexturePacker.new()
 	var root: Spatial = Spatial.new()
 	var mi: MeshInstance = MeshInstance.new()
 	var mat: ShaderMaterial = ShaderMaterial.new()
@@ -255,7 +261,7 @@ func export_packed_scene(pack_path: String) -> void:
 		mat.shader = light_shader
 	var quad_mesh: QuadMesh = QuadMesh.new()
 	mi.mesh = quad_mesh
-	mi.set_surface_material(0, mat)
+	mi.mesh.surface_set_material(0, mat)
 	mi.name = "Imposter"
 	root.name = "Scene"
 	root.add_child(mi)
@@ -270,27 +276,25 @@ func export_packed_scene(pack_path: String) -> void:
 	albedo_texture.create_from_image(result_image)
 	mat.set_shader_param("imposterBaseTexture", albedo_texture)
 
-	var normal_texture: ImageTexture = ImageTexture.new()
-	normal_texture.storage = ImageTexture.STORAGE_COMPRESS_LOSSY
-	result_image_normal.generate_mipmaps()
-	normal_texture.create_from_image(result_image_normal)
-	mat.set_shader_param("imposterNormalTexture", normal_texture)
+	var img_norm_depth = tex_packer.pack_normal_depth(result_image_normal, result_image_depth)
+
+	var normal_depth_texture: ImageTexture = ImageTexture.new()
+	normal_depth_texture.storage = ImageTexture.STORAGE_COMPRESS_LOSSY
+	img_norm_depth.generate_mipmaps()
+	normal_depth_texture.create_from_image(img_norm_depth)
+	mat.set_shader_param("imposterNormalDepthTexture", normal_depth_texture)
 
 	if is_standard_shader:
-		mat.set_shader_param("isTransparent", true)
+		mat.set_shader_param("isTransparent", false)
 		mat.set_shader_param("metallic", 1.0)
 
-		var depth_texture: ImageTexture = ImageTexture.new()
-		result_image_depth.generate_mipmaps()
-		depth_texture.create_from_image(result_image_depth)
-		depth_texture.storage = ImageTexture.STORAGE_COMPRESS_LOSSY
-		mat.set_shader_param("imposterDepthTexture", depth_texture)
-
-		var metallic_texture: ImageTexture = ImageTexture.new()
-		metallic_texture.storage = ImageTexture.STORAGE_COMPRESS_LOSSY
-		result_image_depth.generate_mipmaps()
-		metallic_texture.create_from_image(result_image_depth)
-		mat.set_shader_param("imposterMetallicTexture", metallic_texture)
+		var img_orm: Image
+		img_orm = tex_packer.pack_orm(null, null, result_image_metallic)
+		var orm_texture: ImageTexture = ImageTexture.new()
+		orm_texture.storage = ImageTexture.STORAGE_COMPRESS_LOSSY
+		img_orm.generate_mipmaps()
+		orm_texture.create_from_image(img_orm)
+		mat.set_shader_param("imposterORMTexture", orm_texture)
 
 	var packed_scene: PackedScene = PackedScene.new()
 	packed_scene.pack(root)
@@ -318,12 +322,16 @@ func slideshow_process() -> void:
 			slideshow_state = SLIDESHOW_STATE.INIT
 
 
-func _ready():
+func create_images():
 	result_image.create(image_dimmension, image_dimmension, false, Image.FORMAT_RGBAH)
 	result_image.fill(Color(0, 0, 0, 0))
 	result_image_normal.create(image_dimmension, image_dimmension, false, Image.FORMAT_RGBAH)
 	result_image_depth.create(image_dimmension, image_dimmension, false, Image.FORMAT_RGBAH)
 	result_image_metallic.create(image_dimmension, image_dimmension, false, Image.FORMAT_RGBAH)
+
+
+func _ready():
+	create_images()
 	progress_bar = get_parent().get_parent().get_node("Panel/container/progress")
 	scene_to_bake = get_parent().get_node("BakedContainer").get_child(0)
 
@@ -360,6 +368,8 @@ func _on_CheckboxDepth_toggled(state: bool):
 func _on_CheckBoxPackedScene_toggled(state: bool):
 	export_as_packed_scene = state
 
+
 func _on_OptionButtonImgRes_item_selected(new_dimm: int):
-	var multiplier: int = pow(2,new_dimm)
-	image_dimmension = 1024*multiplier
+	var multiplier: int = pow(2, new_dimm)
+	image_dimmension = 1024 * multiplier
+	create_images()

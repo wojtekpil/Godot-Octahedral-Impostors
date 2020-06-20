@@ -1,11 +1,10 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://materials/shaders/ImpostorShader.shader" type="Shader" id=1]
-[ext_resource path="res://export_images/result_depth.png" type="Texture" id=2]
-[ext_resource path="res://export_images/result.png" type="Texture" id=3]
+[ext_resource path="res://export_images/norm_depth.png" type="Texture" id=2]
+[ext_resource path="res://export_images/base.png" type="Texture" id=3]
 [ext_resource path="res://env_test.tres" type="Environment" id=4]
-[ext_resource path="res://export_images/result_metallic.png" type="Texture" id=5]
-[ext_resource path="res://export_images/result_normal.png" type="Texture" id=6]
+[ext_resource path="res://export_images/orm.png" type="Texture" id=5]
 [ext_resource path="res://scripts/main_view_camera.gd" type="Script" id=11]
 [ext_resource path="res://assets/tree_v2/tree_v2.tscn" type="PackedScene" id=13]
 [ext_resource path="res://scripts/camera_octahedral.gd" type="Script" id=14]
@@ -23,13 +22,12 @@ shader_param/positionOffset = Vector3( 0, -0.023, 0 )
 shader_param/isFullSphere = false
 shader_param/isTransparent = false
 shader_param/alpha_clamp = 0.602
-shader_param/scale = 0.546
+shader_param/scale = 0.762
 shader_param/depth_scale = 0.05
 shader_param/normalmap_depth = 0.5
 shader_param/imposterBaseTexture = ExtResource( 3 )
-shader_param/imposterNormalTexture = ExtResource( 6 )
-shader_param/imposterDepthTexture = ExtResource( 2 )
-shader_param/imposterMetallicTexture = ExtResource( 5 )
+shader_param/imposterNormalDepthTexture = ExtResource( 2 )
+shader_param/imposterORMTexture = ExtResource( 5 )
 
 [sub_resource type="Shader" id=3]
 code = "shader_type spatial;

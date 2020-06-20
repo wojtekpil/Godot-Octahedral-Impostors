@@ -6,9 +6,8 @@ uniform float metallic = 0f;
 uniform float roughness : hint_range(0, 1) = 1f;
 
 uniform sampler2D imposterBaseTexture : hint_albedo;
-uniform sampler2D imposterNormalTexture : hint_albedo;
-uniform sampler2D imposterDepthTexture : hint_albedo;
-uniform sampler2D imposterMetallicTexture : hint_albedo;
+uniform sampler2D imposterNormalDepthTexture : hint_albedo;
+uniform sampler2D imposterORMTexture : hint_albedo;
 uniform vec2 imposterFrames = vec2(16f, 16f);
 uniform vec3 positionOffset = vec3(0f);
 uniform bool isFullSphere = true;
@@ -218,15 +217,15 @@ void fragment()
 	vec2 base_uv = UV;
 	
 	vec3 view_dir = normalize(normalize(-VERTEX)*mat3(TANGENT,-BINORMAL,NORMAL));
-	float depth = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterDepthTexture).r;
+	float depth = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterNormalDepthTexture).a;
 	base_uv -= view_dir.xy / view_dir.z * (depth * depth_scale);
 
 	vec4 baseTex;
 	vec4 normalTex;
-	vec4 metallicTex;
+	vec4 ormTex;
 	baseTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterBaseTexture);
-	normalTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterNormalTexture);
-	metallicTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterMetallicTexture);
+	normalTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterNormalDepthTexture);
+	ormTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterORMTexture);
 
 	baseTex.a = clamp(pow(baseTex.a, alpha_clamp), 0f, 1f);
 
@@ -240,7 +239,7 @@ void fragment()
 	ALPHA = mix(1.0f,baseTex.a,float(isTransparent));
 	NORMALMAP = normalTex.xyz;
 	NORMALMAP_DEPTH = normalmap_depth;
-	METALLIC = metallicTex.r * metallic;
+	METALLIC = ormTex.b * metallic;
 	SPECULAR = specular;
 	ROUGHNESS = roughness;
 }
