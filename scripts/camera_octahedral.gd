@@ -6,7 +6,7 @@ export (float) var camera_distance = 1.0
 export (bool) var is_full_sphere = true
 export (bool) var is_standard_shader = false
 export (bool) var export_as_packed_scene = true
-export (String) var export_path  = "res://export_images/"
+export (String) var export_path = "res://export_images/"
 
 var object_pos: Vector3 = Vector3(0, 0, 0)
 
@@ -14,6 +14,7 @@ var result_image: Image = Image.new()
 var result_image_normal: Image = Image.new()
 var result_image_depth: Image = Image.new()
 var result_image_metallic: Image = Image.new()
+var result_image_roughness: Image = Image.new()
 
 var rendered_counter: int = 0
 var current_frame: Vector2 = Vector2(0, 0)
@@ -36,6 +37,8 @@ enum BAKER_STATE {
 	NOP,
 	METALLIC_VIEW,
 	SCREENSHOT_METALLIC,
+	ROUGHNESS_VIEW,
+	SCREENSHOT_ROUGHNESS,
 	DEPTH_VIEW,
 	SCREENSHOT_DEPTH,
 	MATERIAL_NORMAL,
@@ -44,6 +47,8 @@ enum BAKER_STATE {
 	FINISH
 }
 enum SLIDESHOW_STATE { INIT, BEGIN, SESSION, FINISH }
+
+enum BAKING_ORM_TYPE { METALLIC, ROUGHNESS }
 
 var baker_state = BAKER_STATE.INIT
 var slideshow_state = SLIDESHOW_STATE.INIT
@@ -133,55 +138,65 @@ func update_scene_to_bake_material(node, material) -> void:
 			update_scene_to_bake_material(N, material)
 
 
-func prepare_mesh_instance_metallic_texture(node: MeshInstance) -> void:
+func prepare_mesh_instance_orm_texture(node: MeshInstance, orm_type: int) -> void:
 	var mats: int = node.mesh.get_surface_count()
 	var mats_node: int = node.get_surface_material_count()
 	if mats != mats_node:
-		print("Metallic baking not supported")
+		print("ORM baking not supported")
 		return
 	for m in mats:
 		var mat: Material = node.mesh.surface_get_material(m)
 		if ! (mat is SpatialMaterial):
 			continue
 		var mat_dup: Material = mat.duplicate()
-		mat_dup.albedo_texture = mat.metallic_texture
-		mat_dup.albedo_color = Color(mat.metallic, mat.metallic, mat.metallic)
+		match orm_type:
+			BAKING_ORM_TYPE.METALLIC:
+				mat_dup.albedo_texture = mat.metallic_texture
+				mat_dup.albedo_color = Color(mat.metallic, mat.metallic, mat.metallic)
+			BAKING_ORM_TYPE.ROUGHNESS:
+				mat_dup.albedo_texture = mat.roughness_texture
+				mat_dup.albedo_color = Color(mat.roughness, mat.roughness, mat.roughness)
 		node.set_surface_material(m, mat_dup)
 
 
-func prepare_metallic_texture(node: Spatial) -> void:
+func prepare_orm_texture(node: Spatial, orm_type: int) -> void:
 	if node is MeshInstance:
-		prepare_mesh_instance_metallic_texture(node)
+		prepare_mesh_instance_orm_texture(node, orm_type)
 	for N in node.get_children():
 		if N is MeshInstance:
-			prepare_mesh_instance_metallic_texture(N)
+			prepare_mesh_instance_orm_texture(N, orm_type)
 		if N.get_child_count() > 0:
-			prepare_metallic_texture(N)
+			prepare_orm_texture(N, orm_type)
 
 
-func cleanup_mesh_instance_metallic_texture(node: MeshInstance) -> void:
+func cleanup_mesh_instance_orm_texture(node: MeshInstance) -> void:
 	var mats: int = node.mesh.get_surface_count()
 	var mats_node: int = node.get_surface_material_count()
 	if mats != mats_node:
-		print("Metallic baking not supported")
+		print("ORM baking not supported.")
 		return
 	for m in mats:
 		node.set_surface_material(m, null)
 
 
-func cleanup_metallic_texture(node: Spatial) -> void:
+func cleanup_orm_texture(node: Spatial) -> void:
 	if node is MeshInstance:
-		cleanup_mesh_instance_metallic_texture(node)
+		cleanup_mesh_instance_orm_texture(node)
 	for N in node.get_children():
 		if N is MeshInstance:
-			cleanup_mesh_instance_metallic_texture(N)
+			cleanup_mesh_instance_orm_texture(N)
 		if N.get_child_count() > 0:
-			cleanup_metallic_texture(N)
+			cleanup_orm_texture(N)
 
 
 func state_screenshotMetallic(coords: Vector2) -> void:
 	var image: Image = take_screenshot()
 	place_in_image_atlas(coords, image, result_image_metallic)
+
+
+func state_screenshotRoughness(coords: Vector2) -> void:
+	var image: Image = take_screenshot()
+	place_in_image_atlas(coords, image, result_image_roughness)
 
 
 func baker_process(coords: Vector2) -> void:
@@ -197,11 +212,18 @@ func baker_process(coords: Vector2) -> void:
 			else:
 				baker_state = BAKER_STATE.MATERIAL_NORMAL
 		BAKER_STATE.METALLIC_VIEW:
-			prepare_metallic_texture(scene_to_bake)
+			prepare_orm_texture(scene_to_bake, BAKING_ORM_TYPE.METALLIC)
 			baker_state = BAKER_STATE.SCREENSHOT_METALLIC
 		BAKER_STATE.SCREENSHOT_METALLIC:
 			state_screenshotMetallic(coords)
-			cleanup_metallic_texture(scene_to_bake)
+			cleanup_orm_texture(scene_to_bake)
+			baker_state = BAKER_STATE.ROUGHNESS_VIEW
+		BAKER_STATE.ROUGHNESS_VIEW:
+			prepare_orm_texture(scene_to_bake, BAKING_ORM_TYPE.ROUGHNESS)
+			baker_state = BAKER_STATE.SCREENSHOT_ROUGHNESS
+		BAKER_STATE.SCREENSHOT_ROUGHNESS:
+			state_screenshotRoughness(coords)
+			cleanup_orm_texture(scene_to_bake)
 			baker_state = BAKER_STATE.DEPTH_VIEW
 		BAKER_STATE.DEPTH_VIEW:
 			baker_state = BAKER_STATE.SCREENSHOT_DEPTH
@@ -253,7 +275,7 @@ func export_images(img_path: String) -> void:
 	img_norm_depth = tex_packer.pack_normal_depth(result_image_normal, result_image_depth)
 	img_norm_depth.save_png(img_path + normal_depth_filename)
 	if is_standard_shader:
-		img_orm = tex_packer.pack_orm(null, null, result_image_metallic)
+		img_orm = tex_packer.pack_orm(null, result_image_roughness, result_image_metallic)
 		img_orm.save_png(img_path + orm_filename)
 
 
@@ -323,6 +345,9 @@ func create_images():
 	result_image_normal.create(image_dimmension, image_dimmension, false, Image.FORMAT_RGBAH)
 	result_image_depth.create(image_dimmension, image_dimmension, false, Image.FORMAT_RGBAH)
 	result_image_metallic.create(image_dimmension, image_dimmension, false, Image.FORMAT_RGBAH)
+	result_image_roughness.create(image_dimmension, image_dimmension, false, Image.FORMAT_RGBAH)
+	#make default as roughth
+	result_image_roughness.fill(Color(1, 1, 1))
 
 
 func _ready():

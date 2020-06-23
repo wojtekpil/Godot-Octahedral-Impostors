@@ -241,5 +241,5 @@ void fragment()
 	NORMALMAP_DEPTH = normalmap_depth;
 	METALLIC = ormTex.b * metallic;
 	SPECULAR = specular;
-	ROUGHNESS = roughness;
+	ROUGHNESS = ormTex.g * roughness;
 }
