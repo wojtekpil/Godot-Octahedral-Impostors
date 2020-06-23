@@ -6,6 +6,7 @@ export (float) var camera_distance = 1.0
 export (bool) var is_full_sphere = true
 export (bool) var is_standard_shader = false
 export (bool) var export_as_packed_scene = true
+export (String) var export_path  = "res://export_images/"
 
 var object_pos: Vector3 = Vector3(0, 0, 0)
 
@@ -23,6 +24,11 @@ var scene_to_bake: Spatial
 var normal_material = preload("res://materials/normal_baker.material")
 var standard_shader = preload("res://materials/shaders/ImpostorShader.shader")
 var light_shader = preload("res://materials/shaders/ImpostorShaderLight.shader")
+
+var base_filename = "base.png"
+var normal_depth_filename = "norm_depth.png"
+var orm_filename = "orm.png"
+var packedscene_filename = "imposter.tscn"
 
 enum BAKER_STATE {
 	INIT,
@@ -138,7 +144,8 @@ func prepare_mesh_instance_metallic_texture(node: MeshInstance) -> void:
 		if ! (mat is SpatialMaterial):
 			continue
 		var mat_dup: Material = mat.duplicate()
-		mat_dup.albedo_texture = mat_dup.metallic_texture
+		mat_dup.albedo_texture = mat.metallic_texture
+		mat_dup.albedo_color = Color(mat.metallic, mat.metallic, mat.metallic)
 		node.set_surface_material(m, mat_dup)
 
 
@@ -242,18 +249,20 @@ func export_images(img_path: String) -> void:
 	var img_orm: Image
 
 	result_image.convert(Image.FORMAT_RGBA8)
-	result_image.save_png(img_path + "base.png")
+	result_image.save_png(img_path + base_filename)
 	img_norm_depth = tex_packer.pack_normal_depth(result_image_normal, result_image_depth)
-	img_norm_depth.save_png(img_path + "norm_depth.png")
+	img_norm_depth.save_png(img_path + normal_depth_filename)
 	if is_standard_shader:
 		img_orm = tex_packer.pack_orm(null, null, result_image_metallic)
-		img_orm.save_png(img_path + "orm.png")
+		img_orm.save_png(img_path + orm_filename)
 
 
 func export_packed_scene(pack_path: String) -> void:
-	var tex_packer = TexturePacker.new()
 	var root: Spatial = Spatial.new()
 	var mi: MeshInstance = MeshInstance.new()
+
+	export_images(pack_path)
+
 	var mat: ShaderMaterial = ShaderMaterial.new()
 	if is_standard_shader:
 		mat.shader = standard_shader
@@ -269,37 +278,23 @@ func export_packed_scene(pack_path: String) -> void:
 	mat.set_shader_param("imposterFrames", Vector2(frames_root_number, frames_root_number))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
 
-	var albedo_texture: ImageTexture = ImageTexture.new()
-	albedo_texture.storage = ImageTexture.STORAGE_COMPRESS_LOSSY
-	result_image.convert(Image.FORMAT_RGBA8)
-	result_image.generate_mipmaps()
-	albedo_texture.create_from_image(result_image)
+	var albedo_texture: StreamTexture = load(pack_path + base_filename)
 	mat.set_shader_param("imposterBaseTexture", albedo_texture)
 
-	var img_norm_depth = tex_packer.pack_normal_depth(result_image_normal, result_image_depth)
-
-	var normal_depth_texture: ImageTexture = ImageTexture.new()
-	normal_depth_texture.storage = ImageTexture.STORAGE_COMPRESS_LOSSY
-	img_norm_depth.generate_mipmaps()
-	normal_depth_texture.create_from_image(img_norm_depth)
+	var normal_depth_texture: StreamTexture = load(pack_path + normal_depth_filename)
 	mat.set_shader_param("imposterNormalDepthTexture", normal_depth_texture)
 
 	if is_standard_shader:
 		mat.set_shader_param("isTransparent", false)
 		mat.set_shader_param("metallic", 1.0)
 
-		var img_orm: Image
-		img_orm = tex_packer.pack_orm(null, null, result_image_metallic)
-		var orm_texture: ImageTexture = ImageTexture.new()
-		orm_texture.storage = ImageTexture.STORAGE_COMPRESS_LOSSY
-		img_orm.generate_mipmaps()
-		orm_texture.create_from_image(img_orm)
+		var orm_texture: StreamTexture = load(pack_path + orm_filename)
 		mat.set_shader_param("imposterORMTexture", orm_texture)
 
 	var packed_scene: PackedScene = PackedScene.new()
 	packed_scene.pack(root)
-	ResourceSaver.save(pack_path, packed_scene)
-	print("Imposter tsn ready")
+	ResourceSaver.save(pack_path + packedscene_filename, packed_scene)
+	print("Imposter tscn ready")
 
 
 func slideshow_process() -> void:
@@ -315,9 +310,9 @@ func slideshow_process() -> void:
 				slideshow_state = SLIDESHOW_STATE.FINISH
 		SLIDESHOW_STATE.FINISH:
 			if export_as_packed_scene:
-				export_packed_scene("imposter.scn")
+				export_packed_scene(export_path)
 			else:
-				export_images("export_images/")
+				export_images(export_path)
 			print("Imposter Saved!")
 			slideshow_state = SLIDESHOW_STATE.INIT
 

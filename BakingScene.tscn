@@ -1,17 +1,26 @@
 [gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://materials/shaders/ImpostorShader.shader" type="Shader" id=1]
-[ext_resource path="res://export_images/norm_depth.png" type="Texture" id=2]
-[ext_resource path="res://export_images/base.png" type="Texture" id=3]
+[ext_resource path="res://assets/tree_v2/tree_v2.tscn" type="PackedScene" id=2]
 [ext_resource path="res://env_test.tres" type="Environment" id=4]
-[ext_resource path="res://export_images/orm.png" type="Texture" id=5]
 [ext_resource path="res://scripts/main_view_camera.gd" type="Script" id=11]
-[ext_resource path="res://assets/tree_v2/tree_v2.tscn" type="PackedScene" id=13]
 [ext_resource path="res://scripts/camera_octahedral.gd" type="Script" id=14]
 
 [sub_resource type="QuadMesh" id=1]
 
-[sub_resource type="ShaderMaterial" id=2]
+[sub_resource type="StreamTexture" id=2]
+flags = 23
+load_path = "res://.import/base.png-155c6c140d97852f2c95477923406956.s3tc.stex"
+
+[sub_resource type="StreamTexture" id=3]
+flags = 23
+load_path = "res://.import/norm_depth.png-b6b525951709512137758493ef8f9c69.s3tc.stex"
+
+[sub_resource type="StreamTexture" id=4]
+flags = 23
+load_path = "res://.import/orm.png-d1d1d1288361719b24ea7c02f695b076.s3tc.stex"
+
+[sub_resource type="ShaderMaterial" id=5]
 shader = ExtResource( 1 )
 shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/specular = 0.5
@@ -25,11 +34,11 @@ shader_param/alpha_clamp = 0.602
 shader_param/scale = 0.762
 shader_param/depth_scale = 0.05
 shader_param/normalmap_depth = 0.5
-shader_param/imposterBaseTexture = ExtResource( 3 )
-shader_param/imposterNormalDepthTexture = ExtResource( 2 )
-shader_param/imposterORMTexture = ExtResource( 5 )
+shader_param/imposterBaseTexture = SubResource( 2 )
+shader_param/imposterNormalDepthTexture = SubResource( 3 )
+shader_param/imposterORMTexture = SubResource( 4 )
 
-[sub_resource type="Shader" id=3]
+[sub_resource type="Shader" id=6]
 code = "shader_type spatial;
 render_mode blend_mix, depth_draw_alpha_prepass, cull_back, diffuse_burley, specular_schlick_ggx;
 uniform vec3 offset= vec3(0);
@@ -55,16 +64,16 @@ void fragment() {
 }
 "
 
-[sub_resource type="ShaderMaterial" id=4]
-shader = SubResource( 3 )
+[sub_resource type="ShaderMaterial" id=7]
+shader = SubResource( 6 )
 shader_param/offset = Vector3( 0, 0, -1 )
 shader_param/depth_scaler = 1.0
 
-[sub_resource type="QuadMesh" id=5]
-material = SubResource( 4 )
+[sub_resource type="QuadMesh" id=8]
+material = SubResource( 7 )
 size = Vector2( 2, 2 )
 
-[sub_resource type="StyleBoxFlat" id=6]
+[sub_resource type="StyleBoxFlat" id=9]
 bg_color = Color( 0.243137, 0.235294, 0.282353, 0.545098 )
 
 [node name="TestScene" type="Spatial"]
@@ -73,7 +82,7 @@ bg_color = Color( 0.243137, 0.235294, 0.282353, 0.545098 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.744141 )
 visible = false
 mesh = SubResource( 1 )
-material/0 = SubResource( 2 )
+material/0 = SubResource( 5 )
 
 [node name="ViewportBaking" type="Viewport" parent="."]
 size = Vector2( 1024, 1024 )
@@ -85,8 +94,8 @@ render_target_update_mode = 3
 
 [node name="BakedContainer" type="Spatial" parent="ViewportBaking"]
 
-[node name="tree_v2" parent="ViewportBaking/BakedContainer" instance=ExtResource( 13 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.416, 0 )
+[node name="tree_v2" parent="ViewportBaking/BakedContainer" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.439483, 0 )
 
 [node name="Camera" type="Camera" parent="ViewportBaking"]
 projection = 1
@@ -102,7 +111,7 @@ is_standard_shader = true
 visible = false
 cast_shadow = 0
 extra_cull_margin = 16384.0
-mesh = SubResource( 5 )
+mesh = SubResource( 8 )
 material/0 = null
 
 [node name="Panel" type="Panel" parent="."]
@@ -110,7 +119,7 @@ anchor_bottom = 1.0
 margin_right = 200.0
 margin_bottom = 6.10352e-05
 rect_min_size = Vector2( 200, 0 )
-custom_styles/panel = SubResource( 6 )
+custom_styles/panel = SubResource( 9 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -263,8 +272,8 @@ script = ExtResource( 11 )
 transform = Transform( 0.225622, 0.427503, -0.875406, 0.50602, 0.716429, 0.480285, 0.832489, -0.551336, -0.0546831, -0.911007, 1.27492, 1.34433 )
 editor_only = true
 [connection signal="pressed" from="Panel/container/Button" to="ViewportBaking/Camera" method="_on_Button_pressed"]
-[connection signal="value_changed" from="Panel/container/HBoxContainer/SpinBox" to="Camera" method="_on_SpinBox_value_changed"]
 [connection signal="value_changed" from="Panel/container/HBoxContainer/SpinBox" to="ViewportBaking/Camera" method="_on_SpinBox_value_changed"]
+[connection signal="value_changed" from="Panel/container/HBoxContainer/SpinBox" to="Camera" method="_on_SpinBox_value_changed"]
 [connection signal="value_changed" from="Panel/container/HBoxContainer3/SpinBoxGridSize" to="ViewportBaking/Camera" method="_on_SpinBoxGridSize_value_changed"]
 [connection signal="item_selected" from="Panel/container/HBoxContainer2/OptionButtonImgRes" to="ViewportBaking/Camera" method="_on_OptionButtonImgRes_item_selected"]
 [connection signal="toggled" from="Panel/container/HBoxContainer4/CheckboxFullSphere" to="ViewportBaking/Camera" method="_on_CheckboxFullSphere_toggled"]
