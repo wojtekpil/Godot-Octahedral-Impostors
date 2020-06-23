@@ -32,4 +32,5 @@ window/size/always_on_top=true
 
 [rendering]
 
+vram_compression/import_etc2=false
 quality/filters/msaa=4
