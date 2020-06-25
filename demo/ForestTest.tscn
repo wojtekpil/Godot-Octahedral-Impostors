@@ -1,14 +1,10 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://addons/octahedral_impostors/materials/shaders/ImpostorShaderLight.shader" type="Shader" id=1]
 [ext_resource path="res://addons/octahedral_impostors/materials/shaders/ImpostorShader.shader" type="Shader" id=2]
-[ext_resource path="res://demo/tree01/result_normal.png" type="Texture" id=3]
-[ext_resource path="res://demo/tree02/result_normal.png" type="Texture" id=4]
 [ext_resource path="res://demo/tree02/result.png" type="Texture" id=5]
 [ext_resource path="res://demo/bush/result.png" type="Texture" id=6]
-[ext_resource path="res://demo/bush/result_normal.png" type="Texture" id=8]
 [ext_resource path="res://demo/tree01/result.png" type="Texture" id=9]
-[ext_resource path="res://demo/bush/result_depth.png" type="Texture" id=10]
 [ext_resource path="res://assets/enviroments/directionallight_corrected.tscn" type="PackedScene" id=18]
 [ext_resource path="res://assets/enviroments/enviroment_corrected.tres" type="Environment" id=19]
 
@@ -33,7 +29,6 @@ shader_param/scale = 1.533
 shader_param/depth_scale = 0.05
 shader_param/normalmap_depth = 1.0
 shader_param/imposterBaseTexture = ExtResource( 9 )
-shader_param/imposterNormalTexture = ExtResource( 3 )
 
 [sub_resource type="QuadMesh" id=4]
 material = SubResource( 3 )
@@ -58,7 +53,6 @@ shader_param/scale = 1.0
 shader_param/depth_scale = 0.05
 shader_param/normalmap_depth = 1.0
 shader_param/imposterBaseTexture = ExtResource( 5 )
-shader_param/imposterNormalTexture = ExtResource( 4 )
 
 [sub_resource type="QuadMesh" id=7]
 material = SubResource( 6 )
@@ -84,8 +78,6 @@ shader_param/scale = 0.448
 shader_param/depth_scale = 0.05
 shader_param/normalmap_depth = 0.559
 shader_param/imposterBaseTexture = ExtResource( 6 )
-shader_param/imposterNormalTexture = ExtResource( 8 )
-shader_param/imposterDepthTexture = ExtResource( 10 )
 
 [sub_resource type="QuadMesh" id=10]
 material = SubResource( 9 )
