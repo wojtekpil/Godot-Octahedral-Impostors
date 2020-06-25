@@ -16,14 +16,15 @@ _global_script_class_icons={
 [application]
 
 config/name="Octahedral Impostors"
-run/main_scene="res://BakingScene.tscn"
 config/icon="res://icon.png"
 
 [display]
 
-window/size/width=700
-window/size/height=700
 window/size/always_on_top=true
+
+[editor_plugins]
+
+enabled=PoolStringArray( "octahedral_impostors" )
 
 [rendering]
 
