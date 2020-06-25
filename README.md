@@ -3,6 +3,8 @@
 
 Simple implementation of octahedral impostors in Godot. Inspired by [shaderbits article](https://www.shaderbits.com/blog/octahedral-impostors) and this [Unity implementation](https://github.com/xraxra/IMP). **Still work in progress** but should be usable.
 
+**You can watch the video tutorial [here](https://www.youtube.com/watch?v=4YhwXGbbabg).**
+
 I was fed up with poor quality of impostors based on traditional billboards in Godot. This implementation uses only one plane to imitate a three-dimensional object from multiple angles. Trees with ~30k vertices vs theirs planes impostors:
 
 ![alt text](/screenshots/rotate2.gif?raw=true "Rotate impostors")
