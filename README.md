@@ -32,6 +32,7 @@ Grid blending  | :heavy_check_mark:        | :heavy_check_mark:
 Depth maps  | :heavy_check_mark:        |   :x:
 Shadows  | :heavy_check_mark:        |    :x:
 Metallic textures  | :heavy_check_mark:        |   :x:
+Roughness textures  | :heavy_check_mark:        |   :x:
 Alpha prepass  | :heavy_check_mark:        |   :x:
 Vertices*      | 36                        | 12
 

@@ -7,14 +7,13 @@ export (float) var camera_distance = 1.0
 export (bool) var is_full_sphere = true
 export (bool) var is_standard_shader = false
 export (bool) var export_as_packed_scene = true
-
-var save_path: String
-var save_img_path: String
+export (String) var export_path = "res://export_images/"
 
 var result_image: Image = Image.new()
 var result_image_normal: Image = Image.new()
 var result_image_depth: Image = Image.new()
 var result_image_metallic: Image = Image.new()
+var result_image_roughness: Image = Image.new()
 
 var rendered_counter: int = 0
 var current_frame: Vector2 = Vector2(0, 0)
@@ -23,9 +22,15 @@ onready var baking_camera: Camera = $ViewportContainer/ViewportBaking/Camera
 onready var progress_bar: ProgressBar = $Panel/container/progress
 var scene_to_bake: Spatial
 
-var normal_material = preload("../materials/normal_baker.material")
-var standard_shader = preload("../materials/shaders/ImpostorShader.shader")
-var light_shader = preload("../materials/shaders/ImpostorShaderLight.shader")
+var normal_material := preload("../materials/normal_baker.material")
+var standard_shader := preload("../materials/shaders/ImpostorShader.shader")
+var light_shader := preload("../materials/shaders/ImpostorShaderLight.shader")
+
+var save_path: String
+var base_filename := "base.png"
+var normal_depth_filename := "norm_depth.png"
+var orm_filename := "orm.png"
+var packedscene_filename := "imposter.tscn"
 
 enum BAKER_STATE {
 	INIT,
@@ -33,6 +38,8 @@ enum BAKER_STATE {
 	NOP,
 	METALLIC_VIEW,
 	SCREENSHOT_METALLIC,
+	ROUGHNESS_VIEW,
+	SCREENSHOT_ROUGHNESS,
 	DEPTH_VIEW,
 	SCREENSHOT_DEPTH,
 	MATERIAL_NORMAL,
@@ -41,6 +48,8 @@ enum BAKER_STATE {
 	FINISH
 }
 enum SLIDESHOW_STATE { INIT, BEGIN, SESSION, FINISH, CANCEL }
+
+enum BAKING_ORM_TYPE { METALLIC, ROUGHNESS }
 
 var baker_state = BAKER_STATE.INIT
 var slideshow_state = SLIDESHOW_STATE.INIT
@@ -159,54 +168,65 @@ func update_scene_to_bake_material(node, material) -> void:
 			update_scene_to_bake_material(N, material)
 
 
-func prepare_mesh_instance_metallic_texture(node: MeshInstance) -> void:
+func prepare_mesh_instance_orm_texture(node: MeshInstance, orm_type: int) -> void:
 	var mats: int = node.mesh.get_surface_count()
 	var mats_node: int = node.get_surface_material_count()
 	if mats != mats_node:
-		print("Metallic baking not supported")
+		print("ORM baking not supported")
 		return
 	for m in mats:
 		var mat: Material = node.mesh.surface_get_material(m)
 		if ! (mat is SpatialMaterial):
 			continue
 		var mat_dup: Material = mat.duplicate()
-		mat_dup.albedo_texture = mat_dup.metallic_texture
+		match orm_type:
+			BAKING_ORM_TYPE.METALLIC:
+				mat_dup.albedo_texture = mat.metallic_texture
+				mat_dup.albedo_color = Color(mat.metallic, mat.metallic, mat.metallic)
+			BAKING_ORM_TYPE.ROUGHNESS:
+				mat_dup.albedo_texture = mat.roughness_texture
+				mat_dup.albedo_color = Color(mat.roughness, mat.roughness, mat.roughness)
 		node.set_surface_material(m, mat_dup)
 
 
-func prepare_metallic_texture(node: Spatial) -> void:
+func prepare_orm_texture(node: Spatial, orm_type: int) -> void:
 	if node is MeshInstance:
-		prepare_mesh_instance_metallic_texture(node)
+		prepare_mesh_instance_orm_texture(node, orm_type)
 	for N in node.get_children():
 		if N is MeshInstance:
-			prepare_mesh_instance_metallic_texture(N)
+			prepare_mesh_instance_orm_texture(N, orm_type)
 		if N.get_child_count() > 0:
-			prepare_metallic_texture(N)
+			prepare_orm_texture(N, orm_type)
 
 
-func cleanup_mesh_instance_metallic_texture(node: MeshInstance) -> void:
+func cleanup_mesh_instance_orm_texture(node: MeshInstance) -> void:
 	var mats: int = node.mesh.get_surface_count()
 	var mats_node: int = node.get_surface_material_count()
 	if mats != mats_node:
-		print("Metallic baking not supported")
+		print("ORM baking not supported.")
 		return
 	for m in mats:
 		node.set_surface_material(m, null)
 
 
-func cleanup_metallic_texture(node: Spatial) -> void:
+func cleanup_orm_texture(node: Spatial) -> void:
 	if node is MeshInstance:
-		cleanup_mesh_instance_metallic_texture(node)
+		cleanup_mesh_instance_orm_texture(node)
 	for N in node.get_children():
 		if N is MeshInstance:
-			cleanup_mesh_instance_metallic_texture(N)
+			cleanup_mesh_instance_orm_texture(N)
 		if N.get_child_count() > 0:
-			cleanup_metallic_texture(N)
+			cleanup_orm_texture(N)
 
 
 func state_screenshotMetallic(coords: Vector2) -> void:
 	var image: Image = take_screenshot()
 	place_in_image_atlas(coords, image, result_image_metallic)
+
+
+func state_screenshotRoughness(coords: Vector2) -> void:
+	var image: Image = take_screenshot()
+	place_in_image_atlas(coords, image, result_image_roughness)
 
 
 func baker_process(coords: Vector2) -> void:
@@ -222,11 +242,18 @@ func baker_process(coords: Vector2) -> void:
 			else:
 				baker_state = BAKER_STATE.MATERIAL_NORMAL
 		BAKER_STATE.METALLIC_VIEW:
-			prepare_metallic_texture(scene_to_bake)
+			prepare_orm_texture(scene_to_bake, BAKING_ORM_TYPE.METALLIC)
 			baker_state = BAKER_STATE.SCREENSHOT_METALLIC
 		BAKER_STATE.SCREENSHOT_METALLIC:
 			state_screenshotMetallic(coords)
-			cleanup_metallic_texture(scene_to_bake)
+			cleanup_orm_texture(scene_to_bake)
+			baker_state = BAKER_STATE.ROUGHNESS_VIEW
+		BAKER_STATE.ROUGHNESS_VIEW:
+			prepare_orm_texture(scene_to_bake, BAKING_ORM_TYPE.ROUGHNESS)
+			baker_state = BAKER_STATE.SCREENSHOT_ROUGHNESS
+		BAKER_STATE.SCREENSHOT_ROUGHNESS:
+			state_screenshotRoughness(coords)
+			cleanup_orm_texture(scene_to_bake)
 			baker_state = BAKER_STATE.DEPTH_VIEW
 		BAKER_STATE.DEPTH_VIEW:
 			baker_state = BAKER_STATE.SCREENSHOT_DEPTH
@@ -272,44 +299,59 @@ func export_images(img_path: String) -> void:
 	var dir: Directory = Directory.new()
 	if not dir.dir_exists(img_path):
 		dir.make_dir_recursive(img_path)
-	
+
+	var tex_packer = TexturePacker.new()
+	var img_norm_depth: Image
+	var img_orm: Image
+
 	result_image.convert(Image.FORMAT_RGBA8)
-	result_image.save_png(img_path + "/result.png")
-	result_image_normal.save_png(img_path + "/result_normal.png")
+	result_image.save_png(img_path.plus_file(base_filename))
+	img_norm_depth = tex_packer.pack_normal_depth(result_image_normal, result_image_depth)
+	img_norm_depth.save_png(img_path.plus_file(normal_depth_filename))
 	if is_standard_shader:
-		result_image_depth.save_png(img_path + "/result_depth.png")
-		result_image_metallic.save_png(img_path + "/result_metallic.png")
+		img_orm = tex_packer.pack_orm(null, result_image_roughness, result_image_metallic)
+		img_orm.save_png(img_path.plus_file(orm_filename))
 
 
 func export_packed_scene(pack_path: String) -> void:
-	export_images(save_img_path)
+	export_images(pack_path)
 	
 	var root: Spatial = Spatial.new()
 	var mi: MeshInstance = MeshInstance.new()
+
 	var mat: ShaderMaterial = ShaderMaterial.new()
 	if is_standard_shader:
 		mat.shader = standard_shader
 	else:
 		mat.shader = light_shader
 
+	# reimport and wait until the files' have all been (re)imported.
+	OS.window_minimized = true
+	OS.window_minimized = false
+
+	var albedo_texture: StreamTexture
+	var normal_depth_texture: StreamTexture
+	var orm_texture: StreamTexture
+
+	while not (albedo_texture and normal_depth_texture and (orm_texture if is_standard_shader else true)):
+		albedo_texture = load(pack_path.plus_file(base_filename))
+		normal_depth_texture = load(pack_path.plus_file(normal_depth_filename))
+		if is_standard_shader:
+			orm_texture = load(pack_path.plus_file(orm_filename))
+		yield(get_tree(), "idle_frame")
+
 	mat.set_shader_param("imposterFrames", Vector2(frames_root_number, frames_root_number))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
 
-	var albedo_texture: StreamTexture = load(save_img_path + "/result.png")
 	mat.set_shader_param("imposterBaseTexture", albedo_texture)
-
-	var normal_texture: StreamTexture = load(save_img_path + "/result_normal.png")
-	mat.set_shader_param("imposterNormalTexture", normal_texture)
+	print(normal_depth_texture)
+	mat.set_shader_param("imposterNormalDepthTexture", normal_depth_texture)
 
 	if is_standard_shader:
-		mat.set_shader_param("isTransparent", true)
+		mat.set_shader_param("isTransparent", false)
 		mat.set_shader_param("metallic", 1.0)
 
-		var depth_texture: StreamTexture = load(save_img_path + "/result_depth.png")
-		mat.set_shader_param("imposterDepthTexture", depth_texture)
-
-		var metallic_texture: StreamTexture = load(save_img_path + "/result_metallic.png")
-		mat.set_shader_param("imposterMetallicTexture", metallic_texture)
+		mat.set_shader_param("imposterORMTexture", orm_texture)
 
 	var quad_mesh: QuadMesh = QuadMesh.new()
 
@@ -317,12 +359,12 @@ func export_packed_scene(pack_path: String) -> void:
 	root.name = "Impostor"
 	mi.owner = root
 	mi.mesh = quad_mesh
-	mi.set_surface_material(0, mat)
+	mi.mesh.surface_set_material(0, mat)
 
 	var packed_scene: PackedScene = PackedScene.new()
 	packed_scene.pack(root)
-	ResourceSaver.save(pack_path, packed_scene)
-	print("Imposter scn ready")
+	ResourceSaver.save(pack_path.plus_file(packedscene_filename), packed_scene)
+	print("Imposter tscn ready")
 
 
 func slideshow_process() -> void:
@@ -343,7 +385,7 @@ func slideshow_process() -> void:
 			if export_as_packed_scene:
 				export_packed_scene(save_path)
 			else:
-				export_images(save_img_path)
+				export_images(save_path)
 			print("Imposter Saved!")
 			call_deferred("hide")
 			continue
@@ -356,13 +398,19 @@ func slideshow_process() -> void:
 			slideshow_state = SLIDESHOW_STATE.INIT
 
 
-func _ready():
+func create_images():
 	result_image.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
 	result_image.fill(Color(0, 0, 0, 0))
 	result_image_normal.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
 	result_image_depth.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
 	result_image_metallic.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
-	
+	result_image_roughness.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
+	#make default as roughth
+	result_image_roughness.fill(Color(1, 1, 1))
+
+
+func _ready():
+	create_images()
 	set_scene_to_bake($ViewportContainer/ViewportBaking/BakedContainer/tree_v2)
 
 
@@ -410,16 +458,12 @@ func _on_CheckBoxPackedScene_toggled(state: bool):
 func _on_OptionButtonImgRes_item_selected(new_dimm: int):
 	var multiplier: int = pow(2, new_dimm)
 	image_dimensions = 1024*multiplier
-
-	result_image.resize(image_dimensions, image_dimensions, Image.INTERPOLATE_NEAREST)
-	result_image_normal.resize(image_dimensions, image_dimensions, Image.INTERPOLATE_NEAREST)
-	result_image_depth.resize(image_dimensions, image_dimensions, Image.INTERPOLATE_NEAREST)
-	result_image_metallic.resize(image_dimensions, image_dimensions, Image.INTERPOLATE_NEAREST)
+	create_images()
 
 
 func _on_FileDialog_file_selected(path: String) -> void:
-	save_path = path
-	save_img_path = path.get_base_dir().plus_file("impostor_textures")
+	save_path = path.get_base_dir()
+	packedscene_filename = path.get_file()
 	slideshow_state = SLIDESHOW_STATE.BEGIN
 
 

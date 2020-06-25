@@ -6,7 +6,7 @@ uniform float metallic = 0f;
 uniform float roughness : hint_range(0, 1) = 1f;
 
 uniform sampler2D imposterBaseTexture : hint_albedo;
-uniform sampler2D imposterNormalTexture : hint_albedo;
+uniform sampler2D imposterNormalDepthTexture : hint_albedo;
 uniform vec2 imposterFrames = vec2(16f, 16f);
 uniform vec3 positionOffset = vec3(0f);
 uniform bool isFullSphere = true;
@@ -218,7 +218,7 @@ void fragment()
 	vec4 baseTex;
 	vec4 normalTex;
 	baseTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterBaseTexture);
-	normalTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterNormalTexture);
+	normalTex = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterNormalDepthTexture);
 
 	baseTex.a = clamp(pow(baseTex.a, alpha_clamp), 0f, 1f);
 
