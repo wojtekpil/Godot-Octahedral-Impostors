@@ -1,9 +1,14 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://assets/tree_v2/tree_v2.tscn" type="PackedScene" id=1]
 [ext_resource path="res://addons/octahedral_impostors/scripts/impostor_baker.gd" type="Script" id=2]
 
-[sub_resource type="Shader" id=1]
+[sub_resource type="Environment" id=1]
+ambient_light_color = Color( 1, 1, 1, 1 )
+
+[sub_resource type="World" id=2]
+environment = SubResource( 1 )
+
+[sub_resource type="Shader" id=3]
 code = "shader_type spatial;
 render_mode blend_mix, depth_draw_alpha_prepass, cull_back, diffuse_burley, specular_schlick_ggx;
 uniform vec3 offset= vec3(0);
@@ -29,17 +34,17 @@ void fragment() {
 }
 "
 
-[sub_resource type="ShaderMaterial" id=2]
-shader = SubResource( 1 )
+[sub_resource type="ShaderMaterial" id=4]
+shader = SubResource( 3 )
 shader_param/offset = Vector3( 0, 0, -1 )
 shader_param/depth_scaler = 1.0
 
-[sub_resource type="QuadMesh" id=3]
-material = SubResource( 2 )
+[sub_resource type="QuadMesh" id=5]
+material = SubResource( 4 )
 size = Vector2( 2, 2 )
 
-[sub_resource type="StyleBoxFlat" id=4]
-bg_color = Color( 0.231373, 0.231373, 0.32549, 0.545098 )
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 0.231373, 0.231373, 0.32549, 0 )
 
 [node name="ImpostorBaker" type="WindowDialog"]
 anchor_right = 1.0
@@ -54,7 +59,6 @@ script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-atlas_coverage = 1.0
 
 [node name="ViewportContainer" type="ViewportContainer" parent="."]
 anchor_right = 1.0
@@ -68,23 +72,20 @@ __meta__ = {
 [node name="ViewportBaking" type="Viewport" parent="ViewportContainer"]
 size = Vector2( 424, 275 )
 own_world = true
+world = SubResource( 2 )
 transparent_bg = true
 handle_input_locally = false
 msaa = 4
-keep_3d_linear = true
 debug_draw = 1
 render_target_update_mode = 0
 
 [node name="BakedContainer" type="Spatial" parent="ViewportContainer/ViewportBaking"]
 
-[node name="tree_v2" parent="ViewportContainer/ViewportBaking/BakedContainer" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0294909, -0.458072, 0.0411358 )
-
 [node name="Camera" type="Camera" parent="ViewportContainer/ViewportBaking"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.65457 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.45593 )
 projection = 1
 current = true
-size = 100.0
+size = 1.58
 near = 0.01
 far = 200.0
 
@@ -92,7 +93,7 @@ far = 200.0
 visible = false
 cast_shadow = 0
 extra_cull_margin = 16384.0
-mesh = SubResource( 3 )
+mesh = SubResource( 5 )
 material/0 = null
 
 [node name="Panel" type="Panel" parent="."]
@@ -100,7 +101,7 @@ anchor_bottom = 1.0
 margin_right = 235.0
 margin_bottom = -3.05176e-05
 rect_min_size = Vector2( 200, 0 )
-custom_styles/panel = SubResource( 4 )
+custom_styles/panel = SubResource( 6 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -146,7 +147,6 @@ valign = 1
 margin_left = 150.0
 margin_right = 224.0
 margin_bottom = 24.0
-step = 1.0
 value = 100.0
 allow_greater = true
 suffix = "%"

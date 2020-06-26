@@ -248,6 +248,7 @@ func baker_process(coords: Vector2) -> void:
 				baker_state = BAKER_STATE.METALLIC_VIEW
 			else:
 				baker_state = BAKER_STATE.MATERIAL_NORMAL
+			$ViewportContainer/ViewportBaking.keep_3d_linear = true
 		BAKER_STATE.METALLIC_VIEW:
 			prepare_orm_texture(scene_to_bake, BAKING_ORM_TYPE.METALLIC)
 			baker_state = BAKER_STATE.SCREENSHOT_METALLIC
@@ -276,6 +277,7 @@ func baker_process(coords: Vector2) -> void:
 			state_screenshot_normal(coords)
 			update_scene_to_bake_material(scene_to_bake, null)
 			baker_state = BAKER_STATE.SCREENSHOT
+			$ViewportContainer/ViewportBaking.keep_3d_linear = false
 		BAKER_STATE.SCREENSHOT:
 			state_screenshot(coords)
 			baker_state = BAKER_STATE.FINISH
@@ -401,6 +403,7 @@ func slideshow_process() -> void:
 			popup_exclusive = false
 			$ViewportContainer.stretch = true
 			$ViewportContainer/ViewportBaking.size = rect_size
+			$ViewportContainer/ViewportBaking.keep_3d_linear = false
 			rendered_counter = 0.0
 			slideshow_state = SLIDESHOW_STATE.INIT
 
