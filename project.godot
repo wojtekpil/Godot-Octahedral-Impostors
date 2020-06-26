@@ -21,6 +21,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Octahedral Impostors"
+run/main_scene="res://demo/ForestTest.tscn"
 config/icon="res://icon.png"
 
 [display]

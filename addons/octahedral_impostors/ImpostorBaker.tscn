@@ -54,8 +54,7 @@ script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-is_full_sphere = false
-is_standard_shader = true
+atlas_coverage = 1.0
 
 [node name="ViewportContainer" type="ViewportContainer" parent="."]
 anchor_right = 1.0
@@ -85,9 +84,9 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0294909, -0.458072, 0.04113
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.65457 )
 projection = 1
 current = true
-size = 1.65457
+size = 100.0
 near = 0.01
-far = 3.30914
+far = 200.0
 
 [node name="DepthPostProcess" type="MeshInstance" parent="ViewportContainer/ViewportBaking/Camera"]
 visible = false
@@ -134,19 +133,23 @@ margin_right = 224.0
 margin_bottom = 70.0
 
 [node name="Label" type="Label" parent="Panel/container/HBoxContainer"]
-margin_top = 5.0
 margin_right = 146.0
-margin_bottom = 19.0
+margin_bottom = 24.0
+hint_tooltip = "How much space the object covers in the atlas tiles."
+mouse_filter = 0
 size_flags_horizontal = 3
-text = "Camera size"
+size_flags_vertical = 5
+text = "Atlas Coverage"
+valign = 1
 
-[node name="SpinBoxCamera" type="SpinBox" parent="Panel/container/HBoxContainer"]
+[node name="SpinBoxCoverage" type="SpinBox" parent="Panel/container/HBoxContainer"]
 margin_left = 150.0
 margin_right = 224.0
 margin_bottom = 24.0
-step = 0.01
-value = 1.65
+step = 1.0
+value = 100.0
 allow_greater = true
+suffix = "%"
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="Panel/container"]
 margin_top = 76.0
@@ -154,17 +157,21 @@ margin_right = 224.0
 margin_bottom = 100.0
 
 [node name="Label4" type="Label" parent="Panel/container/HBoxContainer3"]
-margin_top = 5.0
 margin_right = 146.0
-margin_bottom = 19.0
+margin_bottom = 24.0
+hint_tooltip = "The number of rows and columns generated in the atlases."
+mouse_filter = 0
 size_flags_horizontal = 3
+size_flags_vertical = 5
 text = "Grid size"
+valign = 1
 
 [node name="SpinBoxGridSize" type="SpinBox" parent="Panel/container/HBoxContainer3"]
 margin_left = 150.0
 margin_right = 224.0
 margin_bottom = 24.0
-min_value = 1.0
+min_value = 2.0
+max_value = 64.0
 value = 16.0
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="Panel/container"]
@@ -173,11 +180,14 @@ margin_right = 224.0
 margin_bottom = 126.0
 
 [node name="Label2" type="Label" parent="Panel/container/HBoxContainer2"]
-margin_top = 3.0
 margin_right = 159.0
-margin_bottom = 17.0
+margin_bottom = 20.0
+hint_tooltip = "The resolution of the atlases."
+mouse_filter = 0
 size_flags_horizontal = 3
+size_flags_vertical = 5
 text = "Image Resolution"
+valign = 1
 
 [node name="OptionButtonImgRes" type="OptionButton" parent="Panel/container/HBoxContainer2"]
 margin_left = 163.0
@@ -193,11 +203,14 @@ margin_right = 224.0
 margin_bottom = 156.0
 
 [node name="Label2" type="Label" parent="Panel/container/HBoxContainer4"]
-margin_top = 5.0
 margin_right = 196.0
-margin_bottom = 19.0
+margin_bottom = 24.0
+hint_tooltip = "Whether the tiles are generated for the entire sphere. Set to true if the impostor will be viewed from all angles, including from the bottom."
+mouse_filter = 0
 size_flags_horizontal = 3
+size_flags_vertical = 5
 text = "Full sphere"
+valign = 1
 
 [node name="CheckboxFullSphere" type="CheckBox" parent="Panel/container/HBoxContainer4"]
 margin_left = 200.0
@@ -210,13 +223,16 @@ margin_right = 224.0
 margin_bottom = 186.0
 
 [node name="Label3" type="Label" parent="Panel/container/HBoxContainer5"]
-margin_top = 5.0
 margin_right = 196.0
-margin_bottom = 19.0
+margin_bottom = 24.0
+hint_tooltip = "Whether the impostor should use a high quality shader."
+mouse_filter = 0
 size_flags_horizontal = 3
-text = "Generate Standard Shader"
+size_flags_vertical = 5
+text = "High Quality Shader"
+valign = 1
 
-[node name="CheckboxDepth" type="CheckBox" parent="Panel/container/HBoxContainer5"]
+[node name="CheckboxHighQuality" type="CheckBox" parent="Panel/container/HBoxContainer5"]
 margin_left = 200.0
 margin_right = 224.0
 margin_bottom = 24.0
@@ -228,11 +244,14 @@ margin_right = 224.0
 margin_bottom = 216.0
 
 [node name="Label" type="Label" parent="Panel/container/HBoxContainer6"]
-margin_top = 5.0
 margin_right = 196.0
-margin_bottom = 19.0
+margin_bottom = 24.0
+hint_tooltip = "Whether to export the impostor itself. Disable if you just want the atlas images."
+mouse_filter = 0
 size_flags_horizontal = 3
+size_flags_vertical = 5
 text = "Export as packed scene"
+valign = 1
 
 [node name="CheckBoxPackedScene" type="CheckBox" parent="Panel/container/HBoxContainer6"]
 margin_left = 200.0
@@ -241,12 +260,14 @@ margin_bottom = 24.0
 pressed = true
 
 [node name="FileDialog" type="FileDialog" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 59.2314
-margin_top = 41.6157
-margin_right = -57.7686
-margin_bottom = -53.3843
+anchor_left = 0.14
+anchor_top = 0.151
+anchor_right = 0.864
+anchor_bottom = 0.806
+margin_left = -0.128601
+margin_top = 0.0906982
+margin_right = -0.104614
+margin_bottom = -0.034317
 window_title = "Save your impostor"
 dialog_hide_on_ok = true
 current_file = "impostor.scn"
@@ -256,10 +277,10 @@ __meta__ = {
 }
 [connection signal="popup_hide" from="." to="." method="_on_ImpostorBaker_popup_hide"]
 [connection signal="pressed" from="Panel/container/Button" to="." method="_on_Button_pressed"]
-[connection signal="value_changed" from="Panel/container/HBoxContainer/SpinBoxCamera" to="." method="_on_SpinBox_value_changed"]
+[connection signal="value_changed" from="Panel/container/HBoxContainer/SpinBoxCoverage" to="." method="_on_SpinBox_value_changed"]
 [connection signal="value_changed" from="Panel/container/HBoxContainer3/SpinBoxGridSize" to="." method="_on_SpinBoxGridSize_value_changed"]
 [connection signal="item_selected" from="Panel/container/HBoxContainer2/OptionButtonImgRes" to="." method="_on_OptionButtonImgRes_item_selected"]
 [connection signal="toggled" from="Panel/container/HBoxContainer4/CheckboxFullSphere" to="." method="_on_CheckboxFullSphere_toggled"]
-[connection signal="toggled" from="Panel/container/HBoxContainer5/CheckboxDepth" to="." method="_on_CheckboxDepth_toggled"]
+[connection signal="toggled" from="Panel/container/HBoxContainer5/CheckboxHighQuality" to="." method="_on_CheckboxHighQuality_toggled"]
 [connection signal="toggled" from="Panel/container/HBoxContainer6/CheckBoxPackedScene" to="." method="_on_CheckBoxPackedScene_toggled"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_FileDialog_file_selected"]

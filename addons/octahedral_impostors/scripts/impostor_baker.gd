@@ -3,9 +3,9 @@ extends WindowDialog
 
 export (int) var frames_root_number = 16
 export (int) var image_dimensions = 4096
-export (float) var camera_distance = 1.0
-export (bool) var is_full_sphere = true
-export (bool) var is_standard_shader = false
+export (float) var atlas_coverage = 1.0
+export (bool) var is_full_sphere = false
+export (bool) var is_standard_shader = true
 export (bool) var export_as_packed_scene = true
 export (String) var export_path = "res://export_images/"
 
@@ -15,6 +15,7 @@ var result_image_depth: Image = Image.new()
 var result_image_metallic: Image = Image.new()
 var result_image_roughness: Image = Image.new()
 
+var camera_distance: float = 1.0
 var rendered_counter: int = 0
 var current_frame: Vector2 = Vector2(0, 0)
 
@@ -60,17 +61,23 @@ func set_scene_to_bake(node: Spatial) -> void:
 		scene_to_bake.queue_free()
 
 	scene_to_bake = node.duplicate()
-	scene_to_bake.transform = Transform()
 	scene_to_bake.show()
 	$ViewportContainer/ViewportBaking/BakedContainer.add_child(scene_to_bake)
 
-	var aabb := get_scene_to_bake_aabb()
-	scene_to_bake.translate(-aabb.position - aabb.size / 2.0)
+	var aabb: AABB = get_scene_to_bake_aabb()
+	update_scene_to_bake_transform()
 
-	baking_camera.size = aabb.size.length() + 0.1
-	baking_camera.far = baking_camera.size * 2.0
-	baking_camera.transform.origin.z = baking_camera.size
-	$Panel/container/HBoxContainer/SpinBoxCamera.value = baking_camera.size
+	camera_distance = aabb.size.length()
+	baking_camera.size = camera_distance
+	baking_camera.far = camera_distance * 2.0
+	baking_camera.transform.origin.z = camera_distance
+
+
+func update_scene_to_bake_transform() -> void:
+	scene_to_bake.transform = Transform()
+	scene_to_bake.scale *= atlas_coverage
+	var aabb: AABB = get_scene_to_bake_aabb()
+	scene_to_bake.translation -= aabb.position + aabb.size / 2.0
 
 func get_scene_to_bake_aabb(node := scene_to_bake) -> AABB:
 	var aabb := AABB(Vector3.ONE * 65536.0, -Vector3.ONE * 65536.0 * 2.0)
@@ -325,7 +332,7 @@ func export_packed_scene(pack_path: String) -> void:
 	else:
 		mat.shader = light_shader
 
-	# reimport and wait until the files' have all been (re)imported.
+	# minimize and maximize the Godot window to trigger importing the images
 	OS.window_minimized = true
 	OS.window_minimized = false
 
@@ -333,6 +340,7 @@ func export_packed_scene(pack_path: String) -> void:
 	var normal_depth_texture: StreamTexture
 	var orm_texture: StreamTexture
 
+	# wait until the images have all been (re)imported.
 	while not (albedo_texture and normal_depth_texture and (orm_texture if is_standard_shader else true)):
 		albedo_texture = load(pack_path.plus_file(base_filename))
 		normal_depth_texture = load(pack_path.plus_file(normal_depth_filename))
@@ -344,7 +352,6 @@ func export_packed_scene(pack_path: String) -> void:
 	mat.set_shader_param("isFullSphere", is_full_sphere)
 
 	mat.set_shader_param("imposterBaseTexture", albedo_texture)
-	print(normal_depth_texture)
 	mat.set_shader_param("imposterNormalDepthTexture", normal_depth_texture)
 
 	if is_standard_shader:
@@ -364,7 +371,7 @@ func export_packed_scene(pack_path: String) -> void:
 	var packed_scene: PackedScene = PackedScene.new()
 	packed_scene.pack(root)
 	ResourceSaver.save(pack_path.plus_file(packedscene_filename), packed_scene)
-	print("Imposter tscn ready")
+	print("Imposter ready!")
 
 
 func slideshow_process() -> void:
@@ -405,13 +412,13 @@ func create_images():
 	result_image_depth.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
 	result_image_metallic.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
 	result_image_roughness.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
-	#make default as roughth
+	#make default as rough
 	result_image_roughness.fill(Color(1, 1, 1))
 
 
 func _ready():
 	create_images()
-	set_scene_to_bake($ViewportContainer/ViewportBaking/BakedContainer/tree_v2)
+	$ViewportContainer/ViewportBaking/BakedContainer/tree_v2.queue_free()
 
 
 func _process(_delta):
@@ -434,9 +441,8 @@ func _on_Button_pressed():
 
 
 func _on_SpinBox_value_changed(value: float):
-	camera_distance = value
-	baking_camera.far = value * 2.0
-	baking_camera.size = value
+	atlas_coverage = value / 100.0
+	update_scene_to_bake_transform()
 
 
 func _on_CheckboxFullSphere_toggled(state: bool):
@@ -447,7 +453,7 @@ func _on_SpinBoxGridSize_value_changed(value: float):
 	frames_root_number = value
 
 
-func _on_CheckboxDepth_toggled(state: bool):
+func _on_CheckboxHighQuality_toggled(state: bool):
 	is_standard_shader = state
 
 
@@ -470,3 +476,4 @@ func _on_FileDialog_file_selected(path: String) -> void:
 func _on_ImpostorBaker_popup_hide() -> void:
 	if slideshow_state != SLIDESHOW_STATE.INIT:
 		slideshow_state = SLIDESHOW_STATE.CANCEL
+
