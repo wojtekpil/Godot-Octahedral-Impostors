@@ -5,7 +5,7 @@
 [ext_resource path="res://demo/bush/norm_depth.png" type="Texture" id=3]
 [ext_resource path="res://demo/bush/base.png" type="Texture" id=4]
 
-[sub_resource type="ShaderMaterial" id=9]
+[sub_resource type="ShaderMaterial" id=1]
 shader = ExtResource( 1 )
 shader_param/albedo = Color( 1, 1, 1, 1 )
 shader_param/specular = 0.5
@@ -23,11 +23,11 @@ shader_param/imposterBaseTexture = ExtResource( 4 )
 shader_param/imposterNormalDepthTexture = ExtResource( 3 )
 shader_param/imposterORMTexture = ExtResource( 2 )
 
-[sub_resource type="QuadMesh" id=10]
-material = SubResource( 9 )
+[sub_resource type="QuadMesh" id=2]
+material = SubResource( 1 )
 
 [node name="Scene" type="Spatial"]
 
 [node name="Imposter" type="MeshInstance" parent="."]
-mesh = SubResource( 10 )
+mesh = SubResource( 2 )
 material/0 = null
