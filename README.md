@@ -60,9 +60,11 @@ The user interface is integrated with the editor. Just select any `GeometryInsta
    * norm_depth.png
    * orm.png
    
-
-It's recommended to manually check the generated textures for bleeding and other artifacts.
-
+   Tips:
+   
+   * It's recommended to manually check the generated textures for bleeding and other artifacts.
+   * Make sure that your 3D editor is running smoothly before baking. The slower the graphics processing, the longer the baking time.
+   
 3. For better normal textures its possible to setup custom material (with ALBEDO equal to NORMAL) to an asset and baking it again. (in this case we need to use result.png as normal texture)
 
 # Shader parameters:

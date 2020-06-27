@@ -36,6 +36,7 @@ func _enter_tree() -> void:
 	add_control_to_container(EditorPlugin.CONTAINER_SPATIAL_EDITOR_MENU, button)
 	
 	converter = preload("ImpostorBaker.tscn").instance()
+	converter.plugin = self
 	get_editor_interface().get_base_control().add_child(converter)
 
 

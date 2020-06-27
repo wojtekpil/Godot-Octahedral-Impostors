@@ -9,6 +9,8 @@ export (bool) var is_standard_shader = true
 export (bool) var export_as_packed_scene = true
 export (String) var export_path = "res://export_images/"
 
+var plugin: EditorPlugin
+
 var result_image: Image = Image.new()
 var result_image_normal: Image = Image.new()
 var result_image_depth: Image = Image.new()
@@ -57,6 +59,8 @@ var slideshow_state = SLIDESHOW_STATE.INIT
 
 
 func set_scene_to_bake(node: Spatial) -> void:
+	create_images()
+
 	if scene_to_bake:
 		scene_to_bake.queue_free()
 
@@ -64,6 +68,8 @@ func set_scene_to_bake(node: Spatial) -> void:
 	scene_to_bake.show()
 	$ViewportContainer/ViewportBaking/BakedContainer.add_child(scene_to_bake)
 
+	scene_to_bake.translation = Vector3()
+	scene_to_bake.rotation = Vector3()
 	var aabb: AABB = get_scene_to_bake_aabb()
 	update_scene_to_bake_transform()
 
@@ -74,10 +80,10 @@ func set_scene_to_bake(node: Spatial) -> void:
 
 
 func update_scene_to_bake_transform() -> void:
-	scene_to_bake.transform = Transform()
 	scene_to_bake.scale *= atlas_coverage
 	var aabb: AABB = get_scene_to_bake_aabb()
 	scene_to_bake.translation -= aabb.position + aabb.size / 2.0
+
 
 func get_scene_to_bake_aabb(node := scene_to_bake) -> AABB:
 	var aabb := AABB(Vector3.ONE * 65536.0, -Vector3.ONE * 65536.0 * 2.0)
@@ -334,21 +340,12 @@ func export_packed_scene(pack_path: String) -> void:
 	else:
 		mat.shader = light_shader
 
-	# minimize and maximize the Godot window to trigger importing the images
-	OS.window_minimized = true
-	OS.window_minimized = false
+	if plugin:
+		plugin.get_editor_interface().get_resource_filesystem().scan()
 
 	var albedo_texture: StreamTexture
 	var normal_depth_texture: StreamTexture
 	var orm_texture: StreamTexture
-
-	# wait until the images have all been (re)imported.
-	while not (albedo_texture and normal_depth_texture and (orm_texture if is_standard_shader else true)):
-		albedo_texture = load(pack_path.plus_file(base_filename))
-		normal_depth_texture = load(pack_path.plus_file(normal_depth_filename))
-		if is_standard_shader:
-			orm_texture = load(pack_path.plus_file(orm_filename))
-		yield(get_tree(), "idle_frame")
 
 	mat.set_shader_param("imposterFrames", Vector2(frames_root_number, frames_root_number))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
@@ -417,11 +414,6 @@ func create_images():
 	result_image_roughness.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
 	#make default as rough
 	result_image_roughness.fill(Color(1, 1, 1))
-
-
-func _ready():
-	create_images()
-	$ViewportContainer/ViewportBaking/BakedContainer/tree_v2.queue_free()
 
 
 func _process(_delta):

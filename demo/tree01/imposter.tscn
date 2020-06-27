@@ -1,0 +1,33 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://addons/octahedral_impostors/materials/shaders/ImpostorShader.shader" type="Shader" id=1]
+[ext_resource path="res://demo/tree01/orm.png" type="Texture" id=2]
+[ext_resource path="res://demo/tree01/base.png" type="Texture" id=3]
+[ext_resource path="res://demo/tree01/norm_depth.png" type="Texture" id=4]
+
+[sub_resource type="ShaderMaterial" id=1]
+shader = ExtResource( 1 )
+shader_param/albedo = Color( 1, 1, 1, 1 )
+shader_param/specular = 0.5
+shader_param/metallic = 1.0
+shader_param/roughness = 1.0
+shader_param/imposterFrames = Vector2( 16, 16 )
+shader_param/positionOffset = Vector3( 0, 0.905, 0 )
+shader_param/isFullSphere = false
+shader_param/isTransparent = false
+shader_param/alpha_clamp = 0.59
+shader_param/scale = 1.0
+shader_param/depth_scale = 0.05
+shader_param/normalmap_depth = 0.5
+shader_param/imposterBaseTexture = ExtResource( 3 )
+shader_param/imposterNormalDepthTexture = ExtResource( 4 )
+shader_param/imposterORMTexture = ExtResource( 2 )
+
+[sub_resource type="QuadMesh" id=2]
+material = SubResource( 1 )
+
+[node name="Scene" type="Spatial"]
+
+[node name="Imposter" type="MeshInstance" parent="."]
+mesh = SubResource( 2 )
+material/0 = null
