@@ -219,7 +219,7 @@ void fragment()
 	vec3 view_dir = normalize(normalize(-VERTEX)*mat3(TANGENT,-BINORMAL,NORMAL));
 	float depth = blendedColor(base_uv, grid_classic, quad_blend_weights, imposterNormalDepthTexture).a;
 	base_uv -= view_dir.xy / view_dir.z * (depth * depth_scale);
-
+	
 	vec4 baseTex;
 	vec4 normalTex;
 	vec4 ormTex;

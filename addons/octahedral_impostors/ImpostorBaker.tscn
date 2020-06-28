@@ -1,0 +1,286 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://addons/octahedral_impostors/scripts/impostor_baker.gd" type="Script" id=2]
+
+[sub_resource type="Environment" id=1]
+ambient_light_color = Color( 1, 1, 1, 1 )
+
+[sub_resource type="World" id=2]
+environment = SubResource( 1 )
+
+[sub_resource type="Shader" id=3]
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_alpha_prepass, cull_back, diffuse_burley, specular_schlick_ggx;
+uniform vec3 offset= vec3(0);
+uniform float depth_scaler = 1f;
+void vertex() {
+  POSITION = vec4(VERTEX + offset, 1.0);
+}
+
+void fragment() {
+  float depth = texture(DEPTH_TEXTURE, SCREEN_UV).x;
+  vec3 ndc = vec3(SCREEN_UV, depth) * 2.0 - 1.0;
+  vec4 view = INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
+  view.xyz /= view.w;
+  float linear_depth = -view.z;
+  //for ortho camera depth texture shold be linear ?
+  depth = clamp(depth,0,1);
+  //via log
+  //depth += 1.0f; //range 1-2
+  //depth *= 4.0f; //range 1-8
+  //depth = log2(depth)/3.0;
+  ALBEDO = vec3(1f - clamp(depth,0,1));
+  //ALBEDO = vec3(linear_depth);
+}
+"
+
+[sub_resource type="ShaderMaterial" id=4]
+shader = SubResource( 3 )
+shader_param/offset = Vector3( 0, 0, -1 )
+shader_param/depth_scaler = 1.0
+
+[sub_resource type="QuadMesh" id=5]
+material = SubResource( 4 )
+size = Vector2( 2, 2 )
+
+[sub_resource type="StyleBoxFlat" id=6]
+bg_color = Color( 0.231373, 0.231373, 0.32549, 0.47451 )
+
+[node name="ImpostorBaker" type="WindowDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 300.0
+margin_top = 154.0
+margin_right = -300.0
+margin_bottom = -171.0
+window_title = "Create Octahedral Impostor"
+resizable = true
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ViewportContainer" type="ViewportContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch = true
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="ViewportBaking" type="Viewport" parent="ViewportContainer"]
+size = Vector2( 424, 275 )
+own_world = true
+world = SubResource( 2 )
+transparent_bg = true
+handle_input_locally = false
+msaa = 4
+debug_draw = 1
+render_target_update_mode = 0
+
+[node name="BakedContainer" type="Spatial" parent="ViewportContainer/ViewportBaking"]
+
+[node name="Camera" type="Camera" parent="ViewportContainer/ViewportBaking"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.45593 )
+projection = 1
+current = true
+size = 1.58
+near = 0.01
+far = 200.0
+
+[node name="DepthPostProcess" type="MeshInstance" parent="ViewportContainer/ViewportBaking/Camera"]
+visible = false
+cast_shadow = 0
+extra_cull_margin = 16384.0
+mesh = SubResource( 5 )
+material/0 = null
+
+[node name="Panel" type="Panel" parent="."]
+anchor_bottom = 1.0
+margin_right = 235.0
+margin_bottom = -3.05176e-05
+rect_min_size = Vector2( 200, 0 )
+custom_styles/panel = SubResource( 6 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="container" type="VBoxContainer" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 4.0
+margin_right = -7.0
+custom_constants/separation = 6
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="Panel/container"]
+margin_right = 224.0
+margin_bottom = 20.0
+text = "Generate"
+
+[node name="progress" type="ProgressBar" parent="Panel/container"]
+margin_top = 26.0
+margin_right = 224.0
+margin_bottom = 40.0
+max_value = 1.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/container"]
+margin_top = 46.0
+margin_right = 224.0
+margin_bottom = 70.0
+
+[node name="Label" type="Label" parent="Panel/container/HBoxContainer"]
+margin_right = 146.0
+margin_bottom = 24.0
+hint_tooltip = "How much space the object covers in the atlas tiles."
+mouse_filter = 0
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "Atlas Coverage"
+valign = 1
+
+[node name="SpinBoxCoverage" type="SpinBox" parent="Panel/container/HBoxContainer"]
+margin_left = 150.0
+margin_right = 224.0
+margin_bottom = 24.0
+value = 100.0
+allow_greater = true
+suffix = "%"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="Panel/container"]
+margin_top = 76.0
+margin_right = 224.0
+margin_bottom = 100.0
+
+[node name="Label4" type="Label" parent="Panel/container/HBoxContainer3"]
+margin_right = 146.0
+margin_bottom = 24.0
+hint_tooltip = "The number of rows and columns generated in the atlases."
+mouse_filter = 0
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "Grid size"
+valign = 1
+
+[node name="SpinBoxGridSize" type="SpinBox" parent="Panel/container/HBoxContainer3"]
+margin_left = 150.0
+margin_right = 224.0
+margin_bottom = 24.0
+min_value = 2.0
+max_value = 64.0
+value = 16.0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Panel/container"]
+margin_top = 106.0
+margin_right = 224.0
+margin_bottom = 126.0
+
+[node name="Label2" type="Label" parent="Panel/container/HBoxContainer2"]
+margin_right = 159.0
+margin_bottom = 20.0
+hint_tooltip = "The resolution of the atlases."
+mouse_filter = 0
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "Image Resolution"
+valign = 1
+
+[node name="OptionButtonImgRes" type="OptionButton" parent="Panel/container/HBoxContainer2"]
+margin_left = 163.0
+margin_right = 224.0
+margin_bottom = 20.0
+text = "4096"
+items = [ "1024", null, false, 1, null, "2048", null, false, 2, null, "4096", null, false, 3, null, "8192", null, false, 4, null ]
+selected = 2
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="Panel/container"]
+margin_top = 132.0
+margin_right = 224.0
+margin_bottom = 156.0
+
+[node name="Label2" type="Label" parent="Panel/container/HBoxContainer4"]
+margin_right = 196.0
+margin_bottom = 24.0
+hint_tooltip = "Whether the tiles are generated for the entire sphere. Set to true if the impostor will be viewed from all angles, including from the bottom."
+mouse_filter = 0
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "Full sphere"
+valign = 1
+
+[node name="CheckboxFullSphere" type="CheckBox" parent="Panel/container/HBoxContainer4"]
+margin_left = 200.0
+margin_right = 224.0
+margin_bottom = 24.0
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="Panel/container"]
+margin_top = 162.0
+margin_right = 224.0
+margin_bottom = 186.0
+
+[node name="Label3" type="Label" parent="Panel/container/HBoxContainer5"]
+margin_right = 196.0
+margin_bottom = 24.0
+hint_tooltip = "Whether the impostor should use a high quality shader."
+mouse_filter = 0
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "High Quality Shader"
+valign = 1
+
+[node name="CheckboxHighQuality" type="CheckBox" parent="Panel/container/HBoxContainer5"]
+margin_left = 200.0
+margin_right = 224.0
+margin_bottom = 24.0
+pressed = true
+
+[node name="HBoxContainer6" type="HBoxContainer" parent="Panel/container"]
+margin_top = 192.0
+margin_right = 224.0
+margin_bottom = 216.0
+
+[node name="Label" type="Label" parent="Panel/container/HBoxContainer6"]
+margin_right = 196.0
+margin_bottom = 24.0
+hint_tooltip = "Whether to export the impostor itself. Disable if you just want the atlas images."
+mouse_filter = 0
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "Export as packed scene"
+valign = 1
+
+[node name="CheckBoxPackedScene" type="CheckBox" parent="Panel/container/HBoxContainer6"]
+margin_left = 200.0
+margin_right = 224.0
+margin_bottom = 24.0
+pressed = true
+
+[node name="FileDialog" type="FileDialog" parent="."]
+anchor_left = 0.14
+anchor_top = 0.151
+anchor_right = 0.864
+anchor_bottom = 0.806
+margin_left = -0.128601
+margin_top = 0.0906982
+margin_right = -0.104614
+margin_bottom = -0.034317
+window_title = "Save your impostor"
+dialog_hide_on_ok = true
+current_file = "impostor.tscn"
+current_path = "res://impostor.tscn"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="popup_hide" from="." to="." method="_on_ImpostorBaker_popup_hide"]
+[connection signal="pressed" from="Panel/container/Button" to="." method="_on_Button_pressed"]
+[connection signal="value_changed" from="Panel/container/HBoxContainer/SpinBoxCoverage" to="." method="_on_SpinBox_value_changed"]
+[connection signal="value_changed" from="Panel/container/HBoxContainer3/SpinBoxGridSize" to="." method="_on_SpinBoxGridSize_value_changed"]
+[connection signal="item_selected" from="Panel/container/HBoxContainer2/OptionButtonImgRes" to="." method="_on_OptionButtonImgRes_item_selected"]
+[connection signal="toggled" from="Panel/container/HBoxContainer4/CheckboxFullSphere" to="." method="_on_CheckboxFullSphere_toggled"]
+[connection signal="toggled" from="Panel/container/HBoxContainer5/CheckboxHighQuality" to="." method="_on_CheckboxHighQuality_toggled"]
+[connection signal="toggled" from="Panel/container/HBoxContainer6/CheckBoxPackedScene" to="." method="_on_CheckBoxPackedScene_toggled"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_FileDialog_file_selected"]

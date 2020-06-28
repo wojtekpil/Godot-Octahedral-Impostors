@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=2]
 
-[ext_resource path="res://materials/shaders/ImpostorShader.shader" type="Shader" id=1]
+[ext_resource path="res://addons/octahedral_impostors/materials/shaders/ImpostorShader.shader" type="Shader" id=1]
 [ext_resource path="res://demo/tree01/orm.png" type="Texture" id=2]
 [ext_resource path="res://demo/tree01/base.png" type="Texture" id=3]
 [ext_resource path="res://demo/tree01/norm_depth.png" type="Texture" id=4]
