@@ -343,21 +343,23 @@ func export_packed_scene(pack_path: String) -> void:
 	if plugin:
 		plugin.get_editor_interface().get_resource_filesystem().scan()
 
-	var albedo_texture: StreamTexture
-	var normal_depth_texture: StreamTexture
-	var orm_texture: StreamTexture
+	# wait until the images have all been (re)imported.
+	while not (ResourceLoader.exists(pack_path.plus_file(base_filename)) and \
+		ResourceLoader.exists(pack_path.plus_file(normal_depth_filename)) and \
+		(ResourceLoader.exists(pack_path.plus_file(orm_filename)) if is_standard_shader else true)):
+		yield(get_tree(), "idle_frame")
 
 	mat.set_shader_param("imposterFrames", Vector2(frames_root_number, frames_root_number))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
 
-	mat.set_shader_param("imposterBaseTexture", albedo_texture)
-	mat.set_shader_param("imposterNormalDepthTexture", normal_depth_texture)
+	mat.set_shader_param("imposterBaseTexture", load(pack_path.plus_file(base_filename)))
+	mat.set_shader_param("imposterNormalDepthTexture", load(pack_path.plus_file(normal_depth_filename)))
 
 	if is_standard_shader:
 		mat.set_shader_param("isTransparent", false)
 		mat.set_shader_param("metallic", 1.0)
 
-		mat.set_shader_param("imposterORMTexture", orm_texture)
+		mat.set_shader_param("imposterORMTexture", load(pack_path.plus_file(orm_filename)))
 
 	var quad_mesh: QuadMesh = QuadMesh.new()
 
