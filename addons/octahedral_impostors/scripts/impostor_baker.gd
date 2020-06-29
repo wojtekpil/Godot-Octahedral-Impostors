@@ -1,11 +1,13 @@
 tool
 extends WindowDialog
 
+enum SHADER_TYPE { LIGHT, STANDARD, TEXTURE_ARRAY }
+
 export (int) var frames_root_number = 16
 export (int) var image_dimensions = 4096
 export (float) var atlas_coverage = 1.0
 export (bool) var is_full_sphere = false
-export (bool) var is_standard_shader = true
+export (SHADER_TYPE) var shader_type = SHADER_TYPE.STANDARD
 export (bool) var export_as_packed_scene = true
 export (String) var export_path = "res://export_images/"
 
@@ -21,12 +23,13 @@ var camera_distance: float = 1.0
 var rendered_counter: int = 0
 var current_frame: Vector2 = Vector2(0, 0)
 
-onready var baking_camera: Camera = $ViewportContainer/ViewportBaking/Camera
-onready var progress_bar: ProgressBar = $Panel/container/progress
+onready var baking_camera: Camera = $MainContainer/ViewportContainer/ViewportBaking/Camera
+onready var progress_bar: ProgressBar = $MainContainer/Panel/container/progress
 var scene_to_bake: Spatial
 
 var normal_material := preload("../materials/normal_baker.material")
 var standard_shader := preload("../materials/shaders/ImpostorShader.shader")
+var texarr_shader := preload("../materials/shaders/ImpostorShaderTexArr.shader")
 var light_shader := preload("../materials/shaders/ImpostorShaderLight.shader")
 
 var save_path: String
@@ -66,7 +69,7 @@ func set_scene_to_bake(node: Spatial) -> void:
 
 	scene_to_bake = node.duplicate()
 	scene_to_bake.show()
-	$ViewportContainer/ViewportBaking/BakedContainer.add_child(scene_to_bake)
+	$MainContainer/ViewportContainer/ViewportBaking/BakedContainer.add_child(scene_to_bake)
 
 	scene_to_bake.translation = Vector3()
 	scene_to_bake.rotation = Vector3()
@@ -118,7 +121,7 @@ func octa_sphere_enc(coord: Vector2) -> Vector3:
 
 
 func take_screenshot() -> Image:
-	var image: Image = $ViewportContainer/ViewportBaking.get_texture().get_data()
+	var image: Image = $MainContainer/ViewportContainer/ViewportBaking.get_texture().get_data()
 	image.flip_y()
 	return image
 
@@ -250,11 +253,11 @@ func baker_process(coords: Vector2) -> void:
 			state_camera_placement(coords)
 			baker_state = BAKER_STATE.NOP
 		BAKER_STATE.NOP:
-			if is_standard_shader:
+			if shader_type != SHADER_TYPE.LIGHT:
 				baker_state = BAKER_STATE.METALLIC_VIEW
 			else:
 				baker_state = BAKER_STATE.MATERIAL_NORMAL
-			$ViewportContainer/ViewportBaking.keep_3d_linear = true
+			$MainContainer/ViewportContainer/ViewportBaking.keep_3d_linear = true
 		BAKER_STATE.METALLIC_VIEW:
 			prepare_orm_texture(scene_to_bake, BAKING_ORM_TYPE.METALLIC)
 			baker_state = BAKER_STATE.SCREENSHOT_METALLIC
@@ -271,10 +274,10 @@ func baker_process(coords: Vector2) -> void:
 			baker_state = BAKER_STATE.DEPTH_VIEW
 		BAKER_STATE.DEPTH_VIEW:
 			baker_state = BAKER_STATE.SCREENSHOT_DEPTH
-			$ViewportContainer/ViewportBaking/Camera/DepthPostProcess.visible = true
+			$MainContainer/ViewportContainer/ViewportBaking/Camera/DepthPostProcess.visible = true
 		BAKER_STATE.SCREENSHOT_DEPTH:
 			state_screenshot_depth(coords)
-			$ViewportContainer/ViewportBaking/Camera/DepthPostProcess.visible = false
+			$MainContainer/ViewportContainer/ViewportBaking/Camera/DepthPostProcess.visible = false
 			baker_state = BAKER_STATE.MATERIAL_NORMAL
 		BAKER_STATE.MATERIAL_NORMAL:
 			update_scene_to_bake_material(scene_to_bake, normal_material)
@@ -283,7 +286,7 @@ func baker_process(coords: Vector2) -> void:
 			state_screenshot_normal(coords)
 			update_scene_to_bake_material(scene_to_bake, null)
 			baker_state = BAKER_STATE.SCREENSHOT
-			$ViewportContainer/ViewportBaking.keep_3d_linear = false
+			$MainContainer/ViewportContainer/ViewportBaking.keep_3d_linear = false
 		BAKER_STATE.SCREENSHOT:
 			state_screenshot(coords)
 			baker_state = BAKER_STATE.FINISH
@@ -323,43 +326,82 @@ func export_images(img_path: String) -> void:
 	result_image.save_png(img_path.plus_file(base_filename))
 	img_norm_depth = tex_packer.pack_normal_depth(result_image_normal, result_image_depth)
 	img_norm_depth.save_png(img_path.plus_file(normal_depth_filename))
-	if is_standard_shader:
+	if shader_type != SHADER_TYPE.LIGHT:
 		img_orm = tex_packer.pack_orm(null, result_image_roughness, result_image_metallic)
 		img_orm.save_png(img_path.plus_file(orm_filename))
 
 
+func workaround_texturearray_import(pack_path: String) -> void:
+	#ugly workaround forcing godot to import image as TextureArray
+	var textures_arr = [base_filename, normal_depth_filename, orm_filename]
+	var tmp: Template
+
+	for tex in textures_arr:
+		tmp = Template.new("texture_array.import")
+		tmp.fill("SOURCE_FILE", pack_path.plus_file(tex))
+		tmp.fill("GRID_SIZE", str(frames_root_number))
+		tmp.save(pack_path.plus_file(tex) + ".import")
+
+
 func export_packed_scene(pack_path: String) -> void:
+	if shader_type == SHADER_TYPE.TEXTURE_ARRAY:
+		var gv = Engine.get_version_info()
+		if gv.major != 3 || gv.minor != 2:
+			push_warning("Running on untested Godot version. Please use 3.2.x!")
+		workaround_texturearray_import(pack_path)
 	export_images(pack_path)
-	
+
 	var root: Spatial = Spatial.new()
 	var mi: MeshInstance = MeshInstance.new()
 
 	var mat: ShaderMaterial = ShaderMaterial.new()
-	if is_standard_shader:
-		mat.shader = standard_shader
-	else:
-		mat.shader = light_shader
+	match shader_type:
+		SHADER_TYPE.LIGHT:
+			mat.shader = light_shader
+		SHADER_TYPE.STANDARD:
+			mat.shader = standard_shader
+		SHADER_TYPE.TEXTURE_ARRAY:
+			mat.shader = texarr_shader
 
 	if plugin:
 		plugin.get_editor_interface().get_resource_filesystem().scan()
 
 	# wait until the images have all been (re)imported.
-	while not (ResourceLoader.exists(pack_path.plus_file(base_filename)) and \
-		ResourceLoader.exists(pack_path.plus_file(normal_depth_filename)) and \
-		(ResourceLoader.exists(pack_path.plus_file(orm_filename)) if is_standard_shader else true)):
+	while not (
+		ResourceLoader.exists(pack_path.plus_file(base_filename))
+		and ResourceLoader.exists(pack_path.plus_file(normal_depth_filename))
+		and (
+			ResourceLoader.exists(pack_path.plus_file(orm_filename))
+			if shader_type != SHADER_TYPE.LIGHT
+			else true
+		)
+	):
 		yield(get_tree(), "idle_frame")
 
 	mat.set_shader_param("imposterFrames", Vector2(frames_root_number, frames_root_number))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
 
-	mat.set_shader_param("imposterBaseTexture", load(pack_path.plus_file(base_filename)))
-	mat.set_shader_param("imposterNormalDepthTexture", load(pack_path.plus_file(normal_depth_filename)))
+	var base_tex = null
+	var norm_depth_tex = null
+	#workaround for TextureArray, because of yield we cannot do it in other function
+	while base_tex == null || norm_depth_tex == null:
+		base_tex = load(pack_path.plus_file(base_filename))
+		norm_depth_tex = load(pack_path.plus_file(normal_depth_filename))
+		yield(get_tree(), "idle_frame")
 
-	if is_standard_shader:
+	mat.set_shader_param("imposterBaseTexture", base_tex)
+	mat.set_shader_param("imposterNormalDepthTexture", norm_depth_tex)
+
+	if shader_type != SHADER_TYPE.LIGHT:
 		mat.set_shader_param("isTransparent", false)
 		mat.set_shader_param("metallic", 1.0)
 
-		mat.set_shader_param("imposterORMTexture", load(pack_path.plus_file(orm_filename)))
+		var orm_tex = null
+		while orm_tex == null:
+			orm_tex = load(pack_path.plus_file(orm_filename))
+			yield(get_tree(), "idle_frame")
+
+		mat.set_shader_param("imposterORMTexture", orm_tex)
 
 	var quad_mesh: QuadMesh = QuadMesh.new()
 
@@ -383,8 +425,12 @@ func slideshow_process() -> void:
 			rendered_counter = 0
 			current_frame = Vector2(0, 0)
 			popup_exclusive = true
-			$ViewportContainer.stretch = false
-			$ViewportContainer/ViewportBaking.size = Vector2.ONE * image_dimensions / frames_root_number
+			$MainContainer/ViewportContainer.stretch = false
+			$MainContainer/ViewportContainer/ViewportBaking.size = (
+				Vector2.ONE
+				* image_dimensions
+				/ frames_root_number
+			)
 			slideshow_state = SLIDESHOW_STATE.SESSION
 		SLIDESHOW_STATE.SESSION:
 			if state_session():
@@ -398,11 +444,13 @@ func slideshow_process() -> void:
 			call_deferred("hide")
 			continue
 		SLIDESHOW_STATE.CANCEL:
-			baking_camera.look_at_from_position(Vector3(0, 0, camera_distance), Vector3.ZERO, Vector3.UP)
+			baking_camera.look_at_from_position(
+				Vector3(0, 0, camera_distance), Vector3.ZERO, Vector3.UP
+			)
 			popup_exclusive = false
-			$ViewportContainer.stretch = true
-			$ViewportContainer/ViewportBaking.size = rect_size
-			$ViewportContainer/ViewportBaking.keep_3d_linear = false
+			$MainContainer/ViewportContainer.stretch = true
+			$MainContainer/ViewportContainer/ViewportBaking.size = rect_size
+			$MainContainer/ViewportContainer/ViewportBaking.keep_3d_linear = false
 			rendered_counter = 0.0
 			slideshow_state = SLIDESHOW_STATE.INIT
 
@@ -422,7 +470,11 @@ func _process(_delta):
 	if not progress_bar:
 		return
 
-	$Panel/container/Button.text = "Generate" if slideshow_state == SLIDESHOW_STATE.INIT else "Cancel"
+	$MainContainer/Panel/container/Button.text = (
+		"Generate"
+		if slideshow_state == SLIDESHOW_STATE.INIT
+		else "Cancel"
+	)
 
 	progress_bar.value = float(rendered_counter) / float(frames_root_number * frames_root_number)
 	if slideshow_state != SLIDESHOW_STATE.INIT:
@@ -450,8 +502,9 @@ func _on_SpinBoxGridSize_value_changed(value: float):
 	frames_root_number = value
 
 
-func _on_CheckboxHighQuality_toggled(state: bool):
-	is_standard_shader = state
+func _on_OptionButtonShaderType_item_selected(shader_type_p: int):
+	shader_type = shader_type_p
+	print(shader_type)
 
 
 func _on_CheckBoxPackedScene_toggled(state: bool):
@@ -460,7 +513,7 @@ func _on_CheckBoxPackedScene_toggled(state: bool):
 
 func _on_OptionButtonImgRes_item_selected(new_dimm: int):
 	var multiplier: int = pow(2, new_dimm)
-	image_dimensions = 1024*multiplier
+	image_dimensions = 1024 * multiplier
 	create_images()
 
 
@@ -473,4 +526,3 @@ func _on_FileDialog_file_selected(path: String) -> void:
 func _on_ImpostorBaker_popup_hide() -> void:
 	if slideshow_state != SLIDESHOW_STATE.INIT:
 		slideshow_state = SLIDESHOW_STATE.CANCEL
-
