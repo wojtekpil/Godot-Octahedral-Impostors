@@ -10,11 +10,17 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Reference",
+"class": "Template",
+"language": "GDScript",
+"path": "res://addons/octahedral_impostors/scripts/template.gd"
+}, {
+"base": "Reference",
 "class": "TexturePacker",
 "language": "GDScript",
 "path": "res://addons/octahedral_impostors/scripts/texture_packer.gd"
 } ]
 _global_script_class_icons={
+"Template": "",
 "TexturePacker": ""
 }
 
