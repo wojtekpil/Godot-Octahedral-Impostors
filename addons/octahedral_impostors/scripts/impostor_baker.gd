@@ -123,6 +123,7 @@ func octa_sphere_enc(coord: Vector2) -> Vector3:
 func take_screenshot() -> Image:
 	var image: Image = $MainContainer/ViewportContainer/ViewportBaking.get_texture().get_data()
 	image.flip_y()
+	image.convert(Image.FORMAT_RGBAH)
 	return image
 
 
