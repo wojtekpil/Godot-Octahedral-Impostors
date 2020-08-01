@@ -40,7 +40,7 @@ Sphere mapping | :heavy_check_mark:        | :heavy_check_mark: | :heavy_check_m
 Hemisphere mapping | :heavy_check_mark:        | :heavy_check_mark: | :heavy_check_mark:
 Grid blending  | :heavy_check_mark:        | :heavy_check_mark:  | :heavy_check_mark:
 Depth maps  | :heavy_check_mark:        |   :x:  | :heavy_check_mark:
-Shadows  | :heavy_check_mark:        |    :x: :heavy_check_mark:
+Shadows  | :heavy_check_mark:        |    :x:  | :heavy_check_mark:
 Metallic textures  | :heavy_check_mark:        |   :x: | :heavy_check_mark:
 Roughness textures  | :heavy_check_mark:        |   :x: | :heavy_check_mark:
 Alpha prepass  | :heavy_check_mark:        |   :x: | :heavy_check_mark:
