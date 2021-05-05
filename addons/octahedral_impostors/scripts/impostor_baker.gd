@@ -7,8 +7,10 @@ export (int) var frames_root_number = 16
 export (int) var image_dimensions = 4096
 export (float) var atlas_coverage = 1.0
 export (bool) var is_full_sphere = false
+export (bool) var dilatation_postprocess = true
 export (SHADER_TYPE) var shader_type = SHADER_TYPE.STANDARD
 export (bool) var export_as_packed_scene = true
+export (bool) var use_half_resolution_data_maps = false
 export (String) var export_path = "res://export_images/"
 
 var plugin: EditorPlugin
@@ -25,7 +27,9 @@ var current_frame: Vector2 = Vector2(0, 0)
 
 onready var baking_camera: Camera = $MainContainer/ViewportContainer/ViewportBaking/Camera
 onready var progress_bar: ProgressBar = $MainContainer/Panel/container/progress
+onready var dilatation_pipeline = $DilatatePipeline
 var scene_to_bake: Spatial
+var imported_scene_scale: Vector3 = Vector3.ZERO
 
 var normal_material := preload("../materials/normal_baker.material")
 var standard_shader := preload("../materials/shaders/ImpostorShader.shader")
@@ -34,7 +38,8 @@ var light_shader := preload("../materials/shaders/ImpostorShaderLight.shader")
 
 var save_path: String
 var base_filename := "base.png"
-var normal_depth_filename := "norm_depth.png"
+var normal_filename := "norm.png"
+var depth_alpha_filename := "depth_alpha.png"
 var orm_filename := "orm.png"
 var packedscene_filename := "imposter.tscn"
 
@@ -53,7 +58,7 @@ enum BAKER_STATE {
 	SCREENSHOT,
 	FINISH
 }
-enum SLIDESHOW_STATE { INIT, BEGIN, SESSION, FINISH, CANCEL }
+enum SLIDESHOW_STATE { INIT, BEGIN, SESSION, DILATION_POSTPROCESS, SAVE, FINISH, CANCEL }
 
 enum BAKING_ORM_TYPE { METALLIC, ROUGHNESS }
 
@@ -74,16 +79,20 @@ func set_scene_to_bake(node: Spatial) -> void:
 	scene_to_bake.translation = Vector3()
 	scene_to_bake.rotation = Vector3()
 	var aabb: AABB = get_scene_to_bake_aabb()
+	imported_scene_scale = scene_to_bake.scale
 	update_scene_to_bake_transform()
 
 	camera_distance = aabb.size.length()
+	print("Camera distance: ", camera_distance)
 	baking_camera.size = camera_distance
 	baking_camera.far = camera_distance * 2.0
 	baking_camera.transform.origin.z = camera_distance
+	var mat_depth = $MainContainer/ViewportContainer/ViewportBaking/Camera/DepthPostProcess.mesh.surface_get_material(0)
+	mat_depth.set_shader_param("depth_scaler", baking_camera.far )
 
 
 func update_scene_to_bake_transform() -> void:
-	scene_to_bake.scale *= atlas_coverage
+	scene_to_bake.scale = imported_scene_scale * atlas_coverage
 	var aabb: AABB = get_scene_to_bake_aabb()
 	scene_to_bake.translation -= aabb.position + aabb.size / 2.0
 
@@ -136,10 +145,10 @@ func setup_position(position: Vector3) -> void:
 
 
 func place_in_image_atlas(position: Vector2, image: Image, atlas_image: Image) -> void:
-	var frame_size: int = image_dimensions / frames_root_number
+	var frame_size: int = atlas_image.get_size().x / frames_root_number
 	var atlas_offset: Vector2 = position * frame_size
 
-	image.resize(frame_size, frame_size)
+	image.resize(frame_size, frame_size, Image.INTERPOLATE_LANCZOS)
 	image.lock()
 	atlas_image.blend_rect(image, Rect2(0, 0, frame_size, frame_size), atlas_offset)
 	image.unlock()
@@ -175,12 +184,48 @@ func state_screenshot_depth(coords: Vector2) -> void:
 	place_in_image_atlas(coords, image, result_image_depth)
 
 
+func prepare_baking_material(N, material) -> void:
+	var mats = N.mesh.get_surface_count()
+	print(mats)
+
+	if mats == 0:
+		material.set_shader_param("use_normalmap", false)
+		material.set_shader_param("use_alpha_texture", false)
+		N.material_override = material
+		return
+
+	for m in mats:
+		if material:
+			material.set_shader_param("texture_albedo", null)
+			material.set_shader_param("normal_texture", null)
+			material.set_shader_param("alpha_scissor_threshold", 0.0)
+			material.set_shader_param("normal_scale", 0.0)
+			material.set_shader_param("use_normalmap", false)
+			material.set_shader_param("use_alpha_texture", false)
+			
+			var original_mat = N.mesh.surface_get_material(m)
+			if (original_mat is SpatialMaterial):
+				print(original_mat)
+				material.set_shader_param("normal_texture", original_mat.normal_texture)
+				if original_mat.normal_enabled:
+					material.set_shader_param("use_normalmap", true)
+					material.set_shader_param("alpha_scissor_threshold", original_mat.params_alpha_scissor_threshold)
+					material.set_shader_param("normal_scale", original_mat.normal_scale)
+				if original_mat.params_use_alpha_scissor:
+					material.set_shader_param("use_alpha_texture", true)
+					material.set_shader_param("texture_albedo", original_mat.albedo_texture)
+			else:
+				print("Not a SpatialMaterial:")
+				print(original_mat)
+		N.set_surface_material(m, material)
+
+
 func update_scene_to_bake_material(node, material) -> void:
 	if node is MeshInstance:
-		node.material_override = material
+		prepare_baking_material(node,material)
 	for N in node.get_children():
 		if N is MeshInstance:
-			N.material_override = material
+			prepare_baking_material(N, material)
 		if N.get_child_count() > 0:
 			update_scene_to_bake_material(N, material)
 
@@ -257,7 +302,7 @@ func baker_process(coords: Vector2) -> void:
 			if shader_type != SHADER_TYPE.LIGHT:
 				baker_state = BAKER_STATE.METALLIC_VIEW
 			else:
-				baker_state = BAKER_STATE.MATERIAL_NORMAL
+				baker_state = BAKER_STATE.DEPTH_VIEW
 			$MainContainer/ViewportContainer/ViewportBaking.keep_3d_linear = true
 		BAKER_STATE.METALLIC_VIEW:
 			prepare_orm_texture(scene_to_bake, BAKING_ORM_TYPE.METALLIC)
@@ -319,22 +364,55 @@ func export_images(img_path: String) -> void:
 	if not dir.dir_exists(img_path):
 		dir.make_dir_recursive(img_path)
 
+	var half_res = image_dimensions/2.0
 	var tex_packer = TexturePacker.new()
 	var img_norm_depth: Image
 	var img_orm: Image
 
 	result_image.convert(Image.FORMAT_RGBA8)
+	if dilatation_postprocess:
+		yield(dilatation_pipeline.dilatate(result_image), "completed")
+		result_image = dilatation_pipeline.processed_image
 	result_image.save_png(img_path.plus_file(base_filename))
-	img_norm_depth = tex_packer.pack_normal_depth(result_image_normal, result_image_depth)
-	img_norm_depth.save_png(img_path.plus_file(normal_depth_filename))
+	#do not pack normals with other 
+
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+
+	if dilatation_postprocess:
+		yield(dilatation_pipeline.dilatate_mask(result_image, result_image_depth), "completed")
+		result_image_depth = dilatation_pipeline.processed_image
+	result_image_depth.convert(Image.FORMAT_R8);
+	if(use_half_resolution_data_maps):
+		result_image_depth.resize(half_res, half_res, Image.INTERPOLATE_LANCZOS)
+	result_image_depth.save_png(img_path.plus_file(depth_alpha_filename))
+
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+
+	if dilatation_postprocess:
+		yield(dilatation_pipeline.dilatate_mask(result_image, result_image_normal), "completed")
+		result_image_normal = dilatation_pipeline.processed_image
+	if(use_half_resolution_data_maps):
+		result_image_normal.resize(half_res, half_res, Image.INTERPOLATE_LANCZOS)
+	result_image_normal.save_png(img_path.plus_file(normal_filename))
+
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	
 	if shader_type != SHADER_TYPE.LIGHT:
 		img_orm = tex_packer.pack_orm(null, result_image_roughness, result_image_metallic)
+		if dilatation_postprocess:
+			yield(dilatation_pipeline.dilatate_mask(result_image, img_orm), "completed")
+			img_orm = dilatation_pipeline.processed_image
+		if(use_half_resolution_data_maps):
+			img_orm.resize(half_res, half_res, Image.INTERPOLATE_LANCZOS)
 		img_orm.save_png(img_path.plus_file(orm_filename))
 
 
 func workaround_texturearray_import(pack_path: String) -> void:
 	#ugly workaround forcing godot to import image as TextureArray
-	var textures_arr = [base_filename, normal_depth_filename, orm_filename]
+	var textures_arr = [base_filename, normal_filename, orm_filename]
 	var tmp: Template
 
 	for tex in textures_arr:
@@ -350,7 +428,8 @@ func export_packed_scene(pack_path: String) -> void:
 		if gv.major != 3 || gv.minor != 2:
 			push_warning("Running on untested Godot version. Please use 3.2.x!")
 		workaround_texturearray_import(pack_path)
-	export_images(pack_path)
+	
+	yield(export_images(pack_path), "completed");
 
 	var root: Spatial = Spatial.new()
 	var mi: MeshInstance = MeshInstance.new()
@@ -368,9 +447,10 @@ func export_packed_scene(pack_path: String) -> void:
 		plugin.get_editor_interface().get_resource_filesystem().scan()
 
 	# wait until the images have all been (re)imported.
+	print("Waiting for resources on disk...")
 	while not (
 		ResourceLoader.exists(pack_path.plus_file(base_filename))
-		and ResourceLoader.exists(pack_path.plus_file(normal_depth_filename))
+		and ResourceLoader.exists(pack_path.plus_file(normal_filename))
 		and (
 			ResourceLoader.exists(pack_path.plus_file(orm_filename))
 			if shader_type != SHADER_TYPE.LIGHT
@@ -378,20 +458,31 @@ func export_packed_scene(pack_path: String) -> void:
 		)
 	):
 		yield(get_tree(), "idle_frame")
+		yield(get_tree(), "idle_frame")
+	
+	print("Creating material...")
 
 	mat.set_shader_param("imposterFrames", Vector2(frames_root_number, frames_root_number))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
+	mat.set_shader_param("aabb_max", camera_distance/4.0)
+	mat.set_shader_param("scale", camera_distance/2.0)
 
 	var base_tex = null
-	var norm_depth_tex = null
+	var norm_tex = null
+	var depth_alpha_tex = null
+
+	print("Texture Array workaround ??...")
 	#workaround for TextureArray, because of yield we cannot do it in other function
-	while base_tex == null || norm_depth_tex == null:
+	while base_tex == null || norm_tex == null || depth_alpha_tex == null:
 		base_tex = load(pack_path.plus_file(base_filename))
-		norm_depth_tex = load(pack_path.plus_file(normal_depth_filename))
+		norm_tex = load(pack_path.plus_file(normal_filename))
+		depth_alpha_tex = load(pack_path.plus_file(depth_alpha_filename))
 		yield(get_tree(), "idle_frame")
 
+	print("More parameters for material...")
 	mat.set_shader_param("imposterBaseTexture", base_tex)
-	mat.set_shader_param("imposterNormalDepthTexture", norm_depth_tex)
+	mat.set_shader_param("imposterNormalDepthTexture", norm_tex)
+	mat.set_shader_param("imposterDepthAlphaTexture", depth_alpha_tex)
 
 	if shader_type != SHADER_TYPE.LIGHT:
 		mat.set_shader_param("isTransparent", false)
@@ -435,15 +526,27 @@ func slideshow_process() -> void:
 			slideshow_state = SLIDESHOW_STATE.SESSION
 		SLIDESHOW_STATE.SESSION:
 			if state_session():
-				slideshow_state = SLIDESHOW_STATE.FINISH
-		SLIDESHOW_STATE.FINISH:
+				slideshow_state = SLIDESHOW_STATE.SAVE
+		SLIDESHOW_STATE.SAVE:
+			# waiting for completed with yield will crash - Godot 3.3
 			if export_as_packed_scene:
+				print("EXPORTING AS PACKED SCENE")
 				export_packed_scene(save_path)
 			else:
+				print("EXPORTING ONLY IMAGES")
 				export_images(save_path)
-			print("Imposter Saved!")
-			call_deferred("hide")
-			continue
+			print("Imposter saving!")
+			slideshow_state = SLIDESHOW_STATE.FINISH
+			
+			
+		SLIDESHOW_STATE.FINISH:
+			# waiting for completed scene generation with yield will 
+			# crash so we just check if resource exitsts
+			var scene_exsists = ResourceLoader.exists(save_path.plus_file(packedscene_filename))
+			if scene_exsists or not export_as_packed_scene:
+				print("Finished...")
+				call_deferred("hide")
+					
 		SLIDESHOW_STATE.CANCEL:
 			baking_camera.look_at_from_position(
 				Vector3(0, 0, camera_distance), Vector3.ZERO, Vector3.UP
@@ -454,13 +557,18 @@ func slideshow_process() -> void:
 			$MainContainer/ViewportContainer/ViewportBaking.keep_3d_linear = false
 			rendered_counter = 0.0
 			slideshow_state = SLIDESHOW_STATE.INIT
+			#clean up any bake images currantly in progress
+			create_images()
 
 
 func create_images():
 	result_image.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
 	result_image.fill(Color(0, 0, 0, 0))
+	# DO NOT SCALE iamges down here. Dilatate will be broken!
 	result_image_normal.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
+	result_image_normal.fill(Color(0.5, 0.5, 0, 1))
 	result_image_depth.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
+	result_image_depth.fill(Color(0.5, 0.5, 0.5, 1))
 	result_image_metallic.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
 	result_image_roughness.create(image_dimensions, image_dimensions, false, Image.FORMAT_RGBAH)
 	#make default as rough
@@ -527,3 +635,6 @@ func _on_FileDialog_file_selected(path: String) -> void:
 func _on_ImpostorBaker_popup_hide() -> void:
 	if slideshow_state != SLIDESHOW_STATE.INIT:
 		slideshow_state = SLIDESHOW_STATE.CANCEL
+
+func _on_CheckBoxHalfResolution_toggled(state: bool):
+	use_half_resolution_data_maps = state

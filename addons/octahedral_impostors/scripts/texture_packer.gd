@@ -37,7 +37,8 @@ func pack_normal_depth(img_normal: Image, img_depth: Image = null) -> Image:
 	output.convert(Image.FORMAT_RGBA8)
 	output.lock()
 	#if img_depth:
-	_texture_pack_component(img_depth, output, TEXTURE_COMPONENT.R, TEXTURE_COMPONENT.A)
+	# Godot recalculates Z component of normalmap, so we can use it as depth and import texture as normalmap
+	_texture_pack_component(img_depth, output, TEXTURE_COMPONENT.R, TEXTURE_COMPONENT.B)
 
 	output.unlock()
 	return output
