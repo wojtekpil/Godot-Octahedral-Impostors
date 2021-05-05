@@ -40,4 +40,5 @@ enabled=PoolStringArray( "octahedral_impostors" )
 
 [rendering]
 
-quality/filters/msaa=4
+quality/filters/msaa=2
+quality/filters/use_fxaa=true
