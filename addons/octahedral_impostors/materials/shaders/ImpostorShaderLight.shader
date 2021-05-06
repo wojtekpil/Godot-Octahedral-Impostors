@@ -299,7 +299,7 @@ void vertex()
 	BINORMAL = normalize(cross(TANGENT,NORMAL));
 }
 
-vec4 blenderColors(vec2 uv_1, vec2 f1, vec2 uv_2, vec2 f2,  vec2 uv_3, vec2 f3, vec4 grid_weights, sampler2D atlasTexture)
+vec4 blenderColors(vec2 uv_1, vec2 uv_2, vec2 uv_3, vec4 grid_weights, sampler2D atlasTexture)
 {
 	vec4 quad_a, quad_b, quad_c;
 	
@@ -307,7 +307,6 @@ vec4 blenderColors(vec2 uv_1, vec2 f1, vec2 uv_2, vec2 f2,  vec2 uv_3, vec2 f3, 
 	quad_b = textureLod(atlasTexture, uv_2, 0.0f);
 	quad_c = textureLod(atlasTexture, uv_3, 0.0f);
 	return quad_a * grid_weights.x + quad_b * grid_weights.y + quad_c * grid_weights.z;
-
 }
 
 vec2 recalculateUV(vec2 uv_f,  vec2 frame, vec2 xy_f, vec2 frame_size, float d_scale, sampler2D depthTexture)
@@ -332,8 +331,8 @@ void fragment()
 	vec2 uv_f2 = recalculateUV(uv_frame2, frame2, xy_frame2, quad_size, depth_scale, imposterDepthAlphaTexture);
 	vec2 uv_f3 = recalculateUV(uv_frame3, frame3, xy_frame3, quad_size, depth_scale, imposterDepthAlphaTexture);
 
-	vec4 baseTex = blenderColors(uv_f1, frame1, uv_f2, frame2, uv_f3, frame3, quad_blend_weights, imposterBaseTexture);
-	vec4 normalTex = blenderColors(uv_f1, frame1, uv_f2, frame2, uv_f3, frame3, quad_blend_weights, imposterNormalDepthTexture);
+	vec4 baseTex = blenderColors(uv_f1, uv_f2,  uv_f3, quad_blend_weights, imposterBaseTexture);
+	vec4 normalTex = blenderColors(uv_f1, uv_f2, uv_f3, quad_blend_weights, imposterNormalDepthTexture);
 
 	ALBEDO = baseTex.rgb;
 
