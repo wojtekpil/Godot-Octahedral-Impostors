@@ -317,8 +317,11 @@ vec2 recalculateUV(vec2 uv_f,  vec2 frame, vec2 xy_f, vec2 frame_size, float d_s
 	vec2 uv_quad = frame_size * (frame + uv_f);
 	//paralax
 	vec4 n_depth = (textureLod( depthTexture, uv_quad, 0 ));
-	uv_f = xy_f * (0.5-n_depth.r) * d_scale *frame_size + uv_quad;
-	//clamped parallaxed uvs
+	uv_f = xy_f * (0.5-n_depth.r) * d_scale + uv_f;
+	//clamp parallax offset
+	uv_f = clamp(uv_f, vec2(0), vec2(1));
+	uv_f =  frame_size * (frame + uv_f);
+	//clamped full UV
 	return clamp(uv_f, vec2(0), vec2(1));
 }
 
