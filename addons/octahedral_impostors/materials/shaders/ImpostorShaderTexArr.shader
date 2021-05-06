@@ -372,8 +372,8 @@ void fragment()
 		discard;
 	}
 	else {
-		ALPHA = baseTex.a;
-		ALPHA_SCISSOR = alpha_clamp;
+		ALPHA = float(baseTex.a>alpha_clamp);
+		ALPHA_SCISSOR = 0.5;
 	}
 	METALLIC = ormTex.b * metallic;
 	SPECULAR = specular;
