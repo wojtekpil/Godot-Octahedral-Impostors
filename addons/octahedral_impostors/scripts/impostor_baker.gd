@@ -65,6 +65,7 @@ enum BAKING_ORM_TYPE { METALLIC, ROUGHNESS }
 var baker_state = BAKER_STATE.INIT
 var slideshow_state = SLIDESHOW_STATE.INIT
 
+var materials_cache := {}
 
 func set_scene_to_bake(node: Spatial) -> void:
 	create_images()
@@ -89,6 +90,7 @@ func set_scene_to_bake(node: Spatial) -> void:
 	baking_camera.transform.origin.z = camera_distance
 	var mat_depth = $MainContainer/ViewportContainer/ViewportBaking/Camera/DepthPostProcess.mesh.surface_get_material(0)
 	mat_depth.set_shader_param("depth_scaler", baking_camera.far )
+	create_materials_cache(scene_to_bake)
 
 
 func update_scene_to_bake_transform() -> void:
@@ -184,9 +186,49 @@ func state_screenshot_depth(coords: Vector2) -> void:
 	place_in_image_atlas(coords, image, result_image_depth)
 
 
+func _create_node_mat_cache(node) -> void:
+	var np := String(node.get_path())
+	if node.mesh == null:
+		print("MeshInstance without mesh: ", np)
+		return
+	var mats: int = node.mesh.get_surface_count()
+	var mats_node: int = node.get_surface_material_count()
+	if mats != mats_node:
+		print("Materials count in MeshInstance and Mesh differs!", np)
+		return
+	var arr = []
+	arr.resize(mats)
+	for m in mats:
+		arr[m] = node.get_surface_material(m)
+		if arr[m] == null:
+			arr[m] = node.mesh.surface_get_material(m)
+	materials_cache[node.get_instance()] = arr
+
+
+func create_materials_cache(node) -> void:
+	if node is MeshInstance:
+		_create_node_mat_cache(node)
+	for child in node.get_children():
+		create_materials_cache(child)
+
+func get_material_cached(node, surface):
+	var np := String(node.get_path())
+	var r_id: RID = node.get_instance()
+	if not materials_cache.has(r_id):
+		print("Warning no material is cached for node: ", np)
+		return null
+	var node_cache = materials_cache.get(r_id)
+	if node_cache.size() < surface:
+		print("Warning no surface ", surface, " for material: ", np)
+		return null
+	return node_cache[surface]
+
 func prepare_baking_material(N, material) -> void:
 	var mats = N.mesh.get_surface_count()
-	print(mats)
+	var mats_node: int = N.get_surface_material_count()
+	if mats != mats_node:
+		print("ORM baking not supported")
+		return
 
 	if mats == 0:
 		material.set_shader_param("use_normalmap", false)
@@ -203,9 +245,10 @@ func prepare_baking_material(N, material) -> void:
 			material.set_shader_param("use_normalmap", false)
 			material.set_shader_param("use_alpha_texture", false)
 			
-			var original_mat = N.mesh.surface_get_material(m)
+			var original_mat = N.get_surface_material(m)
+			if original_mat == null:
+				original_mat = N.mesh.surface_get_material(m)
 			if (original_mat is SpatialMaterial):
-				print(original_mat)
 				material.set_shader_param("normal_texture", original_mat.normal_texture)
 				if original_mat.normal_enabled:
 					material.set_shader_param("use_normalmap", true)
@@ -216,8 +259,10 @@ func prepare_baking_material(N, material) -> void:
 					material.set_shader_param("texture_albedo", original_mat.albedo_texture)
 			else:
 				print("Not a SpatialMaterial:")
-				print(original_mat)
-		N.set_surface_material(m, material)
+			N.set_surface_material(m, material)
+		else:
+			var original = get_material_cached(N, m)
+			N.set_surface_material(m, original)
 
 
 func update_scene_to_bake_material(node, material) -> void:
