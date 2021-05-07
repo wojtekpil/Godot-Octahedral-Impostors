@@ -457,22 +457,57 @@ func export_images(img_path: String) -> void:
 
 func workaround_texturearray_import(pack_path: String) -> void:
 	#ugly workaround forcing godot to import image as TextureArray
-	var textures_arr = [base_filename, normal_filename, orm_filename]
+	var textures_arr = {
+			base_filename: 0,
+			normal_filename: 0,
+			depth_alpha_filename: 1,
+			orm_filename: 1
+	}
 	var tmp: Template
-
+	#TODO: Check why depth texture needs "redisabling" sRGB
 	for tex in textures_arr:
 		tmp = Template.new("texture_array.import")
 		tmp.fill("SOURCE_FILE", pack_path.plus_file(tex))
 		tmp.fill("GRID_SIZE", str(frames_root_number))
+		tmp.fill("COMPRESS_MODE", str(textures_arr[tex]))
 		tmp.save(pack_path.plus_file(tex) + ".import")
 
 
+func _create_texture_import(src: String, normalmap: int, srgb: int) -> void:
+	#ugly workaround forcing godot to import image as Texture
+	var tmp := Template.new("texture.import")
+	tmp.fill("SOURCE_FILE", src)
+	tmp.fill("NORMAL_MAP", str(normalmap))
+	tmp.fill("SRGB_VALUE", str(srgb))
+	tmp.save(src + ".import")
+
+
+func workaround_texture_light_import(pack_path: String) -> void:
+	_create_texture_import(pack_path.plus_file(base_filename), 0, 2)
+	_create_texture_import(pack_path.plus_file(normal_filename), 1, 2)
+	_create_texture_import(pack_path.plus_file(depth_alpha_filename), 0, 0)
+
+
+func workaround_texture_standard_import(pack_path: String) -> void:
+	workaround_texture_light_import(pack_path)
+	_create_texture_import(pack_path.plus_file(orm_filename), 0, 0)
+
+func workaround_import_settings(pack_path: String) -> void:
+	var gv = Engine.get_version_info()
+	if gv.major != 3 ||  not [2, 3].has(gv.minor):
+		push_warning("Running on untested Godot version. Please use 3.3.x!")
+
+	match shader_type:
+		SHADER_TYPE.LIGHT:
+			workaround_texture_light_import(pack_path)
+		SHADER_TYPE.STANDARD:
+			workaround_texture_standard_import(pack_path)
+		SHADER_TYPE.TEXTURE_ARRAY:
+			workaround_texturearray_import(pack_path)
+
+
 func export_packed_scene(pack_path: String) -> void:
-	if shader_type == SHADER_TYPE.TEXTURE_ARRAY:
-		var gv = Engine.get_version_info()
-		if gv.major != 3 || gv.minor != 2:
-			push_warning("Running on untested Godot version. Please use 3.2.x!")
-		workaround_texturearray_import(pack_path)
+	workaround_import_settings(pack_path)
 	
 	yield(export_images(pack_path), "completed");
 
@@ -489,7 +524,18 @@ func export_packed_scene(pack_path: String) -> void:
 			mat.shader = texarr_shader
 
 	if plugin:
-		plugin.get_editor_interface().get_resource_filesystem().scan()
+		var plugin_filesystem = plugin.get_editor_interface().get_resource_filesystem()
+		plugin_filesystem.scan()
+		while plugin_filesystem.is_scanning():
+			print("Scanning filesystem...")
+			yield(get_tree(), "idle_frame")
+			if not is_inside_tree():
+				return
+	# according to Zyllans comment in his heightmap plugin importing takes place
+	# after scanning so we need to yield some more...
+	print("Waiting for import to finish...")
+	for counter in 10:
+		yield(get_tree(), "idle_frame")
 
 	# wait until the images have all been (re)imported.
 	print("Waiting for resources on disk...")
@@ -503,10 +549,12 @@ func export_packed_scene(pack_path: String) -> void:
 		)
 	):
 		yield(get_tree(), "idle_frame")
+
+	print("Resource should now exists...")
+	for counter in 10:
 		yield(get_tree(), "idle_frame")
 	
 	print("Creating material...")
-
 	mat.set_shader_param("imposterFrames", Vector2(frames_root_number, frames_root_number))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
 	mat.set_shader_param("aabb_max", camera_distance/4.0)
@@ -516,13 +564,21 @@ func export_packed_scene(pack_path: String) -> void:
 	var norm_tex = null
 	var depth_alpha_tex = null
 
-	print("Texture Array workaround ??...")
-	#workaround for TextureArray, because of yield we cannot do it in other function
+	print("Loading resources...")
 	while base_tex == null || norm_tex == null || depth_alpha_tex == null:
 		base_tex = load(pack_path.plus_file(base_filename))
 		norm_tex = load(pack_path.plus_file(normal_filename))
 		depth_alpha_tex = load(pack_path.plus_file(depth_alpha_filename))
 		yield(get_tree(), "idle_frame")
+
+	if shader_type == SHADER_TYPE.TEXTURE_ARRAY:
+		assert(base_tex is TextureArray)
+		assert(norm_tex is TextureArray)
+		assert(depth_alpha_tex is TextureArray)
+	else:
+		assert(base_tex is Texture)
+		assert(norm_tex is Texture)
+		assert(depth_alpha_tex is Texture)
 
 	print("More parameters for material...")
 	mat.set_shader_param("imposterBaseTexture", base_tex)

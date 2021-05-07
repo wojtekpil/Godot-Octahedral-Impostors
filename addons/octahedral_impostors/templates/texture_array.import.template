@@ -14,7 +14,7 @@ dest_files=[ "" ]
 
 [params]
 
-compress/mode=0
+compress/mode=%COMPRESS_MODE%
 compress/no_bptc_if_rgb=false
 flags/repeat=0
 flags/filter=true
