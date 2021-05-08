@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode blend_mix, depth_draw_alpha_prepass, cull_back, diffuse_burley, specular_schlick_ggx, shadows_disabled;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 uniform vec4 albedo : hint_color = vec4(1, 1, 1, 1);
 uniform float specular = 0.5f;
 uniform float metallic = 0f;
@@ -21,12 +21,15 @@ uniform float aabb_max = 1.0;
 varying vec2 uv_frame1;
 varying vec2 xy_frame1;
 varying flat vec2 frame1;
+varying flat vec3 frame1_normal;
 varying vec2 uv_frame2;
 varying vec2 xy_frame2;
 varying flat vec2 frame2;
+varying flat vec3 frame2_normal;
 varying vec2 uv_frame3;
 varying vec2 xy_frame3;
 varying flat vec2 frame3;
+varying flat vec3 frame3_normal;
 varying vec4 quad_blend_weights;
 
 vec2 VecToSphereOct(vec3 pivotToCamera)
@@ -275,6 +278,10 @@ void vertex()
 	frame3 = clamp(frame1 + vec2(1), vec2(0,0), framesMinusOne);
 	vec3 projectedQuadCDir = FrameXYToRay(frame3, framesMinusOne);
 
+	frame1_normal = (MODELVIEW_MATRIX *vec4(projectedQuadADir, 0)).xyz;
+	frame2_normal = (MODELVIEW_MATRIX *vec4(projectedQuadBDir, 0)).xyz;
+	frame3_normal = (MODELVIEW_MATRIX *vec4(projectedQuadCDir, 0)).xyz;
+
 	//calcute virtual planes projections
 	vec3 plane_x1, plane_y1, plane_x2, plane_y2, plane_x3, plane_y3;
 	calcuateXYbasis(projectedQuadADir, plane_x1, plane_y1);
@@ -292,10 +299,9 @@ void vertex()
 	//to fragment shader
 	VERTEX.xyz = projected + positionOffset;
 	VERTEX.xyz +=pivotToCameraDir* aabb_max;
-	vec3 v0 = abs(NORMAL.y) < 0.999 ? vec3(0.0, 1.0, 0.0) : vec3(0.0, 0.0, 1.0);
 
 	NORMAL = normalize(pivotToCameraDir);
-	TANGENT= normalize(cross(NORMAL,v0));
+	TANGENT= normalize(cross(NORMAL,vec3(0.0, 1.0, 0.0)));
 	BINORMAL = normalize(cross(TANGENT,NORMAL));
 }
 
@@ -307,6 +313,31 @@ vec4 blenderColors(vec2 uv_1, vec2 uv_2, vec2 uv_3, vec4 grid_weights, sampler2D
 	quad_b = textureLod(atlasTexture, uv_2, 0.0f);
 	quad_c = textureLod(atlasTexture, uv_3, 0.0f);
 	return quad_a * grid_weights.x + quad_b * grid_weights.y + quad_c * grid_weights.z;
+}
+
+vec3 normal_from_normalmap(vec4 normalTex, vec3 tangent, vec3 binormal, vec3 f_norm)
+{
+	vec3 normalmap;
+	normalmap.xy = normalTex.xy * 2.0 - 1.0;
+	normalmap.z = sqrt(max(0.0, 1.0 - dot(normalmap.xy, normalmap.xy)));
+	normalmap = normalize(normalmap);
+	return normalize(tangent * normalmap.x + binormal * normalmap.y + f_norm * normalmap.z);
+}
+
+vec3 blendedNormals(vec2 uv_1, vec3 f1_n,
+					vec2 uv_2, vec3 f2_n,
+					vec2 uv_3, vec3 f3_n,
+					vec3 tangent, vec3 binormal,
+					vec4 grid_weights, sampler2D atlasTexture)
+{
+	vec4 quad_a, quad_b, quad_c;
+	quad_a = textureLod(atlasTexture, uv_1, 0.0f);
+	quad_b = textureLod(atlasTexture, uv_2, 0.0f);
+	quad_c = textureLod(atlasTexture, uv_3, 0.0f);
+	vec3 norm1 = normal_from_normalmap(quad_a, tangent, binormal, f1_n);
+	vec3 norm2 = normal_from_normalmap(quad_b, tangent, binormal, f2_n);
+	vec3 norm3 = normal_from_normalmap(quad_c, tangent, binormal, f3_n);
+	return normalize(norm1 * grid_weights.x + norm2 * grid_weights.y + norm3 * grid_weights.z);
 }
 
 vec2 recalculateUV(vec2 uv_f,  vec2 frame, vec2 xy_f, vec2 frame_size, float d_scale, sampler2D depthTexture)
@@ -332,12 +363,13 @@ void fragment()
 	vec2 uv_f3 = recalculateUV(uv_frame3, frame3, xy_frame3, quad_size, depth_scale, imposterDepthAlphaTexture);
 
 	vec4 baseTex = blenderColors(uv_f1, uv_f2,  uv_f3, quad_blend_weights, imposterBaseTexture);
-	vec4 normalTex = blenderColors(uv_f1, uv_f2, uv_f3, quad_blend_weights, imposterNormalDepthTexture);
-
+	vec3 normalTex = blendedNormals(uv_f1, frame1_normal,
+									uv_f2, frame2_normal,
+									uv_f3, frame3_normal,
+									TANGENT, BINORMAL,
+									 quad_blend_weights, imposterNormalDepthTexture);
 	ALBEDO = baseTex.rgb;
-
-	NORMALMAP =normalTex.xyz;
-	NORMALMAP_DEPTH = normalmap_depth;
+	NORMAL =normalTex.xyz;
 	
 	if(dither)
 	{
