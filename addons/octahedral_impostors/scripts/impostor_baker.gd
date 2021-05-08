@@ -249,16 +249,27 @@ func prepare_baking_material(N, material) -> void:
 			if original_mat == null:
 				original_mat = N.mesh.surface_get_material(m)
 			if (original_mat is SpatialMaterial):
-				material.set_shader_param("normal_texture", original_mat.normal_texture)
 				if original_mat.normal_enabled:
+					material.set_shader_param("normal_texture", original_mat.normal_texture)
 					material.set_shader_param("use_normalmap", true)
-					material.set_shader_param("alpha_scissor_threshold", original_mat.params_alpha_scissor_threshold)
 					material.set_shader_param("normal_scale", original_mat.normal_scale)
 				if original_mat.params_use_alpha_scissor:
 					material.set_shader_param("use_alpha_texture", true)
+					material.set_shader_param("alpha_scissor_threshold", original_mat.params_alpha_scissor_threshold)
 					material.set_shader_param("texture_albedo", original_mat.albedo_texture)
+			elif (original_mat is ShaderMaterial):
+				print("Not a SpatialMaterial, trying to use default uniforms")
+				# TODO ADD NORMAL TEXTURE
+				var alpha_scissors = original_mat.get_shader_param("alpha_scissor_threshold")
+				var albedo_tex = original_mat.get_shader_param("texture_albedo")
+				if float(alpha_scissors) > 0.0 and albedo_tex != null:
+					material.set_shader_param("use_alpha_texture", true)
+					material.set_shader_param("texture_albedo", albedo_tex)
+					material.set_shader_param("alpha_scissor_threshold", alpha_scissors)
+				else:
+					print("Alpha texture not recognized")
 			else:
-				print("Not a SpatialMaterial:")
+				print("Unsupported shader material: ", original_mat)
 			N.set_surface_material(m, material)
 		else:
 			var original = get_material_cached(N, m)
