@@ -37,6 +37,8 @@ config/icon="res://icon.png"
 
 [display]
 
+window/size/width=800
+window/size/height=800
 window/size/always_on_top=true
 window/vsync/use_vsync=false
 

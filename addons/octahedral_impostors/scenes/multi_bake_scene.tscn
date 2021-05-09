@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://addons/octahedral_impostors/materials/depth_baker.material" type="Material" id=1]
+[ext_resource path="res://addons/octahedral_impostors/scripts/baking/scene_bakers/multi_bake_scene.gd" type="Script" id=2]
+
+[sub_resource type="QuadMesh" id=1]
+material = ExtResource( 1 )
+size = Vector2( 2, 2 )
+
+[node name="MultiBakeScene" type="Spatial"]
+script = ExtResource( 2 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.18746 )
+projection = 1
+current = true
+fov = 45.0
+far = 200.0
+
+[node name="PostProcess" type="MeshInstance" parent="Camera"]
+visible = false
+cast_shadow = 0
+extra_cull_margin = 16384.0
+mesh = SubResource( 1 )
+material/0 = null
+
+[node name="BakedContainer" type="Spatial" parent="."]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
