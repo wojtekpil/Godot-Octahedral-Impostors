@@ -1,0 +1,50 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Reference",
+"class": "Template",
+"language": "GDScript",
+"path": "res://addons/octahedral_impostors/scripts/template.gd"
+}, {
+"base": "VisualShaderNodeCustom",
+"class": "VisualShaderNodeOCtaImpFrag",
+"language": "GDScript",
+"path": "res://addons/octahedral_impostors/visual_shaders/OctahedralImpostorFragment.gd"
+}, {
+"base": "VisualShaderNodeCustom",
+"class": "VisualShaderNodeOCtaImpVert",
+"language": "GDScript",
+"path": "res://addons/octahedral_impostors/visual_shaders/OctahedralImpostorVertex.gd"
+} ]
+_global_script_class_icons={
+"Template": "",
+"VisualShaderNodeOCtaImpFrag": "",
+"VisualShaderNodeOCtaImpVert": ""
+}
+
+[application]
+
+config/name="Octahedral Impostors"
+config/icon="res://icon.png"
+
+[display]
+
+window/size/always_on_top=true
+window/vsync/use_vsync=false
+
+[editor_plugins]
+
+enabled=PoolStringArray( "octahedral_impostors" )
+
+[rendering]
+
+quality/filters/msaa=2
+quality/filters/use_fxaa=true
