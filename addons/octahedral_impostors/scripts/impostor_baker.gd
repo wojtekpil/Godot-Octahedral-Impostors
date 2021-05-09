@@ -60,7 +60,7 @@ enum BAKER_STATE {
 }
 enum SLIDESHOW_STATE { INIT, BEGIN, SESSION, DILATION_POSTPROCESS, SAVE, FINISH, CANCEL }
 
-enum BAKING_ORM_TYPE { METALLIC, ROUGHNESS }
+enum BAKING_ORM_TYPE { METALLIC, ROUGHNESS, NONE }
 
 var baker_state = BAKER_STATE.INIT
 var slideshow_state = SLIDESHOW_STATE.INIT
@@ -223,6 +223,48 @@ func get_material_cached(node, surface):
 		return null
 	return node_cache[surface]
 
+
+func _cleanup_baking_material(material: Material) -> void:
+	material.set_shader_param("texture_albedo", null)
+	material.set_shader_param("normal_texture", null)
+	material.set_shader_param("alpha_scissor_threshold", 0.0)
+	material.set_shader_param("normal_scale", 0.0)
+	material.set_shader_param("use_normalmap", false)
+	material.set_shader_param("use_alpha_texture", false)
+
+
+func _mimic_original_spatial_material(original_mat: SpatialMaterial, material: Material) -> void:
+	if original_mat.normal_enabled:
+		material.set_shader_param("normal_texture", original_mat.normal_texture)
+		material.set_shader_param("use_normalmap", true)
+		material.set_shader_param("normal_scale", original_mat.normal_scale)
+	if original_mat.params_use_alpha_scissor:
+		material.set_shader_param("use_alpha_texture", true)
+		material.set_shader_param("alpha_scissor_threshold", original_mat.params_alpha_scissor_threshold)
+		material.set_shader_param("texture_albedo", original_mat.albedo_texture)
+	if original_mat.ao_enabled:
+		material.set_shader_param("ao_texture", original_mat.ao_texture)
+		material.set_shader_param("ao_texture_channel", original_mat.ao_texture_channel)
+	material.set_shader_param("roughness", original_mat.roughness)
+	material.set_shader_param("roughness_texture", original_mat.roughness_texture)
+	material.set_shader_param("roughness_texture_channel", original_mat.roughness_texture_channel)
+	material.set_shader_param("metallic", original_mat.metallic)
+	material.set_shader_param("metallic_texture", original_mat.metallic_texture)
+	material.set_shader_param("metallic_texture_channel", original_mat.metallic_texture_channel)
+
+
+func _mimic_original_shader_material(original_mat: ShaderMaterial, material: Material) -> void:
+	# TODO ADD NORMAL TEXTURE, ORM
+	var alpha_scissors = original_mat.get_shader_param("alpha_scissor_threshold")
+	var albedo_tex = original_mat.get_shader_param("texture_albedo")
+	if float(alpha_scissors) > 0.0 and albedo_tex != null:
+		material.set_shader_param("use_alpha_texture", true)
+		material.set_shader_param("texture_albedo", albedo_tex)
+		material.set_shader_param("alpha_scissor_threshold", alpha_scissors)
+	else:
+		print("Alpha texture not recognized")
+
+
 func prepare_baking_material(N, material) -> void:
 	var mats = N.mesh.get_surface_count()
 	var mats_node: int = N.get_surface_material_count()
@@ -238,38 +280,17 @@ func prepare_baking_material(N, material) -> void:
 
 	for m in mats:
 		if material:
-			material.set_shader_param("texture_albedo", null)
-			material.set_shader_param("normal_texture", null)
-			material.set_shader_param("alpha_scissor_threshold", 0.0)
-			material.set_shader_param("normal_scale", 0.0)
-			material.set_shader_param("use_normalmap", false)
-			material.set_shader_param("use_alpha_texture", false)
-			
+			_cleanup_baking_material(material)
 			var original_mat = N.get_surface_material(m)
 			if original_mat == null:
 				original_mat = N.mesh.surface_get_material(m)
 			if (original_mat is SpatialMaterial):
-				if original_mat.normal_enabled:
-					material.set_shader_param("normal_texture", original_mat.normal_texture)
-					material.set_shader_param("use_normalmap", true)
-					material.set_shader_param("normal_scale", original_mat.normal_scale)
-				if original_mat.params_use_alpha_scissor:
-					material.set_shader_param("use_alpha_texture", true)
-					material.set_shader_param("alpha_scissor_threshold", original_mat.params_alpha_scissor_threshold)
-					material.set_shader_param("texture_albedo", original_mat.albedo_texture)
+				_mimic_original_spatial_material(original_mat, material)
 			elif (original_mat is ShaderMaterial):
 				print("Not a SpatialMaterial, trying to use default uniforms")
-				# TODO ADD NORMAL TEXTURE
-				var alpha_scissors = original_mat.get_shader_param("alpha_scissor_threshold")
-				var albedo_tex = original_mat.get_shader_param("texture_albedo")
-				if float(alpha_scissors) > 0.0 and albedo_tex != null:
-					material.set_shader_param("use_alpha_texture", true)
-					material.set_shader_param("texture_albedo", albedo_tex)
-					material.set_shader_param("alpha_scissor_threshold", alpha_scissors)
-				else:
-					print("Alpha texture not recognized")
+				_mimic_original_shader_material(original_mat, material)
 			else:
-				print("Unsupported shader material: ", original_mat)
+				print("Unsupported material: ", original_mat)
 			N.set_surface_material(m, material)
 		else:
 			var original = get_material_cached(N, m)
