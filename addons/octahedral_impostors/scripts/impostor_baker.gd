@@ -712,7 +712,7 @@ func _process(_delta):
 	if not progress_bar:
 		return
 
-	$MainContainer/Panel/container/Button.text = (
+	$MainContainer/Panel/container/Generate.text = (
 		"Generate"
 		if slideshow_state == SLIDESHOW_STATE.INIT
 		else "Cancel"
@@ -724,7 +724,7 @@ func _process(_delta):
 	slideshow_process()
 
 
-func _on_Button_pressed():
+func _on_Generate_pressed():
 	if slideshow_state == SLIDESHOW_STATE.INIT:
 		$FileDialog.popup_centered()
 	else:

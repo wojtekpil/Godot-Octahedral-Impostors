@@ -95,9 +95,9 @@ __meta__ = {
 }
 
 [node name="Panel" type="Panel" parent="MainContainer"]
-margin_right = 200.0
+margin_right = 220.0
 margin_bottom = 275.0
-rect_min_size = Vector2( 200, 0 )
+rect_min_size = Vector2( 220, 0 )
 custom_styles/panel = SubResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -114,24 +114,24 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Button" type="Button" parent="MainContainer/Panel/container"]
-margin_right = 192.0
+[node name="Generate" type="Button" parent="MainContainer/Panel/container"]
+margin_right = 209.0
 margin_bottom = 20.0
 text = "Generate"
 
 [node name="progress" type="ProgressBar" parent="MainContainer/Panel/container"]
 margin_top = 26.0
-margin_right = 192.0
+margin_right = 209.0
 margin_bottom = 40.0
 max_value = 1.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MainContainer/Panel/container"]
 margin_top = 46.0
-margin_right = 192.0
+margin_right = 209.0
 margin_bottom = 70.0
 
 [node name="Label" type="Label" parent="MainContainer/Panel/container/HBoxContainer"]
-margin_right = 114.0
+margin_right = 131.0
 margin_bottom = 24.0
 hint_tooltip = "How much space the object covers in the atlas tiles."
 mouse_filter = 0
@@ -141,8 +141,8 @@ text = "Atlas Coverage"
 valign = 1
 
 [node name="SpinBoxCoverage" type="SpinBox" parent="MainContainer/Panel/container/HBoxContainer"]
-margin_left = 118.0
-margin_right = 192.0
+margin_left = 135.0
+margin_right = 209.0
 margin_bottom = 24.0
 value = 100.0
 allow_greater = true
@@ -150,11 +150,11 @@ suffix = "%"
 
 [node name="HBoxContainer3" type="HBoxContainer" parent="MainContainer/Panel/container"]
 margin_top = 76.0
-margin_right = 192.0
+margin_right = 209.0
 margin_bottom = 100.0
 
 [node name="Label4" type="Label" parent="MainContainer/Panel/container/HBoxContainer3"]
-margin_right = 114.0
+margin_right = 131.0
 margin_bottom = 24.0
 hint_tooltip = "The number of rows and columns generated in the atlases."
 mouse_filter = 0
@@ -164,8 +164,8 @@ text = "Grid size"
 valign = 1
 
 [node name="SpinBoxGridSize" type="SpinBox" parent="MainContainer/Panel/container/HBoxContainer3"]
-margin_left = 118.0
-margin_right = 192.0
+margin_left = 135.0
+margin_right = 209.0
 margin_bottom = 24.0
 min_value = 2.0
 max_value = 64.0
@@ -173,22 +173,22 @@ value = 16.0
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="MainContainer/Panel/container"]
 margin_top = 106.0
-margin_right = 192.0
+margin_right = 209.0
 margin_bottom = 126.0
 
 [node name="Label2" type="Label" parent="MainContainer/Panel/container/HBoxContainer2"]
-margin_right = 127.0
+margin_right = 144.0
 margin_bottom = 20.0
 hint_tooltip = "The resolution of the atlases."
 mouse_filter = 0
 size_flags_horizontal = 3
 size_flags_vertical = 5
-text = "Image Resolution"
+text = "Atlas Resolution"
 valign = 1
 
 [node name="OptionButtonImgRes" type="OptionButton" parent="MainContainer/Panel/container/HBoxContainer2"]
-margin_left = 131.0
-margin_right = 192.0
+margin_left = 148.0
+margin_right = 209.0
 margin_bottom = 20.0
 text = "4096"
 items = [ "1024", null, false, 1, null, "2048", null, false, 2, null, "4096", null, false, 3, null, "8192", null, false, 4, null ]
@@ -196,42 +196,42 @@ selected = 2
 
 [node name="HBoxContainer4" type="HBoxContainer" parent="MainContainer/Panel/container"]
 margin_top = 132.0
-margin_right = 192.0
+margin_right = 209.0
 margin_bottom = 156.0
 
 [node name="Label2" type="Label" parent="MainContainer/Panel/container/HBoxContainer4"]
-margin_right = 164.0
+margin_right = 181.0
 margin_bottom = 24.0
 hint_tooltip = "Whether the tiles are generated for the entire sphere. Set to true if the impostor will be viewed from all angles, including from the bottom."
 mouse_filter = 0
 size_flags_horizontal = 3
 size_flags_vertical = 5
-text = "Full sphere"
+text = "Full Sphere"
 valign = 1
 
 [node name="CheckboxFullSphere" type="CheckBox" parent="MainContainer/Panel/container/HBoxContainer4"]
-margin_left = 168.0
-margin_right = 192.0
+margin_left = 185.0
+margin_right = 209.0
 margin_bottom = 24.0
 
 [node name="HBoxContainer5" type="HBoxContainer" parent="MainContainer/Panel/container"]
 margin_top = 162.0
-margin_right = 192.0
+margin_right = 209.0
 margin_bottom = 182.0
 
 [node name="Label3" type="Label" parent="MainContainer/Panel/container/HBoxContainer5"]
-margin_right = 104.0
+margin_right = 121.0
 margin_bottom = 20.0
 hint_tooltip = "Whether the impostor should use a high quality shader."
 mouse_filter = 0
 size_flags_horizontal = 3
 size_flags_vertical = 5
-text = "Shader Type"
+text = "Profile"
 valign = 1
 
 [node name="OptionButtonShaderType" type="OptionButton" parent="MainContainer/Panel/container/HBoxContainer5"]
-margin_left = 108.0
-margin_right = 192.0
+margin_left = 125.0
+margin_right = 209.0
 margin_bottom = 20.0
 text = "Standard"
 items = [ "Light", null, false, 0, null, "Standard", null, false, 1, null, "TextureArray", null, false, 2, null ]
@@ -239,47 +239,47 @@ selected = 1
 
 [node name="HBoxContainer7" type="HBoxContainer" parent="MainContainer/Panel/container"]
 margin_top = 188.0
-margin_right = 192.0
+margin_right = 209.0
 margin_bottom = 212.0
 
 [node name="Label" type="Label" parent="MainContainer/Panel/container/HBoxContainer7"]
-margin_right = 164.0
+margin_right = 181.0
 margin_bottom = 24.0
-hint_tooltip = "Whether to export the impostor itself. Disable if you just want the atlas images."
+hint_tooltip = "Exports data atlas images in reduced resolution."
 mouse_filter = 0
 size_flags_horizontal = 3
 size_flags_vertical = 5
-text = "Half resolution data maps"
+text = "Optimize Size"
 valign = 1
 
 [node name="CheckBoxHalfResolution" type="CheckBox" parent="MainContainer/Panel/container/HBoxContainer7"]
-margin_left = 168.0
-margin_right = 192.0
+margin_left = 185.0
+margin_right = 209.0
 margin_bottom = 24.0
 
 [node name="HBoxContainer6" type="HBoxContainer" parent="MainContainer/Panel/container"]
 margin_top = 218.0
-margin_right = 192.0
+margin_right = 209.0
 margin_bottom = 242.0
 
 [node name="Label" type="Label" parent="MainContainer/Panel/container/HBoxContainer6"]
-margin_right = 164.0
+margin_right = 181.0
 margin_bottom = 24.0
 hint_tooltip = "Whether to export the impostor itself. Disable if you just want the atlas images."
 mouse_filter = 0
 size_flags_horizontal = 3
 size_flags_vertical = 5
-text = "Export as packed scene"
+text = "Packed Scene"
 valign = 1
 
 [node name="CheckBoxPackedScene" type="CheckBox" parent="MainContainer/Panel/container/HBoxContainer6"]
-margin_left = 168.0
-margin_right = 192.0
+margin_left = 185.0
+margin_right = 209.0
 margin_bottom = 24.0
 pressed = true
 
 [node name="ViewportContainer" type="ViewportContainer" parent="MainContainer"]
-margin_left = 212.0
+margin_left = 232.0
 margin_right = 424.0
 margin_bottom = 275.0
 size_flags_horizontal = 7
@@ -291,7 +291,8 @@ __meta__ = {
 }
 
 [node name="ViewportBaking" type="Viewport" parent="MainContainer/ViewportContainer"]
-size = Vector2( 212, 275 )
+size = Vector2( 192, 275 )
+size_override_stretch = true
 own_world = true
 world = SubResource( 3 )
 transparent_bg = true
@@ -363,7 +364,7 @@ __meta__ = {
 }
 
 [connection signal="popup_hide" from="." to="." method="_on_ImpostorBaker_popup_hide"]
-[connection signal="pressed" from="MainContainer/Panel/container/Button" to="." method="_on_Button_pressed"]
+[connection signal="pressed" from="MainContainer/Panel/container/Generate" to="." method="_on_Generate_pressed"]
 [connection signal="value_changed" from="MainContainer/Panel/container/HBoxContainer/SpinBoxCoverage" to="." method="_on_SpinBox_value_changed"]
 [connection signal="value_changed" from="MainContainer/Panel/container/HBoxContainer3/SpinBoxGridSize" to="." method="_on_SpinBoxGridSize_value_changed"]
 [connection signal="item_selected" from="MainContainer/Panel/container/HBoxContainer2/OptionButtonImgRes" to="." method="_on_OptionButtonImgRes_item_selected"]
