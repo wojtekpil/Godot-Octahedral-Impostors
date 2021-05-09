@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://addons/octahedral_impostors/scripts/dilatate_pipeline.gd" type="Script" id=1]
 [ext_resource path="res://addons/octahedral_impostors/scripts/impostor_baker.gd" type="Script" id=2]
 [ext_resource path="res://addons/octahedral_impostors/materials/depth_baker.material" type="Material" id=3]
+[ext_resource path="res://addons/octahedral_impostors/materials/dilatate_image.material" type="Material" id=4]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.231373, 0.231373, 0.32549, 0.47451 )
@@ -16,59 +17,6 @@ environment = SubResource( 2 )
 [sub_resource type="QuadMesh" id=4]
 material = ExtResource( 3 )
 size = Vector2( 2, 2 )
-
-[sub_resource type="Shader" id=5]
-code = "shader_type canvas_item;
-render_mode blend_premul_alpha;
-
-uniform sampler2D u_alpha_tex;
-uniform int u_distance = 16;
-uniform bool u_alpha_overwrite = true;
-
-
-vec4 dilate(sampler2D a_tex, sampler2D tex, vec2 coords, vec2 texel_size, int dist, float alpha_cutoff)
-{
-	vec2 offsets[8] = {
-		vec2(-1,0),vec2(1,0), vec2(0,1), vec2(0,-1), 
-		vec2(-1,1), vec2(1,1), vec2(1,-1), vec2(-1,-1)
-	};
-	vec4 sample = textureLod(tex, coords, 0);
-	vec4 a_sample = textureLod(a_tex, coords, 0);
-	if(a_sample.a > alpha_cutoff)
-		return sample;
-
-	for(int curr_dist = 0; curr_dist < dist; curr_dist++)
-	{
-		for(int o = 0; o < 8; o++)
-		{
-			vec2 off_coords = offsets[o] * texel_size * float(curr_dist + 1);
-			vec4 off_sample = textureLod(tex, coords + off_coords, 0);
-			vec4 off_a_sample = textureLod(a_tex, coords + off_coords, 0);
-			if (off_a_sample.a > alpha_cutoff)
-			{
-				if(u_alpha_overwrite)
-					return off_sample;
-				else
-					//viewport will lose alpha rgb if alpha is below 0.5
-					return vec4(off_sample.rgb, a_sample.a);
-			}
-			
-		}
-	}
-	return sample;
-}
-
-void fragment() {
-	
-    COLOR = dilate(u_alpha_tex, TEXTURE, UV, TEXTURE_PIXEL_SIZE, u_distance, 0.95);
-	//COLOR.a = 1.0;
-}
-"
-
-[sub_resource type="ShaderMaterial" id=6]
-shader = SubResource( 5 )
-shader_param/u_distance = 32
-shader_param/u_alpha_overwrite = true
 
 [sub_resource type="ViewportTexture" id=7]
 viewport_path = NodePath("DilatatePipeline/DilateViewport")
@@ -346,7 +294,7 @@ render_target_v_flip = true
 gui_disable_input = true
 
 [node name="tex" type="TextureRect" parent="DilatatePipeline/DilateViewport"]
-material = SubResource( 6 )
+material = ExtResource( 4 )
 margin_right = 4096.0
 margin_bottom = 4096.0
 stretch_mode = 3
