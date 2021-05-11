@@ -5,9 +5,9 @@ uniform float specular = 0.5f;
 uniform float metallic = 0f;
 uniform float roughness : hint_range(0, 1) = 1f;
 
-uniform sampler2D imposterBaseTexture : hint_albedo;
-uniform sampler2D imposterNormalDepthTexture : hint_albedo;
-uniform sampler2D imposterDepthAlphaTexture : hint_albedo;
+uniform sampler2D imposterTextureAlbedo : hint_albedo;
+uniform sampler2D imposterTextureNormal : hint_normal;
+uniform sampler2D imposterTextureDepth : hint_white;
 uniform vec2 imposterFrames = vec2(16f, 16f);
 uniform vec3 positionOffset = vec3(0f);
 uniform bool isFullSphere = true;
@@ -358,16 +358,16 @@ vec2 recalculateUV(vec2 uv_f,  vec2 frame, vec2 xy_f, vec2 frame_size, float d_s
 void fragment()
 {
 	vec2 quad_size = vec2(1f) / imposterFrames;
-	vec2 uv_f1 = recalculateUV(uv_frame1, frame1, xy_frame1, quad_size, depth_scale, imposterDepthAlphaTexture);
-	vec2 uv_f2 = recalculateUV(uv_frame2, frame2, xy_frame2, quad_size, depth_scale, imposterDepthAlphaTexture);
-	vec2 uv_f3 = recalculateUV(uv_frame3, frame3, xy_frame3, quad_size, depth_scale, imposterDepthAlphaTexture);
+	vec2 uv_f1 = recalculateUV(uv_frame1, frame1, xy_frame1, quad_size, depth_scale, imposterTextureDepth);
+	vec2 uv_f2 = recalculateUV(uv_frame2, frame2, xy_frame2, quad_size, depth_scale, imposterTextureDepth);
+	vec2 uv_f3 = recalculateUV(uv_frame3, frame3, xy_frame3, quad_size, depth_scale, imposterTextureDepth);
 
-	vec4 baseTex = blenderColors(uv_f1, uv_f2,  uv_f3, quad_blend_weights, imposterBaseTexture);
+	vec4 baseTex = blenderColors(uv_f1, uv_f2,  uv_f3, quad_blend_weights, imposterTextureAlbedo);
 	vec3 normalTex = blendedNormals(uv_f1, frame1_normal,
 									uv_f2, frame2_normal,
 									uv_f3, frame3_normal,
 									TANGENT, BINORMAL,
-									 quad_blend_weights, imposterNormalDepthTexture);
+									 quad_blend_weights, imposterTextureNormal);
 	ALBEDO = baseTex.rgb;
 	NORMAL =normalTex.xyz;
 	

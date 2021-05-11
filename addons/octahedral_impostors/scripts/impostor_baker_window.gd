@@ -12,7 +12,8 @@ func _process(_delta):
 
 
 func _on_Generate_pressed():
-	pass
+	$BakerScript.plugin = plugin
+	$BakerScript.bake()
 
 
 func _on_SpinBox_value_changed(value: float):

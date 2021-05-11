@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/octahedral_impostors/scripts/baking/exporter.gd" type="Script" id=1]
+
+[node name="Exporter" type="Spatial"]
+script = ExtResource( 1 )

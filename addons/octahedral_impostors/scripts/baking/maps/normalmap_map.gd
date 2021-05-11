@@ -1,3 +1,5 @@
+tool
+
 # extends OctahedralImpostorMapBaker
 extends "../map_baker.gd"
 
@@ -13,6 +15,10 @@ func is_normalmap() -> bool:
 
 func is_dilatated() -> bool:
 	return true
+
+
+func image_format() -> int:
+	return Image.FORMAT_RGH
 
 
 func _cleanup_baking_material(material: Material) -> void:

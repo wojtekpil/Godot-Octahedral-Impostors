@@ -2,8 +2,9 @@ tool
 extends Node2D
 
 var processed_image: Image = null
+var _alpha_image: Image = null
 
-func _dilatate_image(alpha_mask, image):
+func _dilatate_image(alpha_mask: Image, image: Image):
 	var tex: ImageTexture = ImageTexture.new()
 	var alpha_tex: ImageTexture = ImageTexture.new()
 	tex.flags = 0
@@ -25,11 +26,13 @@ func _dilatate_image(alpha_mask, image):
 	self.processed_image = viewport_texture.get_data()
 
 
-func dilatate_mask(alpha_mask, image):
+func dilatate_mask(alpha_mask: Image, image: Image):
 	$DilateViewport/tex.material.set_shader_param("u_alpha_overwrite", true)
 	return self._dilatate_image(alpha_mask, image)
 
 
-func dilatate(image):
+func dilatate(image: Image, use_as_alpha = false):
+	if use_as_alpha:
+		_alpha_image = image
 	$DilateViewport/tex.material.set_shader_param("u_alpha_overwrite", false)
-	return self._dilatate_image(image, image)
+	return self._dilatate_image(_alpha_image, image)

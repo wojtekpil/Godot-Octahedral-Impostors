@@ -1,3 +1,5 @@
+tool
+
 # extends OctahedralImpostorMapBaker
 extends "../map_baker.gd"
 
@@ -6,6 +8,10 @@ func get_name() -> String:
 
 
 func is_dilatated() -> bool:
+    return true
+
+
+func use_as_dilatate_mask() -> bool:
     return true
 
 

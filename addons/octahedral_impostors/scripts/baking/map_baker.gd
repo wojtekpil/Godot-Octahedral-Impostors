@@ -1,3 +1,4 @@
+tool
 
 func get_name() -> String:
     return "unknown"
@@ -12,6 +13,10 @@ func is_normalmap() -> bool:
 
 
 func is_dilatated() -> bool:
+    return false
+
+
+func use_as_dilatate_mask() -> bool:
     return false
 
 

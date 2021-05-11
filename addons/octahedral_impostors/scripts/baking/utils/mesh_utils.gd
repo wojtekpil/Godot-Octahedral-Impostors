@@ -1,3 +1,5 @@
+tool
+
 static func _create_node_mat_cache(node: Spatial, materials_cache: Dictionary) -> void:
 	var np := String(node.get_path())
 	if node.mesh == null:

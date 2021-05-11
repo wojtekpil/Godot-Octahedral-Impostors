@@ -1,4 +1,6 @@
 
+tool
+
 static func octa_hemisphere_enc(coord: Vector2) -> Vector3:
 	var position: Vector3 = Vector3(coord.x - coord.y, 0, -1.0 + coord.x + coord.y)
 	var absolute: Vector3 = position.abs()

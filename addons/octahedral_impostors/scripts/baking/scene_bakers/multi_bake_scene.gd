@@ -1,3 +1,5 @@
+tool
+
 extends "../scene_baker.gd"
 
 const OctahedralUtils = preload("../utils/octahedral_utils.gd")
@@ -13,6 +15,7 @@ var imported_scene_scale: Vector3
 
 var preview_scenes := []
 var camera_distance: float
+var camera_distance_scaled: float
 
 
 onready var baking_camera: Camera = $Camera
@@ -46,20 +49,26 @@ func setup_camera_position(camera: Position3D, position: Vector3) -> void:
 func create_frame_xy_scene(frame: Vector2) -> void:
 	var cam_pos = Position3D.new()
 	var container := Spatial.new()
-	var scale := 1.0/float(frames_xy)*camera_distance
+	var scale := camera_distance / float(frames_xy)
 	var uv_coord: Vector2 = frame / float(frames_xy - 1)
 	var normal := OctahedralUtils.grid_to_vector(uv_coord, false)
 
-	container.add_child(scene_to_bake.duplicate())
+	var d_baked_scene = scene_to_bake.duplicate()
+	d_baked_scene.translation = Vector3()
+	d_baked_scene.rotation = Vector3()
+	container.add_child(d_baked_scene)
+	container.add_child(cam_pos)
 	$BakedContainer.add_child(container)
-	$BakedContainer.add_child(cam_pos)
-	setup_camera_position(cam_pos, normal)
-	container.global_transform = cam_pos.global_transform.affine_inverse() * container.global_transform
-	container.transform.origin.z = 0.0
-	container.translation.x = float(frames_xy)/2.0 - float(frame.x) -0.5
-	container.translation.y = float(frames_xy)/2.0 - float(frame.y) -0.5
-	container.translation *= Vector3(-scale, scale, scale)
-	$BakedContainer.remove_child(cam_pos)
+	container.show()
+	d_baked_scene.show()
+	cam_pos.show()
+	setup_camera_position(cam_pos, normal * camera_distance_scaled)
+	d_baked_scene.transform = cam_pos.transform.affine_inverse() * d_baked_scene.transform
+	d_baked_scene.global_transform.origin = Vector3(0,0,0)
+	container.transform.origin = Vector3(0,0,0)
+	container.translation.x = (float(frames_xy)/2.0 - float(frame.x) -0.5 )* (-scale)
+	container.translation.y = (float(frames_xy)/2.0 - float(frame.y) -0.5 )* scale
+	container.remove_child(cam_pos)
 
 
 func prepare_scene(node: Spatial) -> void:
@@ -75,9 +84,10 @@ func prepare_scene(node: Spatial) -> void:
 	update_scene_to_bake_transform()
 
 	camera_distance = aabb.size.length()
+	camera_distance_scaled = camera_distance / float(frames_xy)
 	baking_camera.size = camera_distance
-	baking_camera.far = camera_distance * 2.0 / float(frames_xy)
-	baking_camera.transform.origin.z = camera_distance / float(frames_xy)
+	baking_camera.far = camera_distance_scaled * 2.0
+	baking_camera.global_transform.origin.z = camera_distance_scaled
 	$BakedContainer.remove_child(scene_to_bake)
 
 

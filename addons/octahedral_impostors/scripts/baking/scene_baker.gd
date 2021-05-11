@@ -1,3 +1,5 @@
+tool
+
 extends Spatial
 # Abstract class for scene bakers
 

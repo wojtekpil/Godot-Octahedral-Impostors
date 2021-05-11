@@ -1,3 +1,5 @@
+tool
+
 # extends OctahedralImpostorMapBaker
 extends "../map_baker.gd"
 
