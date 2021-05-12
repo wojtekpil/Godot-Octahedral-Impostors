@@ -1,0 +1,162 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://addons/octahedral_impostors/scripts/impostor_queue_window.gd" type="Script" id=1]
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
+expand_margin_left = 8.0
+expand_margin_right = 8.0
+expand_margin_top = 2.0
+
+[sub_resource type="StyleBoxFlat" id=2]
+content_margin_left = 5.0
+content_margin_right = 5.0
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
+
+[node name="QueueWindow" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 5.0
+margin_right = -5.0
+margin_bottom = -5.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
+margin_right = 790.0
+margin_bottom = 722.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_styles/tab_fg = SubResource( 1 )
+custom_styles/panel = SubResource( 2 )
+tab_align = 0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="QueuedScenes" type="VBoxContainer" parent="VBoxContainer/TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 29.0
+margin_right = -5.0
+margin_bottom = -5.0
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/TabContainer/QueuedScenes"]
+margin_right = 780.0
+margin_bottom = 22.0
+custom_constants/margin_top = 4
+custom_constants/margin_bottom = 4
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/QueuedScenes/MarginContainer"]
+margin_top = 4.0
+margin_right = 780.0
+margin_bottom = 18.0
+text = "Please select all OctaImpostor nodes to bake."
+
+[node name="Panel" type="Panel" parent="VBoxContainer/TabContainer/QueuedScenes"]
+margin_top = 26.0
+margin_right = 780.0
+margin_bottom = 688.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="QueuedScenes" type="Tree" parent="VBoxContainer/TabContainer/QueuedScenes/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_min_size = Vector2( 0, 400 )
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+margin_top = 726.0
+margin_right = 790.0
+margin_bottom = 790.0
+size_flags_horizontal = 3
+custom_styles/panel = SubResource( 3 )
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/PanelContainer"]
+margin_right = 790.0
+margin_bottom = 64.0
+custom_constants/margin_right = 8
+custom_constants/margin_top = 8
+custom_constants/margin_left = 8
+custom_constants/margin_bottom = 8
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/PanelContainer/MarginContainer"]
+margin_left = 8.0
+margin_top = 8.0
+margin_right = 782.0
+margin_bottom = 56.0
+columns = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
+margin_top = 3.0
+margin_right = 98.0
+margin_bottom = 17.0
+text = "Progress"
+align = 2
+
+[node name="ProgressBar" type="ProgressBar" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
+margin_left = 102.0
+margin_right = 774.0
+margin_bottom = 20.0
+rect_min_size = Vector2( 0, 20 )
+size_flags_horizontal = 3
+
+[node name="Label2" type="Label" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
+margin_top = 29.0
+margin_right = 98.0
+margin_bottom = 43.0
+text = "Data directory: "
+align = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
+margin_left = 102.0
+margin_top = 24.0
+margin_right = 774.0
+margin_bottom = 48.0
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DirectoryPathEdit" type="LineEdit" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer"]
+margin_right = 569.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="DirectorySelectButton" type="Button" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer"]
+margin_left = 573.0
+margin_right = 597.0
+margin_bottom = 24.0
+text = "..."
+
+[node name="GenerateButton" type="Button" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer"]
+margin_left = 601.0
+margin_right = 672.0
+margin_bottom = 24.0
+text = "Generate"
+expand_icon = true
+
+[connection signal="button_pressed" from="VBoxContainer/TabContainer/QueuedScenes/Panel/QueuedScenes" to="." method="_on_QueuedScenes_button_pressed"]
