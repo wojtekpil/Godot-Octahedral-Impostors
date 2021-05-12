@@ -80,7 +80,6 @@ func bake_map(map_baker: MapBaker, scene: Spatial, vp: Viewport, postprocess: Me
 
 func bake():
 	scene_baker = MultiBakeScene.instance()
-	exporter = $Exporter
 	exporter.export_path = "res://tests/"
 	exporter.frames_xy = frames_xy
 	exporter.is_full_sphere = is_full_sphere
