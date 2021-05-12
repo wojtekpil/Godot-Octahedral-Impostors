@@ -12,7 +12,7 @@ _global_script_classes=[ {
 "base": "Reference",
 "class": "Template",
 "language": "GDScript",
-"path": "res://addons/octahedral_impostors/scripts/template.gd"
+"path": "res://addons/octahedral_impostors/scripts/baking/utils/template.gd"
 }, {
 "base": "VisualShaderNodeCustom",
 "class": "VisualShaderNodeOCtaImpFrag",
