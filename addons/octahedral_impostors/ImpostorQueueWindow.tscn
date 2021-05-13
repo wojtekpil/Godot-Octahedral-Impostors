@@ -1,21 +1,27 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://addons/octahedral_impostors/scripts/impostor_queue_window.gd" type="Script" id=1]
 
 [sub_resource type="StyleBoxFlat" id=1]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
 bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
-expand_margin_left = 8.0
-expand_margin_right = 8.0
-expand_margin_top = 2.0
 
 [sub_resource type="StyleBoxFlat" id=2]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+bg_color = Color( 0.14902, 0.172549, 0.231373, 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
 content_margin_left = 5.0
 content_margin_right = 5.0
 content_margin_top = 5.0
 content_margin_bottom = 5.0
 bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
 
-[sub_resource type="StyleBoxFlat" id=3]
+[sub_resource type="StyleBoxFlat" id=4]
 bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
 
 [node name="QueueWindow" type="Control"]
@@ -39,11 +45,13 @@ __meta__ = {
 
 [node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
 margin_right = 790.0
-margin_bottom = 722.0
+margin_bottom = 726.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/tab_fg = SubResource( 1 )
-custom_styles/panel = SubResource( 2 )
+custom_styles/tab_bg = SubResource( 2 )
+custom_styles/panel = SubResource( 3 )
+custom_constants/side_margin = 0
 tab_align = 0
 __meta__ = {
 "_edit_use_anchors_": false
@@ -72,7 +80,7 @@ text = "Please select all OctaImpostor nodes to bake."
 [node name="Panel" type="Panel" parent="VBoxContainer/TabContainer/QueuedScenes"]
 margin_top = 26.0
 margin_right = 780.0
-margin_bottom = 688.0
+margin_bottom = 692.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -85,78 +93,120 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Settings" type="VBoxContainer" parent="VBoxContainer/TabContainer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 5.0
+margin_top = 29.0
+margin_right = -5.0
+margin_bottom = -5.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/TabContainer/Settings"]
+margin_right = 780.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Settings/HBoxContainer"]
+margin_top = 5.0
+margin_right = 90.0
+margin_bottom = 19.0
+text = "Save directory"
+align = 2
+
+[node name="DirectoryPathEdit" type="LineEdit" parent="VBoxContainer/TabContainer/Settings/HBoxContainer"]
+margin_left = 94.0
+margin_right = 752.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="DirectorySelectButton" type="Button" parent="VBoxContainer/TabContainer/Settings/HBoxContainer"]
+margin_left = 756.0
+margin_right = 780.0
+margin_bottom = 24.0
+text = "..."
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/TabContainer/Settings"]
+margin_top = 28.0
+margin_right = 780.0
+margin_bottom = 52.0
+custom_constants/hseparation = 16
+columns = 2
+
+[node name="OverwriteProfileCheckbox" type="CheckBox" parent="VBoxContainer/TabContainer/Settings/GridContainer"]
+margin_right = 684.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "Overwrite Profile"
+
+[node name="ProfileOptionButton" type="OptionButton" parent="VBoxContainer/TabContainer/Settings/GridContainer"]
+margin_left = 700.0
+margin_right = 780.0
+margin_bottom = 24.0
+text = "Select..."
+
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
-margin_top = 726.0
+margin_top = 730.0
 margin_right = 790.0
 margin_bottom = 790.0
 size_flags_horizontal = 3
-custom_styles/panel = SubResource( 3 )
+custom_styles/panel = SubResource( 4 )
 
 [node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/PanelContainer"]
 margin_right = 790.0
-margin_bottom = 64.0
+margin_bottom = 60.0
 custom_constants/margin_right = 8
 custom_constants/margin_top = 8
 custom_constants/margin_left = 8
 custom_constants/margin_bottom = 8
 
-[node name="GridContainer" type="GridContainer" parent="VBoxContainer/PanelContainer/MarginContainer"]
+[node name="GridContainer" type="VBoxContainer" parent="VBoxContainer/PanelContainer/MarginContainer"]
 margin_left = 8.0
 margin_top = 8.0
 margin_right = 782.0
-margin_bottom = 56.0
-columns = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
+margin_bottom = 52.0
 
-[node name="Label" type="Label" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
+margin_right = 774.0
+margin_bottom = 20.0
+
+[node name="Label" type="Label" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer"]
 margin_top = 3.0
-margin_right = 98.0
+margin_right = 55.0
 margin_bottom = 17.0
 text = "Progress"
 align = 2
 
-[node name="ProgressBar" type="ProgressBar" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
-margin_left = 102.0
+[node name="ProgressBar" type="ProgressBar" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer"]
+margin_left = 59.0
 margin_right = 774.0
 margin_bottom = 20.0
 rect_min_size = Vector2( 0, 20 )
 size_flags_horizontal = 3
 
-[node name="Label2" type="Label" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
-margin_top = 29.0
-margin_right = 98.0
-margin_bottom = 43.0
-text = "Data directory: "
-align = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
-margin_left = 102.0
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer"]
 margin_top = 24.0
 margin_right = 774.0
-margin_bottom = 48.0
+margin_bottom = 44.0
+
+[node name="Label" type="Label" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer2"]
+margin_top = 3.0
+margin_right = 699.0
+margin_bottom = 17.0
 size_flags_horizontal = 3
+
+[node name="GenerateButton" type="Button" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer2"]
+margin_left = 703.0
+margin_right = 774.0
+margin_bottom = 20.0
+text = "Generate"
+align = 2
+expand_icon = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="DirectoryPathEdit" type="LineEdit" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer"]
-margin_right = 569.0
-margin_bottom = 24.0
-size_flags_horizontal = 3
-
-[node name="DirectorySelectButton" type="Button" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer"]
-margin_left = 573.0
-margin_right = 597.0
-margin_bottom = 24.0
-text = "..."
-
-[node name="GenerateButton" type="Button" parent="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer"]
-margin_left = 601.0
-margin_right = 672.0
-margin_bottom = 24.0
-text = "Generate"
-expand_icon = true
 
 [connection signal="button_pressed" from="VBoxContainer/TabContainer/QueuedScenes/Panel/QueuedScenes" to="." method="_on_QueuedScenes_button_pressed"]

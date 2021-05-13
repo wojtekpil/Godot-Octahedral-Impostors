@@ -1,5 +1,11 @@
 extends Control
 
+const ProfileResource = preload("profile_resource.gd")
+
+const FileUtils = preload("baking/utils/file_utils.gd")
+
+const ProfilesDir = "res://addons/octahedral_impostors/profiles/"
+
 const icon_checkbox_checked := preload("res://addons/octahedral_impostors/icons/checkbox_checked.svg")
 const icon_checkbox_unchecked := preload("res://addons/octahedral_impostors/icons/checkbox_unchecked.svg")
 
@@ -7,13 +13,23 @@ const icon_checkbox_unchecked := preload("res://addons/octahedral_impostors/icon
 # var a = 2
 # var b = "text"
 
-onready var queue_tree = $VBoxContainer/TabContainer/QueuedScenes/Panel/QueuedScenes
+onready var queue_tree: Tree = $VBoxContainer/TabContainer/QueuedScenes/Panel/QueuedScenes
+onready var profile_option_button: OptionButton = $VBoxContainer/TabContainer/Settings/GridContainer/ProfileOptionButton
 
+
+func read_baking_profiles(profile_button: OptionButton) -> Array:
+	var profiles: Array = FileUtils.get_resources_in_dir(ProfilesDir)
+	var profile_id = 0
+	for prof in profiles:
+		if prof is ProfileResource:
+			profile_button.add_item(prof.name)
+	return profiles
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	read_baking_profiles(profile_option_button)
+
 	var root = queue_tree.create_item()
-	
 	queue_tree.set_hide_root(true)
 	var child1 = queue_tree.create_item(root)
 	child1.set_text(0, "Scene Name1")
