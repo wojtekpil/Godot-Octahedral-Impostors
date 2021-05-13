@@ -13,7 +13,6 @@ var is_full_sphere := false
 var scene_to_bake: Spatial
 var imported_scene_scale: Vector3
 
-var preview_scenes := []
 var camera_distance: float
 var camera_distance_scaled: float
 
@@ -51,7 +50,7 @@ func create_frame_xy_scene(frame: Vector2) -> void:
 	var container := Spatial.new()
 	var scale := camera_distance / float(frames_xy)
 	var uv_coord: Vector2 = frame / float(frames_xy - 1)
-	var normal := OctahedralUtils.grid_to_vector(uv_coord, false)
+	var normal := OctahedralUtils.grid_to_vector(uv_coord, is_full_sphere)
 
 	var d_baked_scene = scene_to_bake.duplicate()
 	d_baked_scene.translation = Vector3()
