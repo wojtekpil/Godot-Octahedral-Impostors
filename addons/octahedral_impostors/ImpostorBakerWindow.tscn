@@ -21,12 +21,14 @@ size = Vector2( 2, 2 )
 
 [node name="ImpostorBaker" type="WindowDialog"]
 visible = true
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 300.0
-margin_top = 154.0
-margin_right = 220.0
-margin_bottom = -171.0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -360.0
+margin_top = -237.5
+margin_right = 360.0
+margin_bottom = 237.5
 window_title = "Create Octahedral Impostor"
 resizable = true
 script = ExtResource( 2 )
@@ -37,6 +39,7 @@ __meta__ = {
 [node name="MainContainer" type="HSplitContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+rect_clip_content = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -137,9 +140,9 @@ valign = 1
 margin_left = 148.0
 margin_right = 209.0
 margin_bottom = 20.0
-text = "4096"
+text = "2048"
 items = [ "1024", null, false, 1, null, "2048", null, false, 2, null, "4096", null, false, 3, null, "8192", null, false, 4, null ]
-selected = 2
+selected = 1
 
 [node name="HBoxContainer4" type="HBoxContainer" parent="MainContainer/Panel/container"]
 margin_top = 132.0
@@ -230,6 +233,9 @@ margin_left = 232.0
 margin_right = 720.0
 margin_bottom = 475.0
 rect_min_size = Vector2( 475, 475 )
+rect_clip_content = true
+size_flags_horizontal = 3
+size_flags_vertical = 3
 expand = true
 stretch_mode = 6
 

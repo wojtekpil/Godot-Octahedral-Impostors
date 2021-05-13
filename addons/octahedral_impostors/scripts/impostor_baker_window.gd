@@ -40,7 +40,7 @@ func _process(_delta):
 
 
 func _on_Generate_pressed():
-	baker.bake()
+	$FileDialog.popup_centered()
 
 
 func _on_SpinBox_value_changed(value: float):
@@ -69,7 +69,8 @@ func _on_OptionButtonImgRes_item_selected(new_dimm: int):
 
 
 func _on_FileDialog_file_selected(path: String) -> void:
-	pass
+	baker.save_path = path
+	baker.bake()
 
 
 func _on_ImpostorBaker_popup_hide() -> void:
