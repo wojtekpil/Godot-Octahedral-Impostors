@@ -6,25 +6,19 @@ const MeshUtils = preload("utils/mesh_utils.gd")
 const MapBaker = preload("map_baker.gd")
 const SceneBaker = preload("scene_baker.gd")
 const Exporter = preload("../../scenes/exporter.tscn")
+const ProfileResource = preload("../profile_resource.gd")
 
 const MultiBakeScene = preload("../../scenes/multi_bake_scene.tscn")
-
-const StandardShader = preload("../../materials/shaders/ImpostorShader.shader")
-var plugin: EditorPlugin = null
 
 export(NodePath) onready var baking_viewport = get_node(baking_viewport) as Viewport
 export(NodePath) onready var baking_postprocess_plane = get_node(baking_postprocess_plane) as MeshInstance
 export(NodePath) onready var texture_preview = get_node(texture_preview) as TextureRect
 
 
-var map_bakers := [
-	preload("maps/albedo_map.gd"),
-	preload("maps/normalmap_map.gd"),
-	preload("maps/depth_map.gd")
-]
-
-var frames_xy := 8
-var is_full_sphere = false
+var frames_xy := 12
+var is_full_sphere := false
+var plugin: EditorPlugin = null
+var profile: ProfileResource = preload("res://addons/octahedral_impostors/profiles/standard.tres")
 
 onready var exporter = $Exporter
 onready var dilatation_pipeline = $DilatatePipeline
@@ -79,6 +73,7 @@ func bake_map(map_baker: MapBaker, scene: Spatial, vp: Viewport, postprocess: Me
 
 
 func bake():
+	print("Baking using profile: ", profile.name)
 	scene_baker = MultiBakeScene.instance()
 	exporter.export_path = "res://tests/"
 	exporter.frames_xy = frames_xy
@@ -93,21 +88,22 @@ func bake():
 	print("Preparing scene to bake", test_scene)
 	prepare_scene_to_bake(test_scene)
 
-	for mapbaker in map_bakers:
-		print("Baking", mapbaker)
+	#bake main map
+	print("Baking main map: ", profile.map_baker_with_alpha_mask)
+	yield(bake_map(profile.map_baker_with_alpha_mask.new(), test_scene, baking_viewport, baking_postprocess_plane.mesh), "completed")
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+
+	for mapbaker in profile.standard_map_bakers:
+		print("Baking: ", mapbaker)
 		yield(bake_map(mapbaker.new(), test_scene, baking_viewport, baking_postprocess_plane.mesh), "completed")
 		yield(get_tree(), "idle_frame")
 		yield(get_tree(), "idle_frame")
 	
-	print("Exporting")
-
-
-	
+	print("Exporting...")
 	var shader_mat := ShaderMaterial.new()
-	shader_mat.shader = StandardShader
+	shader_mat.shader = profile.main_shader
 	exporter.scale_instance = scene_baker.get_camera().size / 2.0
 	exporter.export_scene(shader_mat, false)
-
-
-	#remove_child(exporter)
 	remove_child(test_scene)
+	print("Exporting impostor done.")

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" load_steps=7 format=2]
+
+[ext_resource path="res://addons/octahedral_impostors/scripts/baking/maps/depth_map.gd" type="Script" id=1]
+[ext_resource path="res://addons/octahedral_impostors/scripts/baking/maps/albedo_map.gd" type="Script" id=2]
+[ext_resource path="res://addons/octahedral_impostors/scripts/baking/maps/normalmap_map.gd" type="Script" id=3]
+[ext_resource path="res://addons/octahedral_impostors/scripts/profile_resource.gd" type="Script" id=4]
+[ext_resource path="res://addons/octahedral_impostors/materials/shaders/ImpostorShader.shader" type="Shader" id=5]
+[ext_resource path="res://addons/octahedral_impostors/materials/shaders/ImpostorShaderShadows.shader" type="Shader" id=6]
+
+[resource]
+script = ExtResource( 4 )
+name = "standard"
+map_baker_with_alpha_mask = ExtResource( 2 )
+standard_map_bakers = [ ExtResource( 3 ), ExtResource( 1 ) ]
+main_shader = ExtResource( 5 )
+shadows_shader = ExtResource( 6 )
