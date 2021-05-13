@@ -10,21 +10,24 @@ const ProfileResource = preload("../profile_resource.gd")
 
 const MultiBakeScene = preload("../../scenes/multi_bake_scene.tscn")
 
-export(NodePath) onready var baking_viewport = get_node(baking_viewport) as Viewport
-export(NodePath) onready var baking_postprocess_plane = get_node(baking_postprocess_plane) as MeshInstance
-export(NodePath) onready var texture_preview = get_node(texture_preview) as TextureRect
+var baking_viewport: Viewport
+var baking_postprocess_plane: MeshInstance
+var texture_preview: TextureRect
 
 
 var frames_xy := 12
 var is_full_sphere := false
 var plugin: EditorPlugin = null
 var profile: ProfileResource = preload("res://addons/octahedral_impostors/profiles/standard.tres")
+var atlas_resolution = 2048
+var atlas_coverage = 1.0
 
 onready var exporter = $Exporter
 onready var dilatation_pipeline = $DilatatePipeline
 
 var scene_baker: SceneBaker
 var scene_materials_cache := {}
+var scene_to_bake: Spatial = null
 
 func prepare_scene_to_bake(scene: Spatial):
 	MeshUtils.create_materials_cache(scene, scene_materials_cache)
@@ -79,24 +82,25 @@ func bake():
 	exporter.frames_xy = frames_xy
 	exporter.is_full_sphere = is_full_sphere
 	exporter.plugin = plugin
-	# only for testing purposes
-	var test_scene = load("res://assets/monkey/monkey.tscn").instance()
+
+	scene_baker.atlas_resolution = atlas_resolution
+	scene_baker.atlas_coverage  =atlas_coverage
 	scene_baker.frames_xy = frames_xy
 	scene_baker.is_full_sphere = is_full_sphere
 	baking_viewport.add_child(scene_baker)
-	add_child(test_scene)
-	print("Preparing scene to bake", test_scene)
-	prepare_scene_to_bake(test_scene)
+	add_child(scene_to_bake)
+	print("Preparing scene to bake", scene_to_bake)
+	prepare_scene_to_bake(scene_to_bake)
 
 	#bake main map
 	print("Baking main map: ", profile.map_baker_with_alpha_mask)
-	yield(bake_map(profile.map_baker_with_alpha_mask.new(), test_scene, baking_viewport, baking_postprocess_plane.mesh), "completed")
+	yield(bake_map(profile.map_baker_with_alpha_mask.new(), scene_to_bake, baking_viewport, baking_postprocess_plane.mesh), "completed")
 	yield(get_tree(), "idle_frame")
 	yield(get_tree(), "idle_frame")
 
 	for mapbaker in profile.standard_map_bakers:
 		print("Baking: ", mapbaker)
-		yield(bake_map(mapbaker.new(), test_scene, baking_viewport, baking_postprocess_plane.mesh), "completed")
+		yield(bake_map(mapbaker.new(), scene_to_bake, baking_viewport, baking_postprocess_plane.mesh), "completed")
 		yield(get_tree(), "idle_frame")
 		yield(get_tree(), "idle_frame")
 	
@@ -105,5 +109,11 @@ func bake():
 	shader_mat.shader = profile.main_shader
 	exporter.scale_instance = scene_baker.get_camera().size / 2.0
 	exporter.export_scene(shader_mat, false)
-	remove_child(test_scene)
+	remove_child(scene_to_bake)
 	print("Exporting impostor done.")
+
+
+func set_scene_to_bake(node: Spatial) -> void:
+	scene_to_bake = node.duplicate()
+	scene_to_bake.translation = Vector3()
+	scene_to_bake.rotation = Vector3()

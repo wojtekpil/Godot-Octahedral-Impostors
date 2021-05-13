@@ -8,6 +8,7 @@ const OctahedralUtils = preload("../utils/octahedral_utils.gd")
 var atlas_coverage := 1.0
 var frames_xy := 12
 var is_full_sphere := false
+var atlas_resolution := 2048
 
 # Original scene params
 var scene_to_bake: Spatial
@@ -90,7 +91,13 @@ func prepare_scene(node: Spatial) -> void:
 	$BakedContainer.remove_child(scene_to_bake)
 
 
+func prepare_viewport(vp: Viewport) -> void:
+	vp.size = Vector2(atlas_resolution, atlas_resolution)
+
+
 func set_scene_to_bake(node: Spatial) -> void:
+	var viewport = get_viewport()
+	prepare_viewport(viewport)
 	if scene_to_bake:
 		scene_to_bake.queue_free()
 	prepare_scene(node)
@@ -99,7 +106,6 @@ func set_scene_to_bake(node: Spatial) -> void:
 			create_frame_xy_scene(Vector2(x,y))
 	yield(get_tree(), "idle_frame")
 	yield(get_tree(), "idle_frame")
-	var viewport = get_viewport()
 	var atlas_image = viewport.get_texture().get_data()
 	atlas_image.flip_y()
 	atlas_image.convert(Image.FORMAT_RGBAH)

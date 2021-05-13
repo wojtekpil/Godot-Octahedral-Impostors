@@ -1,9 +1,11 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://addons/octahedral_impostors/scenes/dilatate_pipeline.tscn" type="PackedScene" id=1]
 [ext_resource path="res://addons/octahedral_impostors/scripts/impostor_baker_window.gd" type="Script" id=2]
 [ext_resource path="res://addons/octahedral_impostors/scenes/exporter.tscn" type="PackedScene" id=3]
+[ext_resource path="res://addons/octahedral_impostors/profiles/standard.tres" type="Resource" id=4]
 [ext_resource path="res://addons/octahedral_impostors/scripts/baking/baker.gd" type="Script" id=5]
+[ext_resource path="res://addons/octahedral_impostors/profiles/light.tres" type="Resource" id=6]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.231373, 0.231373, 0.32549, 0.47451 )
@@ -165,7 +167,7 @@ margin_right = 209.0
 margin_bottom = 182.0
 
 [node name="Label3" type="Label" parent="MainContainer/Panel/container/HBoxContainer5"]
-margin_right = 121.0
+margin_right = 148.0
 margin_bottom = 20.0
 hint_tooltip = "Whether the impostor should use a high quality shader."
 mouse_filter = 0
@@ -174,13 +176,13 @@ size_flags_vertical = 5
 text = "Profile"
 valign = 1
 
-[node name="OptionButtonShaderType" type="OptionButton" parent="MainContainer/Panel/container/HBoxContainer5"]
-margin_left = 125.0
+[node name="OptionButtonProfile" type="OptionButton" parent="MainContainer/Panel/container/HBoxContainer5"]
+margin_left = 152.0
 margin_right = 209.0
 margin_bottom = 20.0
-text = "Standard"
-items = [ "Light", null, false, 0, null, "Standard", null, false, 1, null, "TextureArray", null, false, 2, null ]
-selected = 1
+text = "light"
+items = [ "light", null, false, 0, ExtResource( 6 ), "standard", null, false, 1, ExtResource( 4 ) ]
+selected = 0
 
 [node name="HBoxContainer7" type="HBoxContainer" parent="MainContainer/Panel/container"]
 margin_top = 188.0
@@ -273,9 +275,6 @@ material/0 = null
 
 [node name="BakerScript" type="Spatial" parent="."]
 script = ExtResource( 5 )
-baking_viewport = NodePath("../ViewportBaking")
-baking_postprocess_plane = NodePath("../ViewportBaking/PostProcess")
-texture_preview = NodePath("../MainContainer/TextureRect")
 
 [node name="Exporter" parent="BakerScript" instance=ExtResource( 3 )]
 
@@ -287,7 +286,7 @@ texture_preview = NodePath("../MainContainer/TextureRect")
 [connection signal="value_changed" from="MainContainer/Panel/container/HBoxContainer3/SpinBoxGridSize" to="." method="_on_SpinBoxGridSize_value_changed"]
 [connection signal="item_selected" from="MainContainer/Panel/container/HBoxContainer2/OptionButtonImgRes" to="." method="_on_OptionButtonImgRes_item_selected"]
 [connection signal="toggled" from="MainContainer/Panel/container/HBoxContainer4/CheckboxFullSphere" to="." method="_on_CheckboxFullSphere_toggled"]
-[connection signal="item_selected" from="MainContainer/Panel/container/HBoxContainer5/OptionButtonShaderType" to="." method="_on_OptionButtonShaderType_item_selected"]
+[connection signal="item_selected" from="MainContainer/Panel/container/HBoxContainer5/OptionButtonProfile" to="." method="_on_OptionButtonProfile_item_selected"]
 [connection signal="toggled" from="MainContainer/Panel/container/HBoxContainer7/CheckBoxHalfResolution" to="." method="_on_CheckBoxHalfResolution_toggled"]
 [connection signal="toggled" from="MainContainer/Panel/container/HBoxContainer6/CheckBoxPackedScene" to="." method="_on_CheckBoxPackedScene_toggled"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_FileDialog_file_selected"]
