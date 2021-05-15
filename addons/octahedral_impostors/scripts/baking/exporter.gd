@@ -12,6 +12,7 @@ var scale_instance := 1.0
 var packedscene_filename := "impostor.tscn"
 
 var saved_maps := {}
+var generated_impostor: MeshInstance =  null
 
 func save_map(map_baker: MapBaker, atlas_image: Image):
 	
@@ -105,4 +106,5 @@ func export_scene(mat: Material, texture_array: bool = false) -> Spatial:
 		return null
 	else:
 		print("Imposter ready!")
+	generated_impostor = mi
 	return root

@@ -23,6 +23,7 @@ onready var baker = $BakerScript
 
 var plugin: EditorPlugin
 var octa_imp_items := []
+var scene_root: Node = null
 
 
 func read_baking_profiles(profile_button: OptionButton) -> Array:
@@ -61,7 +62,7 @@ func set_scene_to_bake(_node: Spatial) -> void:
 	baker.baking_viewport = $ViewportBaking
 	baker.baking_postprocess_plane = $ViewportBaking/PostProcess
 	read_baking_profiles(profile_option_button)
-	var scene_root: Node = get_tree().get_edited_scene_root()
+	scene_root = get_tree().get_edited_scene_root()
 	if scene_root == null:
 		scene_root = Spatial.new() # just to ommit error in console
 	var imp_nodes := get_all_octaimpostor_nodes_in_scene(scene_root)
@@ -120,6 +121,13 @@ func _on_GenerateButton_pressed() -> void:
 	for x in imps:
 		bake_scene(x)
 		yield(baker, "bake_done")
+		if baker.generated_impostor != null:
+			var local_imp = baker.generated_impostor.duplicate()
+			local_imp.name = "generated-impostor"
+			x.add_child(local_imp)
+			local_imp.owner = scene_root
+		else:
+			print("Problem generating impostor for: ", x.get_path())
 
 
 func _on_DirectorySelectDialog_dir_selected(dir):

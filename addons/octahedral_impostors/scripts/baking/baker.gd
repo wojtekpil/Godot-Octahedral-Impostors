@@ -25,6 +25,7 @@ var profile: ProfileResource = preload("res://addons/octahedral_impostors/profil
 var atlas_resolution = 2048
 var atlas_coverage = 1.0
 var save_path: String
+var generated_impostor: MeshInstance = null
 
 onready var exporter = $Exporter
 onready var dilatation_pipeline = $DilatatePipeline
@@ -118,6 +119,7 @@ func bake():
 	yield(exporter.export_scene(shader_mat, false), "completed")
 	remove_child(scene_to_bake)
 	print("Exporting impostor done.")
+	generated_impostor = exporter.generated_impostor
 	emit_signal("bake_done")
 
 

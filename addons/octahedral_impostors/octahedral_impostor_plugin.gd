@@ -65,3 +65,17 @@ func _on_Button_pressed() -> void:
 func batch_baking(ud): 
 	batch_converter.popup_centered()
 	batch_converter.set_scene_to_bake(null)
+
+
+func update_all_octaimpostor_lod_nodes(node, camera):
+	if node == null:
+		return
+	if node is OctaImpostor:
+		node.editor_camera = camera
+	for child in node.get_children():
+		update_all_octaimpostor_lod_nodes(child, camera)
+
+
+func forward_spatial_gui_input(camera, event):
+	update_all_octaimpostor_lod_nodes(get_tree().get_edited_scene_root(), camera)
+	return false

@@ -17,6 +17,7 @@ export(bool) var is_full_sphere = false
 
 var refresh_rate := 0.25
 var counter := 0.0
+var editor_camera :Camera = null
 
 #TODO: dynamically load baking profiles as optionbutton
 
@@ -38,6 +39,8 @@ func _physics_process(delta: float) -> void:
 
 	# We need a camera to do the rest.
 	var camera := get_viewport().get_camera()
+	if Engine.is_editor_hint() && editor_camera != null:
+		camera = editor_camera
 	if camera == null:
 		return
 
