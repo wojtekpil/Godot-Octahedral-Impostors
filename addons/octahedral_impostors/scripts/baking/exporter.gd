@@ -14,11 +14,26 @@ var packedscene_filename := "impostor.tscn"
 var saved_maps := {}
 var generated_impostor: MeshInstance =  null
 
+func rescan_filesystem():
+	var plugin_filesystem = plugin.get_editor_interface().get_resource_filesystem()
+	plugin_filesystem.scan()
+	print("Scanning filesystem...")
+	while plugin_filesystem.is_scanning():
+		yield(get_tree(), "idle_frame")
+		if not is_inside_tree():
+			print("Not inside a tree...")
+			return
+
+
 func save_map(map_baker: MapBaker, atlas_image: Image):
-	
+	var dir = Directory.new()
 	var save_path = export_path.plus_file("result_" + map_baker.get_name() + ".png")
 	print("Saving image in ", save_path)
 	atlas_image.convert(map_baker.image_format())
+	#remove old file if exists
+	if dir.file_exists(save_path):
+		dir.remove(save_path)
+		yield(rescan_filesystem(), "completed")
 	atlas_image.save_png(save_path)
 	saved_maps[map_baker.get_name()] = save_path
 
@@ -39,14 +54,7 @@ func wait_for_correct_load_texture(path: String) -> void:
 func wait_on_resources() -> void:
 	# TODO: check if texture type is correct
 	
-	var plugin_filesystem = plugin.get_editor_interface().get_resource_filesystem()
-	plugin_filesystem.scan()
-	print("Scanning filesystem...")
-	while plugin_filesystem.is_scanning():
-		yield(get_tree(), "idle_frame")
-		if not is_inside_tree():
-			print("Not inside a tree...")
-			return
+	yield(rescan_filesystem(), "completed")
 	# according to Zyllans comment in his heightmap plugin importing takes place
 	# after scanning so we need to yield some more...
 	print("Waiting for import to finish...")

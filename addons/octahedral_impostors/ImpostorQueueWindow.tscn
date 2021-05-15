@@ -41,7 +41,6 @@ environment = SubResource( 6 )
 size = Vector2( 2, 2 )
 
 [node name="QueueWindow" type="WindowDialog"]
-visible = true
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -252,6 +251,14 @@ margin_right = 83.0
 margin_bottom = 58.0
 window_title = "Warning"
 
+[node name="ConfirmationBakeDialog" type="ConfirmationDialog" parent="."]
+margin_right = 200.0
+margin_bottom = 70.0
+dialog_text = "Old baking content of the selected nodes will be removed. Are you sure you want to continue?"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="ViewportBaking" type="Viewport" parent="."]
 size = Vector2( 2048, 2048 )
 size_override_stretch = true
@@ -286,3 +293,4 @@ script = ExtResource( 4 )
 [connection signal="pressed" from="VBoxContainer/TabContainer/Settings/HBoxContainer/DirectorySelectButton" to="." method="_on_DirectorySelectButton_pressed"]
 [connection signal="pressed" from="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer2/GenerateButton" to="." method="_on_GenerateButton_pressed"]
 [connection signal="dir_selected" from="DirectorySelectDialog" to="." method="_on_DirectorySelectDialog_dir_selected"]
+[connection signal="confirmed" from="ConfirmationBakeDialog" to="." method="_on_ConfirmationBakeDialog_confirmed"]

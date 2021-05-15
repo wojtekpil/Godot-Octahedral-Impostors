@@ -10,20 +10,21 @@ const ProfilesDir = "res://addons/octahedral_impostors/profiles/"
 const icon_checkbox_checked := preload("res://addons/octahedral_impostors/icons/checkbox_checked.svg")
 const icon_checkbox_unchecked := preload("res://addons/octahedral_impostors/icons/checkbox_unchecked.svg")
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
 onready var queue_tree: Tree = $VBoxContainer/TabContainer/QueuedScenes/Panel/QueuedScenes
 onready var profile_option_button: OptionButton = $VBoxContainer/TabContainer/Settings/GridContainer/ProfileOptionButton
-onready var directory_save_dialog :FileDialog = $DirectorySelectDialog
-onready var directory_path_edit :LineEdit = $VBoxContainer/TabContainer/Settings/HBoxContainer/DirectoryPathEdit
-onready var info_dialog : AcceptDialog = $InfoDialog
+onready var directory_save_dialog: FileDialog = $DirectorySelectDialog
+onready var directory_path_edit: LineEdit = $VBoxContainer/TabContainer/Settings/HBoxContainer/DirectoryPathEdit
+onready var generate_button: Button = $VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer2/GenerateButton
+onready var progress_bar: ProgressBar = $VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer/ProgressBar
+onready var info_dialog: AcceptDialog = $InfoDialog
+onready var confirm_dialog: ConfirmationDialog = $ConfirmationBakeDialog
 onready var baker = $BakerScript
 
 var plugin: EditorPlugin
 var octa_imp_items := []
 var scene_root: Node = null
+var impostor_scene_filename := "impostor.tscn"
+var prohibited_dirs := ["", "res://", "res://addons", "res://addons/"]
 
 
 func read_baking_profiles(profile_button: OptionButton) -> Array:
@@ -58,6 +59,7 @@ func get_selected_octaimpostor_nodes() -> Array:
 
 
 func set_scene_to_bake(_node: Spatial) -> void:
+	progress_bar.value = 0
 	baker.plugin = plugin
 	baker.baking_viewport = $ViewportBaking
 	baker.baking_postprocess_plane = $ViewportBaking/PostProcess
@@ -89,10 +91,14 @@ func set_scene_to_bake(_node: Spatial) -> void:
 func bake_scene(node: OctaImpostor) -> void:
 	var dir = Directory.new()
 	var gen_dir = String(node.get_path()).sha256_text()
-	var dir_loc =  directory_path_edit.text.plus_file(gen_dir)
+	var dir_loc = directory_path_edit.text.plus_file(gen_dir)
+	var save_file = dir_loc.plus_file(impostor_scene_filename)
 
 	dir.make_dir_recursive(dir_loc)
-	baker.save_path = dir_loc.plus_file("impostor.tscn")
+	if dir.file_exists(save_file):
+		dir.remove(save_file)
+		plugin.get_editor_interface().get_resource_filesystem().scan()
+	baker.save_path = save_file
 	print("Trying to bake:", baker.save_path)
 	# TODO: remove all old impostors
 	baker.frames_xy = node.frames_xy
@@ -100,9 +106,31 @@ func bake_scene(node: OctaImpostor) -> void:
 	var multiplier: int = pow(2, node.atlas_resolution)
 	baker.atlas_resolution = 1024 * multiplier
 	baker.profile = node.profile
-	baker.set_scene_to_bake(node)
+	baker.set_scene_to_bake(node, true)
 	yield(baker.bake(), "completed")
 
+
+func generate() -> void:
+	generate_button.disabled = true
+	var imps := get_selected_octaimpostor_nodes()
+	var imps_size := imps.size()
+	var imps_counter := 0.0
+	for x in imps:
+		for child in x.get_children():
+			if child.name == "generated-impostor":
+				x.remove_child(child)
+		bake_scene(x)
+		yield(baker, "bake_done")
+		if baker.generated_impostor != null:
+			var local_imp = baker.generated_impostor.duplicate()
+			local_imp.name = "generated-impostor"
+			x.add_child(local_imp)
+			local_imp.owner = scene_root
+		else:
+			print("Problem generating impostor for: ", x.get_path())
+		imps_counter += 1.0
+		progress_bar.value = (imps_counter/imps_size) * 100.0
+	generate_button.disabled = false
 
 
 func _on_QueuedScenes_button_pressed(item: TreeItem , column: int, id: int) -> void:
@@ -113,21 +141,16 @@ func _on_QueuedScenes_button_pressed(item: TreeItem , column: int, id: int) -> v
 
 
 func _on_GenerateButton_pressed() -> void:
-	var imps = get_selected_octaimpostor_nodes()
-	if not FileUtils.dir_is_empty(directory_path_edit.text):
-		info_dialog.dialog_text = "Save directory must exist and must be empty!"
+	var directory = Directory.new();
+	var dir_exists: bool = directory.dir_exists(directory_path_edit.text)
+	if not dir_exists or directory_path_edit.text in prohibited_dirs:
+		info_dialog.dialog_text = "Save directory must exist and must be correct!"
 		info_dialog.popup_centered()
 		return
-	for x in imps:
-		bake_scene(x)
-		yield(baker, "bake_done")
-		if baker.generated_impostor != null:
-			var local_imp = baker.generated_impostor.duplicate()
-			local_imp.name = "generated-impostor"
-			x.add_child(local_imp)
-			local_imp.owner = scene_root
-		else:
-			print("Problem generating impostor for: ", x.get_path())
+	if not FileUtils.dir_is_empty(directory_path_edit.text):
+		confirm_dialog.popup_centered()
+		return
+	generate()
 
 
 func _on_DirectorySelectDialog_dir_selected(dir):
@@ -136,3 +159,7 @@ func _on_DirectorySelectDialog_dir_selected(dir):
 
 func _on_DirectorySelectButton_pressed():
 	directory_save_dialog.popup_centered()
+
+
+func _on_ConfirmationBakeDialog_confirmed() -> void:
+	generate()

@@ -123,7 +123,19 @@ func bake():
 	emit_signal("bake_done")
 
 
-func set_scene_to_bake(node: Spatial) -> void:
+func make_nodes_visible(node: Spatial) -> void:
+	if node.has_method("set_visible"):
+		node.visible = true
+		print("Make node: ", node.name, " visible")
+	for child in node.get_children():
+		make_nodes_visible(child)
+
+
+func set_scene_to_bake(node: Spatial, all_child_visible = false) -> void:
 	scene_to_bake = node.duplicate()
+	scene_to_bake.set_physics_process(false)
+	scene_to_bake.set_process(false)
 	scene_to_bake.translation = Vector3()
 	scene_to_bake.rotation = Vector3()
+	if all_child_visible:
+		make_nodes_visible(scene_to_bake)
