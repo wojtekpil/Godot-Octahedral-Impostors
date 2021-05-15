@@ -45,7 +45,7 @@ func _mimic_original_shader_material(original_mat: ShaderMaterial, material: Mat
 	# TODO ADD NORMAL TEXTURE, ORM
 	var alpha_scissors = original_mat.get_shader_param("alpha_scissor_threshold")
 	var albedo_tex = original_mat.get_shader_param("texture_albedo")
-	if float(alpha_scissors) > 0.0 and albedo_tex != null:
+	if alpha_scissors != null and float(alpha_scissors) > 0.0 and albedo_tex != null:
 		material.set_shader_param("use_alpha_texture", true)
 		material.set_shader_param("texture_albedo", albedo_tex)
 		material.set_shader_param("alpha_scissor_threshold", alpha_scissors)
