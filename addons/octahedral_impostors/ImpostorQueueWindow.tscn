@@ -1,32 +1,59 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://addons/octahedral_impostors/scripts/impostor_queue_window.gd" type="Script" id=1]
+[ext_resource path="res://addons/octahedral_impostors/scenes/exporter.tscn" type="PackedScene" id=3]
+[ext_resource path="res://addons/octahedral_impostors/scripts/baking/baker.gd" type="Script" id=4]
+[ext_resource path="res://addons/octahedral_impostors/scenes/dilatate_pipeline.tscn" type="PackedScene" id=5]
 
 [sub_resource type="StyleBoxFlat" id=1]
-content_margin_left = 8.0
-content_margin_right = 8.0
-content_margin_top = 2.0
-bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
+bg_color = Color( 0.392157, 0.411765, 0.486275, 1 )
+expand_margin_top = 22.0
 
 [sub_resource type="StyleBoxFlat" id=2]
 content_margin_left = 8.0
 content_margin_right = 8.0
 content_margin_top = 2.0
-bg_color = Color( 0.14902, 0.172549, 0.231373, 1 )
+bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
 
 [sub_resource type="StyleBoxFlat" id=3]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+bg_color = Color( 0.14902, 0.172549, 0.231373, 1 )
+
+[sub_resource type="StyleBoxFlat" id=4]
 content_margin_left = 5.0
 content_margin_right = 5.0
 content_margin_top = 5.0
 content_margin_bottom = 5.0
 bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
 
-[sub_resource type="StyleBoxFlat" id=4]
+[sub_resource type="StyleBoxFlat" id=5]
 bg_color = Color( 0.2, 0.227451, 0.309804, 1 )
 
-[node name="QueueWindow" type="Control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
+[sub_resource type="Environment" id=6]
+ambient_light_color = Color( 1, 1, 1, 1 )
+
+[sub_resource type="World" id=7]
+environment = SubResource( 6 )
+
+[sub_resource type="QuadMesh" id=8]
+size = Vector2( 2, 2 )
+
+[node name="QueueWindow" type="WindowDialog"]
+visible = true
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -400.0
+margin_top = -400.0
+margin_right = 400.0
+margin_bottom = 400.0
+custom_styles/panel = SubResource( 1 )
+custom_colors/title_color = Color( 1, 1, 1, 1 )
+window_title = "Scene Octahedral Impostors Baker..."
+resizable = true
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -48,9 +75,9 @@ margin_right = 790.0
 margin_bottom = 726.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_styles/tab_fg = SubResource( 1 )
-custom_styles/tab_bg = SubResource( 2 )
-custom_styles/panel = SubResource( 3 )
+custom_styles/tab_fg = SubResource( 2 )
+custom_styles/tab_bg = SubResource( 3 )
+custom_styles/panel = SubResource( 4 )
 custom_constants/side_margin = 0
 tab_align = 0
 __meta__ = {
@@ -89,6 +116,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 rect_min_size = Vector2( 0, 400 )
 size_flags_vertical = 3
+hide_root = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -122,6 +150,8 @@ margin_left = 94.0
 margin_right = 752.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
+caret_blink = true
+caret_blink_speed = 0.5
 
 [node name="DirectorySelectButton" type="Button" parent="VBoxContainer/TabContainer/Settings/HBoxContainer"]
 margin_left = 756.0
@@ -146,14 +176,16 @@ text = "Overwrite Profile"
 margin_left = 700.0
 margin_right = 780.0
 margin_bottom = 24.0
-text = "Select..."
+text = "light"
+items = [ "light", null, false, 0, null, "standard", null, false, 1, null, "light", null, false, 2, null, "standard", null, false, 3, null, "light", null, false, 4, null, "standard", null, false, 5, null, "light", null, false, 6, null, "standard", null, false, 7, null ]
+selected = 0
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
 margin_top = 730.0
 margin_right = 790.0
 margin_bottom = 790.0
 size_flags_horizontal = 3
-custom_styles/panel = SubResource( 4 )
+custom_styles/panel = SubResource( 5 )
 
 [node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/PanelContainer"]
 margin_right = 790.0
@@ -209,4 +241,48 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="DirectorySelectDialog" type="FileDialog" parent="."]
+margin_right = 523.0
+margin_bottom = 491.0
+window_title = "Open a Directory"
+mode = 2
+
+[node name="InfoDialog" type="AcceptDialog" parent="."]
+margin_right = 83.0
+margin_bottom = 58.0
+window_title = "Warning"
+
+[node name="ViewportBaking" type="Viewport" parent="."]
+size = Vector2( 2048, 2048 )
+size_override_stretch = true
+own_world = true
+world = SubResource( 7 )
+transparent_bg = true
+handle_input_locally = false
+msaa = 3
+hdr = false
+keep_3d_linear = true
+debug_draw = 1
+render_target_update_mode = 3
+
+[node name="BakedContainer" type="Spatial" parent="ViewportBaking"]
+
+[node name="PostProcess" type="MeshInstance" parent="ViewportBaking"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.45593 )
+visible = false
+cast_shadow = 0
+extra_cull_margin = 16384.0
+mesh = SubResource( 8 )
+material/0 = null
+
+[node name="BakerScript" type="Spatial" parent="."]
+script = ExtResource( 4 )
+
+[node name="Exporter" parent="BakerScript" instance=ExtResource( 3 )]
+
+[node name="DilatatePipeline" parent="BakerScript" instance=ExtResource( 5 )]
+
 [connection signal="button_pressed" from="VBoxContainer/TabContainer/QueuedScenes/Panel/QueuedScenes" to="." method="_on_QueuedScenes_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/TabContainer/Settings/HBoxContainer/DirectorySelectButton" to="." method="_on_DirectorySelectButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer2/GenerateButton" to="." method="_on_GenerateButton_pressed"]
+[connection signal="dir_selected" from="DirectorySelectDialog" to="." method="_on_DirectorySelectDialog_dir_selected"]

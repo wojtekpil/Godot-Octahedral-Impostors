@@ -19,3 +19,16 @@ static func get_resources_in_dir(path: String) -> Array:
 	for res in files:
 		result.append(load(res))
 	return result
+
+
+static func dir_is_empty(path: String) -> bool:
+	var dir = Directory.new()
+	if dir.open(path) != OK:
+		print("Directory ", path, " doesn't exists.")
+		return false
+	dir.list_dir_begin(true)
+	var file_name = dir.get_next()
+	if file_name != "":
+		print("Directory ", path, " is not empty.")
+		return false
+	return true

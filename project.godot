@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Spatial",
+"class": "OctaImpostor",
+"language": "GDScript",
+"path": "res://addons/octahedral_impostors/scripts/octa_impostor_node.gd"
+}, {
 "base": "Reference",
 "class": "Template",
 "language": "GDScript",
@@ -25,6 +30,7 @@ _global_script_classes=[ {
 "path": "res://addons/octahedral_impostors/visual_shaders/OctahedralImpostorVertex.gd"
 } ]
 _global_script_class_icons={
+"OctaImpostor": "res://addons/octahedral_impostors/icons/icon_octaimpostor.svg",
 "Template": "",
 "VisualShaderNodeOCtaImpFrag": "",
 "VisualShaderNodeOCtaImpVert": ""

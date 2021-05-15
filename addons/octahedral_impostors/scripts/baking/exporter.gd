@@ -68,17 +68,17 @@ func wait_on_resources() -> void:
 		yield(wait_for_correct_load_texture(saved_maps[x]), "completed")
 
 
-func export_scene(mat: Material, texture_array: bool = false) -> void:
+func export_scene(mat: Material, texture_array: bool = false) -> Spatial:
 	# TODO: textureArray workaround
 	if plugin == null:
 		print("Cannot export outside plugin system")
-		return
+		return null
 
 	var root: Spatial = Spatial.new()
 	var mi: MeshInstance = MeshInstance.new()
 	
 	yield(wait_on_resources(), "completed")
-	int("Creating material...")
+	print("Creating material...")
 	mat.set_shader_param("imposterFrames", Vector2(frames_xy, frames_xy))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
 	mat.set_shader_param("aabb_max", scale_instance/2.0)
@@ -98,5 +98,11 @@ func export_scene(mat: Material, texture_array: bool = false) -> void:
 
 	var packed_scene: PackedScene = PackedScene.new()
 	packed_scene.pack(root)
-	ResourceSaver.save(export_path.plus_file(packedscene_filename), packed_scene)
-	print("Imposter ready!")
+	var err = ResourceSaver.save(export_path.plus_file(packedscene_filename), packed_scene)
+	if err != OK:
+		print("Error while exporting to path: ", export_path.plus_file(packedscene_filename))
+		print("Failure! CODE =", err)
+		return null
+	else:
+		print("Imposter ready!")
+	return root

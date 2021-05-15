@@ -10,9 +10,12 @@ const ProfileResource = preload("../profile_resource.gd")
 
 const MultiBakeScene = preload("../../scenes/multi_bake_scene.tscn")
 
+# emitted when bake is done
+signal bake_done
+
 var baking_viewport: Viewport
 var baking_postprocess_plane: MeshInstance
-var texture_preview: TextureRect
+var texture_preview: TextureRect = null
 
 
 var frames_xy := 12
@@ -54,7 +57,8 @@ func preview_map(atlas_image: Image):
 	var tex: ImageTexture = ImageTexture.new()
 	tex.flags = 0
 	tex.create_from_image(atlas_image)
-	texture_preview.texture = tex
+	if texture_preview != null:
+		texture_preview.texture = tex
 
 
 func bake_map(map_baker: MapBaker, scene: Spatial, vp: Viewport, postprocess: Mesh) -> void:
@@ -111,9 +115,10 @@ func bake():
 	var shader_mat := ShaderMaterial.new()
 	shader_mat.shader = profile.main_shader
 	exporter.scale_instance = scene_baker.get_camera().size / 2.0
-	exporter.export_scene(shader_mat, false)
+	yield(exporter.export_scene(shader_mat, false), "completed")
 	remove_child(scene_to_bake)
 	print("Exporting impostor done.")
+	emit_signal("bake_done")
 
 
 func set_scene_to_bake(node: Spatial) -> void:
