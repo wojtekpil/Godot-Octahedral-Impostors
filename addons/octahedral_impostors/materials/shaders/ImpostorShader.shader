@@ -2,13 +2,13 @@ shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 uniform vec4 albedo : hint_color = vec4(1, 1, 1, 1);
 uniform float specular = 0.5f;
-uniform float metallic = 0f;
+uniform float metallic = 1f;
 uniform float roughness : hint_range(0, 1) = 1f;
 
 uniform sampler2D imposterTextureAlbedo : hint_albedo;
 uniform sampler2D imposterTextureNormal : hint_normal;
 uniform sampler2D imposterTextureDepth : hint_white;
-uniform sampler2D imposterORMTexture : hint_white;
+uniform sampler2D imposterTextureOrm : hint_white;
 uniform vec2 imposterFrames = vec2(16f, 16f);
 uniform vec3 positionOffset = vec3(0f);
 uniform bool isFullSphere = true;
@@ -365,7 +365,7 @@ void fragment()
 	vec2 uv_f3 = recalculateUV(uv_frame3, frame3, xy_frame3, quad_size, depth_scale, imposterTextureDepth);
 
 	vec4 baseTex = blenderColors(uv_f1, uv_f2,  uv_f3, quad_blend_weights, imposterTextureAlbedo);
-	vec4 ormTex = blenderColors(uv_f1, uv_f2, uv_f3, quad_blend_weights, imposterORMTexture);
+	vec4 ormTex = blenderColors(uv_f1, uv_f2, uv_f3, quad_blend_weights, imposterTextureOrm);
 
 	vec3 normalTex = blendedNormals(uv_f1, frame1_normal,
 								uv_f2, frame2_normal,
