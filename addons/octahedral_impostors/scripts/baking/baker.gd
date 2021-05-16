@@ -63,7 +63,7 @@ func preview_map(atlas_image: Image):
 
 
 func bake_map(map_baker: MapBaker, scene: Spatial, vp: Viewport, postprocess: Mesh) -> void:
-	vp.keep_3d_linear = not map_baker.is_srgb()
+	vp.keep_3d_linear = not map_baker.is_srgb() or map_baker.is_normalmap()
 	map_baker.viewport_setup(vp)
 	if map_baker.setup_postprocess_plane(postprocess, scene_baker.get_camera()):
 		baking_postprocess_plane.visible = true
