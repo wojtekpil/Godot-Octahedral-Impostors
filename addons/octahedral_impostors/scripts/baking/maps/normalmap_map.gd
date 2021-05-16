@@ -55,10 +55,11 @@ func _mimic_original_shader_material(original_mat: ShaderMaterial, material: Mat
 
 func map_bake(org_material: Material) -> Material:
 	_cleanup_baking_material(normal_material)
+	var mat_baking = normal_material.duplicate()
 	if org_material is SpatialMaterial:
-		_mimic_original_spatial_material(org_material, normal_material)
+		_mimic_original_spatial_material(org_material, mat_baking)
 	elif org_material is ShaderMaterial:
-		_mimic_original_shader_material(org_material, normal_material)
+		_mimic_original_shader_material(org_material, mat_baking)
 	else:
 		print("Unrecognized material during normal baking")
-	return normal_material
+	return mat_baking
