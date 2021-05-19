@@ -11,14 +11,18 @@ const icon_checkbox_checked := preload("res://addons/octahedral_impostors/icons/
 const icon_checkbox_unchecked := preload("res://addons/octahedral_impostors/icons/checkbox_unchecked.svg")
 
 onready var queue_tree: Tree = $VBoxContainer/TabContainer/QueuedScenes/Panel/QueuedScenes
-onready var profile_option_button: OptionButton = $VBoxContainer/TabContainer/Settings/GridContainer/ProfileOptionButton
+
 onready var directory_save_dialog: FileDialog = $DirectorySelectDialog
 onready var directory_path_edit: LineEdit = $VBoxContainer/TabContainer/Settings/HBoxContainer/DirectoryPathEdit
 onready var generate_button: Button = $VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer2/GenerateButton
 onready var progress_bar: ProgressBar = $VBoxContainer/PanelContainer/MarginContainer/GridContainer/HBoxContainer/ProgressBar
+onready var settings_container: Container = $VBoxContainer/TabContainer
 onready var info_dialog: AcceptDialog = $InfoDialog
 onready var confirm_dialog: ConfirmationDialog = $ConfirmationBakeDialog
 onready var baker = $BakerScript
+
+onready var profile_option_button: OptionButton = $VBoxContainer/TabContainer/Settings/GridContainer/ProfileOptionButton
+onready var profile_checkbox: CheckBox = $VBoxContainer/TabContainer/Settings/GridContainer/OverwriteProfileCheckbox
 
 var plugin: EditorPlugin
 var octa_imp_items := []
@@ -88,6 +92,13 @@ func set_scene_to_bake(_node: Spatial) -> void:
 		octa_imp_items.append(tree_child)
 
 
+func change_disabled_child_controls(node: Node, disabled: bool) -> void:
+	if node is Control and node.has_method("set_disabled"):
+		node.disabled = disabled
+	for child in node.get_children():
+		change_disabled_child_controls(child, disabled)
+
+
 func bake_scene(node: OctaImpostor) -> void:
 	var dir = Directory.new()
 	var gen_dir = String(node.get_path()).sha256_text()
@@ -105,13 +116,17 @@ func bake_scene(node: OctaImpostor) -> void:
 	baker.is_full_sphere = node.is_full_sphere
 	var multiplier: int = pow(2, node.atlas_resolution)
 	baker.atlas_resolution = 1024 * multiplier
-	baker.profile = node.profile
+	if profile_checkbox.pressed:
+		baker.profile = profile_option_button.get_selected_metadata()
+	else:
+		baker.profile = node.profile
 	baker.set_scene_to_bake(node, true)
 	yield(baker.bake(), "completed")
 
 
 func generate() -> void:
 	generate_button.disabled = true
+	change_disabled_child_controls(settings_container, true)
 	var imps := get_selected_octaimpostor_nodes()
 	var imps_size := imps.size()
 	var imps_counter := 0.0
@@ -131,6 +146,7 @@ func generate() -> void:
 		imps_counter += 1.0
 		progress_bar.value = (imps_counter/imps_size) * 100.0
 	generate_button.disabled = false
+	change_disabled_child_controls(settings_container, false)
 
 
 func _on_QueuedScenes_button_pressed(item: TreeItem , column: int, id: int) -> void:
