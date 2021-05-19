@@ -368,7 +368,7 @@ void fragment()
 									uv_f3, frame3_normal,
 									TANGENT, BINORMAL,
 									 quad_blend_weights, imposterTextureNormal);
-	ALBEDO = baseTex.rgb;
+	ALBEDO = baseTex.rgb * albedo.rgb;
 	NORMAL =normalTex.xyz;
 	
 	if(dither)
