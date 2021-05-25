@@ -24,6 +24,9 @@ onready var baker = $BakerScript
 onready var profile_option_button: OptionButton = $VBoxContainer/TabContainer/Settings/GridContainer/ProfileOptionButton
 onready var profile_checkbox: CheckBox = $VBoxContainer/TabContainer/Settings/GridContainer/OverwriteProfileCheckbox
 
+onready var resolution_option_button: OptionButton = $VBoxContainer/TabContainer/Settings/GridContainer/ResolutionOptionButton
+onready var resolution_checkbox: CheckBox = $VBoxContainer/TabContainer/Settings/GridContainer/OverwriteResolutionCheckbox
+
 var plugin: EditorPlugin
 var octa_imp_items := []
 var scene_root: Node = null
@@ -114,12 +117,14 @@ func bake_scene(node: OctaImpostor) -> void:
 	# TODO: remove all old impostors
 	baker.frames_xy = node.frames_xy
 	baker.is_full_sphere = node.is_full_sphere
-	var multiplier: int = pow(2, node.atlas_resolution)
-	baker.atlas_resolution = 1024 * multiplier
 	if profile_checkbox.pressed:
 		baker.profile = profile_option_button.get_selected_metadata()
 	else:
 		baker.profile = node.profile
+	var multiplier: int = pow(2, node.atlas_resolution)
+	if resolution_checkbox.pressed:
+		multiplier = pow(2, resolution_option_button.selected)
+	baker.atlas_resolution = 1024 * multiplier
 	baker.set_scene_to_bake(node, true)
 	yield(baker.bake(), "completed")
 
