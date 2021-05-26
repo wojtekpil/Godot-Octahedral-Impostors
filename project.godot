@@ -50,7 +50,7 @@ window/vsync/use_vsync=false
 
 [editor_plugins]
 
-enabled=PoolStringArray( "octahedral_impostors" )
+enabled=PoolStringArray( "res://addons/octahedral_impostors/plugin.cfg" )
 
 [rendering]
 

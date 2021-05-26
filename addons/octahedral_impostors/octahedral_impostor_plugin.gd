@@ -7,6 +7,7 @@ var button: Button
 var converter: WindowDialog
 var selected_object: Spatial
 var batch_converter: WindowDialog
+var octa_impostor_editor_inspector: EditorInspectorPlugin
 
 # Handles objects that are either geometry instances or have such children.
 # CSG objects don't have a proper bounding box, so they can't be used.
@@ -47,8 +48,12 @@ func _enter_tree() -> void:
 	get_editor_interface().get_base_control().add_child(batch_converter)
 	add_tool_menu_item(tool_menu_text, self, "batch_baking")
 
+	octa_impostor_editor_inspector = preload("scripts/octa_impostor_editor_inspector_plugin.gd").new()
+	add_inspector_plugin(octa_impostor_editor_inspector)
+
 
 func _exit_tree() -> void:
+	remove_inspector_plugin(octa_impostor_editor_inspector)
 	remove_control_from_container(EditorPlugin.CONTAINER_SPATIAL_EDITOR_MENU, button)
 	converter.queue_free()
 	button.queue_free()
