@@ -29,17 +29,22 @@ func _init() -> void:
 	add_child(profile_option_button)
 
 
-
 func _on_item_selected(_index: int) -> void:
 	edited_object = get_edited_object()
 	edited_object.profile = profile_option_button.get_selected_metadata()
+
+
+func update_profile(imp: OctaImpostor) -> void:
+	for ob_idx in profile_option_button.get_item_count():
+		if profile_option_button.get_item_metadata(ob_idx) == imp.profile:
+			profile_option_button.select(ob_idx)
+	if imp.profile == null:
+		imp.profile = profile_option_button.get_selected_metadata()
 
 
 func update_property() -> void:
 	if not needs_refresh:
 		return
 	edited_object = get_edited_object()
-	for ob_idx in profile_option_button.get_item_count():
-		if profile_option_button.get_item_metadata(ob_idx) == edited_object.profile:
-			profile_option_button.select(ob_idx)
+	update_profile(edited_object)
 	needs_refresh = false
