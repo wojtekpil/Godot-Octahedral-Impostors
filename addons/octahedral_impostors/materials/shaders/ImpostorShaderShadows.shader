@@ -5,7 +5,7 @@ uniform float specular = 0.5f;
 uniform float metallic = 0f;
 uniform float roughness : hint_range(0, 1) = 1f;
 
-uniform sampler2D imposterBaseTexture : hint_albedo;
+uniform sampler2D imposterTextureAlbedo : hint_albedo;
 uniform vec2 imposterFrames = vec2(16f, 16f);
 uniform vec3 positionOffset = vec3(0f);
 uniform bool isFullSphere = true;
@@ -291,7 +291,7 @@ void fragment()
 {
 	vec2 quad_size = vec2(1f) / imposterFrames;
 	vec2 uv_f1 = recalculateUV(uv_frame1, frame1, xy_frame1, quad_size);
-	vec4 baseTex = textureLod(imposterBaseTexture, uv_f1, 0.0f);
+	vec4 baseTex = textureLod(imposterTextureAlbedo, uv_f1, 0.0f);
 
 	ALBEDO = baseTex.rgb;
 	ALPHA = float(baseTex.a>alpha_clamp);

@@ -32,6 +32,7 @@ var octa_imp_items := []
 var scene_root: Node = null
 var impostor_scene_filename := "impostor.tscn"
 var prohibited_dirs := ["", "res://", "res://addons", "res://addons/"]
+var generated_nodes = ["generated-impostor", "generated-shadow-impostor"]
 
 
 func read_baking_profiles(profile_button: OptionButton) -> Array:
@@ -116,6 +117,7 @@ func bake_scene(node: OctaImpostor) -> void:
 	print("Trying to bake:", baker.save_path)
 	# TODO: remove all old impostors
 	baker.frames_xy = node.frames_xy
+	baker.create_shadow_mesh = node.create_shadow_mesh
 	baker.is_full_sphere = node.is_full_sphere
 	if profile_checkbox.pressed:
 		baker.profile = profile_option_button.get_selected_metadata()
@@ -137,7 +139,7 @@ func generate() -> void:
 	var imps_counter := 0.0
 	for x in imps:
 		for child in x.get_children():
-			if child.name == "generated-impostor":
+			if child.name in generated_nodes:
 				x.remove_child(child)
 		bake_scene(x)
 		yield(baker, "bake_done")
@@ -148,6 +150,14 @@ func generate() -> void:
 			local_imp.owner = scene_root
 		else:
 			print("Problem generating impostor for: ", x.get_path())
+		if x.create_shadow_mesh:
+			if baker.generated_shadow_impostor != null:
+				var local_shadow_imp = baker.generated_shadow_impostor.duplicate()
+				local_shadow_imp.name = "generated-shadow-impostor"
+				x.add_child(local_shadow_imp)
+				local_shadow_imp.owner = scene_root
+			else:
+				print("Problem generating shadow impostor for: ", x.get_path())
 		imps_counter += 1.0
 		progress_bar.value = (imps_counter/imps_size) * 100.0
 	generate_button.disabled = false

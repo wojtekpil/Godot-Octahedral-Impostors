@@ -10,6 +10,8 @@ const ProfileResource = preload("../profile_resource.gd")
 
 const MultiBakeScene = preload("../../scenes/multi_bake_scene.tscn")
 
+const shadow_filename_prefix = "shadow-"
+
 # emitted when bake is done
 signal bake_done
 
@@ -20,12 +22,14 @@ var texture_preview: TextureRect = null
 
 var frames_xy := 12
 var is_full_sphere := false
+var create_shadow_mesh := false
 var plugin: EditorPlugin = null
 var profile: ProfileResource = preload("res://addons/octahedral_impostors/profiles/standard.tres")
 var atlas_resolution = 2048
 var atlas_coverage = 1.0
 var save_path: String
 var generated_impostor: MeshInstance = null
+var generated_shadow_impostor: MeshInstance = null
 
 onready var exporter = $Exporter
 onready var dilatation_pipeline = $DilatatePipeline
@@ -117,9 +121,17 @@ func bake():
 	shader_mat.shader = profile.main_shader
 	exporter.scale_instance = scene_baker.get_camera().size / 2.0
 	yield(exporter.export_scene(shader_mat, false), "completed")
+	generated_impostor = exporter.generated_impostor
+
+	if create_shadow_mesh and profile.shadows_shader != null:
+		var shader_shadow_mat := ShaderMaterial.new()
+		shader_shadow_mat.shader = profile.shadows_shader
+		exporter.packedscene_filename = shadow_filename_prefix + exporter.packedscene_filename
+		yield(exporter.export_scene(shader_shadow_mat, false, true), "completed")
+		generated_shadow_impostor = exporter.generated_impostor
+
 	remove_child(scene_to_bake)
 	print("Exporting impostor done.")
-	generated_impostor = exporter.generated_impostor
 	emit_signal("bake_done")
 
 

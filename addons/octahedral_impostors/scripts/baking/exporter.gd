@@ -77,7 +77,7 @@ func wait_on_resources() -> void:
 		yield(wait_for_correct_load_texture(saved_maps[x]), "completed")
 
 
-func export_scene(mat: Material, texture_array: bool = false) -> Spatial:
+func export_scene(mat: Material, texture_array: bool = false, shadow_only: bool = false) -> Spatial:
 	# TODO: textureArray workaround
 	if plugin == null:
 		print("Cannot export outside plugin system")
@@ -90,7 +90,11 @@ func export_scene(mat: Material, texture_array: bool = false) -> Spatial:
 	print("Creating material...")
 	mat.set_shader_param("imposterFrames", Vector2(frames_xy, frames_xy))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
-	mat.set_shader_param("aabb_max", scale_instance/2.0)
+	if not shadow_only:
+		mat.set_shader_param("aabb_max", scale_instance/2.0)
+	else:
+		mat.set_shader_param("aabb_max", -scale_instance/2.0)
+		mi.cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_SHADOWS_ONLY
 	mat.set_shader_param("scale", scale_instance)
 
 	print("Loading resources...")
