@@ -34,6 +34,7 @@ func _ready():
 	baker.baking_postprocess_plane = $ViewportBaking/PostProcess
 	baker.texture_preview = $MainContainer/TextureRect
 	read_baking_profiles(profile_option_button)
+	baker.profile = profile_option_button.get_selected_metadata()
 
 func _process(_delta):
 	pass
