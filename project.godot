@@ -39,7 +39,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Octahedral Impostors"
-config/icon="res://icon.png"
+config/icon="res://screenshots/store_icon.png"
 
 [display]
 
