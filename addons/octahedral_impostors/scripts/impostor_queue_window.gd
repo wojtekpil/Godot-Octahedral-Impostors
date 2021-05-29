@@ -119,6 +119,7 @@ func bake_scene(node: OctaImpostor) -> void:
 	baker.frames_xy = node.frames_xy
 	baker.create_shadow_mesh = node.create_shadow_mesh
 	baker.is_full_sphere = node.is_full_sphere
+	baker.optimize_atlas_size = node.optimize_atlas_size
 	if profile_checkbox.pressed:
 		baker.profile = profile_option_button.get_selected_metadata()
 	else:

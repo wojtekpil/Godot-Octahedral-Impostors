@@ -79,4 +79,4 @@ func _on_ImpostorBaker_popup_hide() -> void:
 
 
 func _on_CheckBoxHalfResolution_toggled(state: bool):
-	pass
+	baker.optimize_atlas_size = state

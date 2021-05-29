@@ -14,6 +14,7 @@ export(Resource) var profile = null
 export(int, "1024", "2048", "4096") var atlas_resolution = 1
 export(int) var frames_xy = 12
 export(bool) var is_full_sphere = false
+export(bool) var optimize_atlas_size = false
 export(bool) var create_shadow_mesh = false
 
 var refresh_rate := 0.25

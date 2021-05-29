@@ -26,6 +26,7 @@ var create_shadow_mesh := false
 var plugin: EditorPlugin = null
 var profile: ProfileResource = preload("res://addons/octahedral_impostors/profiles/standard.tres")
 var atlas_resolution = 2048
+var optimize_atlas_size = false
 var atlas_coverage = 1.0
 var save_path: String
 var generated_impostor: MeshInstance = null
@@ -85,6 +86,14 @@ func bake_map(map_baker: MapBaker, scene: Spatial, vp: Viewport, postprocess: Me
 	postprocess_plane_cleanup()
 
 
+func setup_bake_resolution(scene_baker: SceneBaker, map_baker: MapBaker) -> void:
+	var resolution = atlas_resolution
+	if optimize_atlas_size:
+		resolution = map_baker.recommended_scale_divider(atlas_resolution)
+	scene_baker.atlas_resolution = resolution
+	baking_viewport.size = Vector2(resolution, resolution)
+
+
 func bake():
 	print("Baking using profile: ", profile.name)
 	scene_baker = MultiBakeScene.instance()
@@ -93,9 +102,6 @@ func bake():
 	exporter.frames_xy = frames_xy
 	exporter.is_full_sphere = is_full_sphere
 	exporter.plugin = plugin
-
-	scene_baker.atlas_resolution = atlas_resolution
-	baking_viewport.size = Vector2(atlas_resolution, atlas_resolution)
 	scene_baker.atlas_coverage  =atlas_coverage
 	scene_baker.frames_xy = frames_xy
 	scene_baker.is_full_sphere = is_full_sphere
@@ -105,14 +111,18 @@ func bake():
 	prepare_scene_to_bake(scene_to_bake)
 
 	#bake main map
-	print("Baking main map: ", profile.map_baker_with_alpha_mask)
-	yield(bake_map(profile.map_baker_with_alpha_mask.new(), scene_to_bake, baking_viewport, baking_postprocess_plane.mesh), "completed")
+	var map_baker = profile.map_baker_with_alpha_mask.new()
+	print("Baking main map: ", map_baker.get_name())
+	setup_bake_resolution(scene_baker, map_baker)
+	yield(bake_map(map_baker, scene_to_bake, baking_viewport, baking_postprocess_plane.mesh), "completed")
 	yield(get_tree(), "idle_frame")
 	yield(get_tree(), "idle_frame")
 
 	for mapbaker in profile.standard_map_bakers:
-		print("Baking: ", mapbaker)
-		yield(bake_map(mapbaker.new(), scene_to_bake, baking_viewport, baking_postprocess_plane.mesh), "completed")
+		map_baker = mapbaker.new()
+		print("Baking: ", map_baker.get_name())
+		setup_bake_resolution(scene_baker, map_baker)
+		yield(bake_map(map_baker, scene_to_bake, baking_viewport, baking_postprocess_plane.mesh), "completed")
 		yield(get_tree(), "idle_frame")
 		yield(get_tree(), "idle_frame")
 	
