@@ -219,14 +219,13 @@ hint_tooltip = "Whether to export the impostor itself. Disable if you just want 
 mouse_filter = 0
 size_flags_horizontal = 3
 size_flags_vertical = 5
-text = "Packed Scene"
+text = "Export with Shadow Mesh"
 valign = 1
 
-[node name="CheckBoxPackedScene" type="CheckBox" parent="MainContainer/Panel/container/HBoxContainer6"]
+[node name="CheckBoxShadow" type="CheckBox" parent="MainContainer/Panel/container/HBoxContainer6"]
 margin_left = 185.0
 margin_right = 209.0
 margin_bottom = 24.0
-pressed = true
 
 [node name="TextureRect" type="TextureRect" parent="MainContainer"]
 margin_left = 232.0
@@ -294,5 +293,5 @@ script = ExtResource( 5 )
 [connection signal="toggled" from="MainContainer/Panel/container/HBoxContainer4/CheckboxFullSphere" to="." method="_on_CheckboxFullSphere_toggled"]
 [connection signal="item_selected" from="MainContainer/Panel/container/HBoxContainer5/OptionButtonProfile" to="." method="_on_OptionButtonProfile_item_selected"]
 [connection signal="toggled" from="MainContainer/Panel/container/HBoxContainer7/CheckBoxHalfResolution" to="." method="_on_CheckBoxHalfResolution_toggled"]
-[connection signal="toggled" from="MainContainer/Panel/container/HBoxContainer6/CheckBoxPackedScene" to="." method="_on_CheckBoxPackedScene_toggled"]
+[connection signal="toggled" from="MainContainer/Panel/container/HBoxContainer6/CheckBoxShadow" to="." method="_on_CheckBoxShadow_toggled"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_FileDialog_file_selected"]

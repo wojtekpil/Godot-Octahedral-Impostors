@@ -59,8 +59,8 @@ func _on_OptionButtonProfile_item_selected(profile_idx: int):
 	baker.profile = profile_option_button.get_item_metadata(profile_idx)
 
 
-func _on_CheckBoxPackedScene_toggled(state: bool):
-	pass
+func _on_CheckBoxShadow_toggled(state: bool):
+	baker.create_shadow_mesh = state
 
 
 func _on_OptionButtonImgRes_item_selected(new_dimm: int):
