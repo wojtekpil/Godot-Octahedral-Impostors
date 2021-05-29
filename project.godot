@@ -25,6 +25,11 @@ _global_script_classes=[ {
 "path": "res://addons/octahedral_impostors/visual_shaders/OctahedralImpostorFragment.gd"
 }, {
 "base": "VisualShaderNodeCustom",
+"class": "VisualShaderNodeOCtaImpFragSamp",
+"language": "GDScript",
+"path": "res://addons/octahedral_impostors/visual_shaders/OctahedralImpostorFragmentSampler.gd"
+}, {
+"base": "VisualShaderNodeCustom",
 "class": "VisualShaderNodeOCtaImpVert",
 "language": "GDScript",
 "path": "res://addons/octahedral_impostors/visual_shaders/OctahedralImpostorVertex.gd"
@@ -33,6 +38,7 @@ _global_script_class_icons={
 "OctaImpostor": "res://addons/octahedral_impostors/icons/icon_octaimpostor.svg",
 "Template": "",
 "VisualShaderNodeOCtaImpFrag": "",
+"VisualShaderNodeOCtaImpFragSamp": "",
 "VisualShaderNodeOCtaImpVert": ""
 }
 

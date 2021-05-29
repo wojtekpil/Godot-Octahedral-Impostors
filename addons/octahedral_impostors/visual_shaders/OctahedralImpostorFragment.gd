@@ -49,7 +49,7 @@ func _get_input_port_type(port: int):
 			return VisualShaderNode.PORT_TYPE_SCALAR
 
 func _get_output_port_count() -> int:
-	return 3
+	return 4
 
 func _get_output_port_name(port: int):
 	match port:
@@ -59,6 +59,8 @@ func _get_output_port_name(port: int):
 			return "alpha"
 		2:
 			return "normal"
+		3:
+			return "imp_data"
 
 func _get_output_port_type(port: int):
 	match port:
@@ -68,6 +70,8 @@ func _get_output_port_type(port: int):
 			return VisualShaderNode.PORT_TYPE_SCALAR
 		2:
 			return VisualShaderNode.PORT_TYPE_VECTOR
+		3:
+			return VisualShaderNode.PORT_TYPE_TRANSFORM
 
 func _get_global_code(mode: int) -> String:
 	return """
@@ -132,6 +136,13 @@ vec2 uv_f1 = recalculateUV(uv_frame1, frame1, xy_frame1, quad_size, _depth_scale
 vec2 uv_f2 = recalculateUV(uv_frame2, frame2, xy_frame2, quad_size, _depth_scale, %s);
 vec2 uv_f3 = recalculateUV(uv_frame3, frame3, xy_frame3, quad_size, _depth_scale, %s);
 
+mat4 imp_data = mat4(
+	vec4(uv_f1, 0,0),
+	vec4(uv_f2, 0,0),
+	vec4(uv_f3, 0,0),
+	vec4(0,0,0,0)
+);
+
 vec4 baseTex = blenderColors(uv_f1, uv_f2,  uv_f3, quad_blend_weights, %s);
 vec3 normalTex = blendedNormals(uv_f1, frame1_normal,
 								uv_f2, frame2_normal, 
@@ -149,4 +160,5 @@ vec3 normalTex = blendedNormals(uv_f1, frame1_normal,
 	return (code +
 		output_vars[0] + " = baseTex.rgb;" +
 		output_vars[1] + " = baseTex.a;" +
-		output_vars[2] + " = normalTex.xyz;" )
+		output_vars[2] + " = normalTex.xyz;" +
+		output_vars[3] + " = imp_data;" )
