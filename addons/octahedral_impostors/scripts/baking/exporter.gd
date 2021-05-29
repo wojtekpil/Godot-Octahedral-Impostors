@@ -12,7 +12,8 @@ var scale_instance := 1.0
 var packedscene_filename := "impostor.tscn"
 
 var saved_maps := {}
-var generated_impostor: MeshInstance =  null
+var generated_impostor: MeshInstance = null
+var generated_shadow_impostor: MeshInstance = null
 
 func rescan_filesystem():
 	var plugin_filesystem = plugin.get_editor_interface().get_resource_filesystem()
@@ -51,6 +52,7 @@ func wait_for_correct_load_texture(path: String) -> void:
 		texture = load(path)
 		yield(get_tree(), "idle_frame")
 
+
 func wait_on_resources() -> void:
 	# TODO: check if texture type is correct
 	
@@ -77,7 +79,7 @@ func wait_on_resources() -> void:
 		yield(wait_for_correct_load_texture(saved_maps[x]), "completed")
 
 
-func export_scene(mat: Material, texture_array: bool = false, shadow_only: bool = false) -> Spatial:
+func export_scene(mat: Material, texture_array: bool = false, shadow_mat: Material = null) -> Spatial:
 	# TODO: textureArray workaround
 	if plugin == null:
 		print("Cannot export outside plugin system")
@@ -85,29 +87,43 @@ func export_scene(mat: Material, texture_array: bool = false, shadow_only: bool 
 
 	var root: Spatial = Spatial.new()
 	var mi: MeshInstance = MeshInstance.new()
+	var mi_shadow: MeshInstance = MeshInstance.new()
 	
 	yield(wait_on_resources(), "completed")
 	print("Creating material...")
 	mat.set_shader_param("imposterFrames", Vector2(frames_xy, frames_xy))
 	mat.set_shader_param("isFullSphere", is_full_sphere)
-	if not shadow_only:
-		mat.set_shader_param("aabb_max", scale_instance/2.0)
-	else:
-		mat.set_shader_param("aabb_max", -scale_instance/2.0)
-		mi.cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+	mat.set_shader_param("aabb_max", scale_instance/2.0)
 	mat.set_shader_param("scale", scale_instance)
+
+	if shadow_mat != null:
+		print("Creating shadow material...")
+		shadow_mat.set_shader_param("imposterFrames", Vector2(frames_xy, frames_xy))
+		shadow_mat.set_shader_param("isFullSphere", is_full_sphere)
+		shadow_mat.set_shader_param("aabb_max", -scale_instance/2.0)
+		shadow_mat.set_shader_param("scale", scale_instance)
+		mi_shadow.cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_SHADOWS_ONLY
 
 	print("Loading resources...")
 	for x in saved_maps:
 		var texture = load(saved_maps[x])
 		mat.set_shader_param("imposterTexture" + x.capitalize(), texture)
+		if shadow_mat != null:
+			shadow_mat.set_shader_param("imposterTexture" + x.capitalize(), texture)
 
 	var quad_mesh: QuadMesh = QuadMesh.new()
 	root.add_child(mi)
 	root.name = "Impostor"
 	mi.owner = root
+	mi.name = "mesh-impostor"
 	mi.mesh = quad_mesh
 	mi.mesh.surface_set_material(0, mat)
+	if shadow_mat != null:
+		root.add_child(mi_shadow)
+		mi_shadow.owner = root
+		mi_shadow.mesh = quad_mesh.duplicate()
+		mi_shadow.name = "shadow-impostor"
+		mi_shadow.mesh.surface_set_material(0, shadow_mat)
 
 	var packed_scene: PackedScene = PackedScene.new()
 	packed_scene.pack(root)
@@ -119,4 +135,5 @@ func export_scene(mat: Material, texture_array: bool = false, shadow_only: bool 
 	else:
 		print("Imposter ready!")
 	generated_impostor = mi
+	generated_shadow_impostor = mi_shadow
 	return root

@@ -120,15 +120,13 @@ func bake():
 	var shader_mat := ShaderMaterial.new()
 	shader_mat.shader = profile.main_shader
 	exporter.scale_instance = scene_baker.get_camera().size / 2.0
-	yield(exporter.export_scene(shader_mat, false), "completed")
-	generated_impostor = exporter.generated_impostor
-
+	var shader_shadow_mat: ShaderMaterial = null
 	if create_shadow_mesh and profile.shadows_shader != null:
-		var shader_shadow_mat := ShaderMaterial.new()
+		shader_shadow_mat = ShaderMaterial.new()
 		shader_shadow_mat.shader = profile.shadows_shader
-		exporter.packedscene_filename = shadow_filename_prefix + exporter.packedscene_filename
-		yield(exporter.export_scene(shader_shadow_mat, false, true), "completed")
-		generated_shadow_impostor = exporter.generated_impostor
+	yield(exporter.export_scene(shader_mat, false, shader_shadow_mat), "completed")
+	generated_impostor = exporter.generated_impostor
+	generated_shadow_impostor = exporter.generated_shadow_impostor
 
 	remove_child(scene_to_bake)
 	print("Exporting impostor done.")

@@ -106,6 +106,7 @@ func set_scene_to_bake(node: Spatial) -> void:
 			create_frame_xy_scene(Vector2(x,y))
 	yield(get_tree(), "idle_frame")
 	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
 	var atlas_image = viewport.get_texture().get_data()
 	atlas_image.flip_y()
 	atlas_image.convert(Image.FORMAT_RGBAH)
