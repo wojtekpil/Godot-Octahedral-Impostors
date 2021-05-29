@@ -17,6 +17,10 @@ func is_dilatated() -> bool:
 	return true
 
 
+func recommended_scale_divider(image_dimmension: int) -> int:
+	return image_dimmension / 2
+
+
 func _cleanup_baking_material(material: Material) -> void:
 	material.set_shader_param("texture_albedo", null)
 	material.set_shader_param("ao_texture", null)

@@ -21,6 +21,10 @@ func image_format() -> int:
 	return Image.FORMAT_RGH
 
 
+func recommended_scale_divider(image_dimmension: int) -> int:
+	return image_dimmension / 2
+
+
 func _cleanup_baking_material(material: Material) -> void:
 	material.set_shader_param("texture_albedo", null)
 	material.set_shader_param("normal_texture", null)

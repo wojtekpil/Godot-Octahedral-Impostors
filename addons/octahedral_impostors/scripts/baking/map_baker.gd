@@ -24,7 +24,7 @@ func image_format() -> int:
     return Image.FORMAT_RGBA8
 
 
-func recommended_scale_divider(image_dimmension: Vector2) -> Vector2:
+func recommended_scale_divider(image_dimmension: int) -> int:
     return image_dimmension
 
 
