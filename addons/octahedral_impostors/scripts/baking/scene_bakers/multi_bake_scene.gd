@@ -97,6 +97,7 @@ func prepare_viewport(vp: Viewport) -> void:
 
 func set_scene_to_bake(node: Spatial) -> void:
 	var viewport = get_viewport()
+	viewport.render_target_update_mode = Viewport.UPDATE_ALWAYS
 	prepare_viewport(viewport)
 	if scene_to_bake:
 		scene_to_bake.queue_free()
@@ -115,6 +116,8 @@ func set_scene_to_bake(node: Spatial) -> void:
 
 
 func cleanup() -> void:
+	var viewport = get_viewport()
+	viewport.render_target_update_mode = Viewport.UPDATE_DISABLED
 	for n in $BakedContainer.get_children():
 		$BakedContainer.remove_child(n)
 
