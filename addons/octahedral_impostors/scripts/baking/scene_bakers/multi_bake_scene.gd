@@ -34,7 +34,6 @@ func update_scene_to_bake_transform() -> void:
 	# scale down for all frames
 	scene_to_bake.scale *= 1.0/float(frames_xy)
 	var aabb: AABB = get_scene_to_bake_aabb()
-
 	scene_to_bake.translation -= aabb.position + aabb.size / 2.0
 
 
@@ -54,7 +53,6 @@ func create_frame_xy_scene(frame: Vector2) -> void:
 	var normal := OctahedralUtils.grid_to_vector(uv_coord, is_full_sphere)
 
 	var d_baked_scene = scene_to_bake.duplicate()
-	d_baked_scene.translation = Vector3()
 	d_baked_scene.rotation = Vector3()
 	container.add_child(d_baked_scene)
 	container.add_child(cam_pos)
@@ -64,7 +62,7 @@ func create_frame_xy_scene(frame: Vector2) -> void:
 	cam_pos.show()
 	setup_camera_position(cam_pos, normal * camera_distance_scaled)
 	d_baked_scene.transform = cam_pos.transform.affine_inverse() * d_baked_scene.transform
-	d_baked_scene.global_transform.origin = Vector3(0,0,0)
+	d_baked_scene.global_transform.origin.z = 0
 	container.transform.origin = Vector3(0,0,0)
 	container.translation.x = (float(frames_xy)/2.0 - float(frame.x) -0.5 )* (-scale)
 	container.translation.y = (float(frames_xy)/2.0 - float(frame.y) -0.5 )* scale
