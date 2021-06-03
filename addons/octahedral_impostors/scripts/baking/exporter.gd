@@ -19,6 +19,7 @@ func rescan_filesystem():
 	var plugin_filesystem = plugin.get_editor_interface().get_resource_filesystem()
 	plugin_filesystem.scan()
 	print("Scanning filesystem...")
+	yield(get_tree(), "idle_frame")
 	while plugin_filesystem.is_scanning():
 		yield(get_tree(), "idle_frame")
 		if not is_inside_tree():
