@@ -9,6 +9,7 @@ var export_path := "res://"
 var frames_xy := 12
 var is_full_sphere := false
 var scale_instance := 1.0
+var position_offset := Vector3.ZERO
 var packedscene_filename := "impostor.tscn"
 
 var saved_maps := {}
@@ -96,6 +97,7 @@ func export_scene(mat: Material, texture_array: bool = false, shadow_mat: Materi
 	mat.set_shader_param("isFullSphere", is_full_sphere)
 	mat.set_shader_param("aabb_max", scale_instance/2.0)
 	mat.set_shader_param("scale", scale_instance)
+	mat.set_shader_param("positionOffset", position_offset)
 
 	if shadow_mat != null:
 		print("Creating shadow material...")
@@ -103,6 +105,7 @@ func export_scene(mat: Material, texture_array: bool = false, shadow_mat: Materi
 		shadow_mat.set_shader_param("isFullSphere", is_full_sphere)
 		shadow_mat.set_shader_param("aabb_max", -scale_instance/2.0)
 		shadow_mat.set_shader_param("scale", scale_instance)
+		shadow_mat.set_shader_param("positionOffset", position_offset)
 		mi_shadow.cast_shadow = GeometryInstance.SHADOW_CASTING_SETTING_SHADOWS_ONLY
 
 	print("Loading resources...")

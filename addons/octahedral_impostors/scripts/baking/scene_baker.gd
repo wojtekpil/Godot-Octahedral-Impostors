@@ -9,6 +9,11 @@ signal atlas_ready
 #baked atlas image will be read from here after signal
 var atlas_image: Image
 
+
+func get_pivot_translation() -> Vector3:
+    return Vector3.ZERO
+
+
 func set_atlas_image(img: Image) -> void:
     atlas_image = img
 

@@ -118,6 +118,8 @@ func bake():
 	yield(get_tree(), "idle_frame")
 	yield(get_tree(), "idle_frame")
 
+	exporter.position_offset = scene_baker.get_pivot_translation()
+
 	for mapbaker in profile.standard_map_bakers:
 		map_baker = mapbaker.new()
 		print("Baking: ", map_baker.get_name())

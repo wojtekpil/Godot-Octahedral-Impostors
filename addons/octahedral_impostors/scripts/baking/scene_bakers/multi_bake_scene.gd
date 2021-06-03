@@ -20,6 +20,11 @@ var camera_distance_scaled: float
 
 onready var baking_camera: Camera = $Camera
 
+
+func get_pivot_translation() -> Vector3:
+    return scene_to_bake.translation * (-1.0) * frames_xy
+
+
 func get_scene_to_bake_aabb(node := scene_to_bake) -> AABB:
 	var aabb := AABB(Vector3.ONE * 65536.0, -Vector3.ONE * 65536.0 * 2.0)
 	if node is GeometryInstance and not node is CSGShape:
